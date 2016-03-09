@@ -160,7 +160,11 @@ static uint16_t usbVcpDataRx(uint8_t* buf, uint32_t len) {
 extern uint8_t  USB_Tx_State;
 extern uint8_t  USB_DTE_Present;
 
+#ifdef __CROSSWORKS_ARM
+// do not include this file when compiling with gcc
 #include <__cross_studio_io.h>
+#endif
+
 void USBD_USR_Init(void) {
 }
 

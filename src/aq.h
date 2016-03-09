@@ -80,6 +80,16 @@
 
 #define AQ_US_PER_SEC		1000000
 
+#ifndef __float32_nan
+// __float32_nan is not defined with gcc
+#define __float32_nan 0.0f
+#endif
+
+#ifndef __CROSSWORKS_ARM
+// add missing defs for gcc
+#define __sqrtf sqrtf
+#endif
+
 #ifndef NAN
 #define NAN	__float32_nan
 #endif
