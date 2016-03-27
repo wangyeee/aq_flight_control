@@ -1,7 +1,7 @@
 # Hey Emacs, this is a -*- Makefile -*-
 
 # Makefile for AutoQuad Flight Controller firmware
-# All paths are relative to Makefile location.  Possible make targets:
+# All paths are relative to Makefile location. Possible make targets:
 #  all    build firmware .elf, .hex, and .bin binaries
 #  swd    attempt to flash firmware via ST-Link (linux only)
 #  dfu	  attempt to flash firmware via DFU-Util
@@ -10,6 +10,8 @@
 
 PROJ:=aq_gcc_v7.0_hwv
 TARGET:=$(PROJ)
+
+# Need to change this line to correct gcc installation path
 TOOLCHAIN_ROOT:=D:/apps/gcc-arm-none-eabi
 TOOLCHAIN_PATH:=$(TOOLCHAIN_ROOT)/bin
 TOOLCHAIN_PREFIX:=arm-none-eabi
@@ -21,12 +23,16 @@ AS=$(TOOLCHAIN_PATH)/$(TOOLCHAIN_PREFIX)-as
 AR=$(TOOLCHAIN_PATH)/$(TOOLCHAIN_PREFIX)-ar
 GDB=$(TOOLCHAIN_PATH)/$(TOOLCHAIN_PREFIX)-gdb
 
-#PROJ_ROOT=$(CURDIR)
-PROJ_ROOT=D:/docs/workspace/aq_flight_control
+PROJ_ROOT=$(CURDIR)
+#PROJ_ROOT=D:/docs/workspace/aq_flight_control
 
 # AQM4 v2 (v8.6)
-BRD_VER:=8
-BRD_REV:=6
+BRD_VER?=8
+BRD_REV?=6
+
+# Un-comment this to enable DIMU for AQ6
+#DIMU_VER:=11
+DIMU_VER?=0
 TARGET:=$(PROJ)$(BRD_VER).$(BRD_REV)
 
 BUILD_TYPE?=Release
@@ -253,6 +259,7 @@ CDEFS+=-D__FPU_USED=1
 CDEFS+=-DARM_MATH_CM4
 CDEFS+=-DBOARD_VERSION=$(BRD_VER)
 CDEFS+=-DBOARD_REVISION=$(BRD_REV)
+CDEFS+=-DDIMU_VERSION=$(DIMU_VER)
 
 MCUFLAGS=-mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -fsingle-precision-constant -finline-functions -Wdouble-promotion -std=gnu99
 COMMONFLAGS=-O$(OPTLVL) $(DBG) -Wall

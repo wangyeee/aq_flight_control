@@ -171,10 +171,14 @@ void supervisorCalibrate(void) {
 }
 
 void supervisorTare(void) {
+#ifdef HAS_DIGITAL_IMU  /* Fix issue linking with gcc */
     supervisorLEDsOn();
     dIMUTare();
     AQ_NOTICE("Level calibration complete.\n");
     supervisorLEDsOff();
+#else
+    AQ_NOTICE("Warning: Tare is only available with DIMU.\n");
+#endif
 }
 
 void supervisorTaskCode(void *unused) {
