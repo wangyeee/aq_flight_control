@@ -70,7 +70,7 @@ typedef struct {
     unsigned char len;
     unsigned char checkA, checkB;
     unsigned long checksumErrors;
-} commandStruct_t;
+} CC_ALIGNED commandStruct_t;
 
 extern commandStruct_t commandData;
 

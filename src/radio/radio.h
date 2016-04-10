@@ -86,7 +86,7 @@ typedef struct {
     uint8_t *binding;
 
     uint8_t mode;
-} radioStruct_t;
+} CC_ALIGNED radioStruct_t;
 
 extern radioStruct_t radioData;
 

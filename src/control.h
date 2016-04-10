@@ -58,7 +58,7 @@ typedef struct {
     pidStruct_t *yawAnglePID;
 
     unsigned long lastUpdate;		// time of raw data that this structure is based on
-} controlStruct_t;
+} CC_ALIGNED controlStruct_t;
 
 extern controlStruct_t controlData;
 

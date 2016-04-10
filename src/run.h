@@ -21,7 +21,7 @@
 
 #include <CoOS.h>
 
-#define RUN_TASK_SIZE		250
+#define RUN_TASK_SIZE		256
 #define RUN_PRIORITY		30
 
 #define RUN_SENSOR_HIST		10				// number of timesteps to average observation sensors' data
@@ -44,7 +44,7 @@ typedef struct {
     int sensorHistIndex;
     float *altPos;
     float *altVel;
-} runStruct_t;
+} CC_ALIGNED runStruct_t;
 
 extern runStruct_t runData;
 

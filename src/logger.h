@@ -153,7 +153,7 @@ typedef struct {
     uint16_t packetSize;
     uint8_t numFields;
     uint8_t logHandle;
-} loggerStruct_t;
+} CC_ALIGNED loggerStruct_t;
 
 extern loggerStruct_t loggerData;
 extern void loggerInit(void);

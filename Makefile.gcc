@@ -4,7 +4,7 @@
 # All paths are relative to Makefile location. Possible make targets:
 #  all    build firmware .elf, .hex, and .bin binaries
 #  swd    attempt to flash firmware via ST-Link (linux only)
-#  dfu	  attempt to flash firmware via DFU-Util
+#  dfu    attempt to flash firmware via DFU-Util
 #  sfl    attempt to flash firmware via serial bootloader
 #  clean  delete all built objects (not binaries or archives)
 
@@ -262,11 +262,11 @@ CDEFS+=-DBOARD_REVISION=$(BRD_REV)
 CDEFS+=-DDIMU_VERSION=$(DIMU_VER)
 
 MCUFLAGS=-mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -fsingle-precision-constant -finline-functions -Wdouble-promotion -std=gnu99
-COMMONFLAGS=-O$(OPTLVL) $(DBG) -Wall
+COMMONFLAGS=-O$(OPTLVL) $(DBG) -Wall -ffunction-sections -fdata-sections
 CFLAGS=$(COMMONFLAGS) $(MCUFLAGS) $(INCLUDE) $(CDEFS)
 
 LDLIBS=-lm -lc -lgcc
-LDFLAGS=$(MCUFLAGS) -u _scanf_float -u _printf_float -fno-exceptions -ffunction-sections -fdata-sections -Wl,--gc-sections,-T$(LINKER_SCRIPT)
+LDFLAGS=$(MCUFLAGS) -u _scanf_float -u _printf_float -fno-exceptions -Wl,--gc-sections,-T$(LINKER_SCRIPT)
 
 OBJ = $(SRC:%.c=$(BUILD_DIR)/%.o)
 

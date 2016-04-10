@@ -203,7 +203,7 @@ typedef struct {
 
     unsigned char ubloxTxCK_A;
     unsigned char ubloxTxCK_B;
-} ubloxStruct_t;
+} CC_ALIGNED ubloxStruct_t;
 
 extern unsigned char ubloxCharIn(unsigned char c);
 extern void ubloxInit(void);

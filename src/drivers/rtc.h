@@ -35,7 +35,7 @@ typedef struct {
     uint32_t asyncPrediv, syncPrediv;
     volatile unsigned long captureLSI[2];
     volatile int captureNumber;
-} rtcStruct_t;
+} CC_ALIGNED rtcStruct_t;
 
 extern rtcStruct_t rtcData;
 

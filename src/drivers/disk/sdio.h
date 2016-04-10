@@ -345,7 +345,7 @@ typedef struct {
     uint32_t errCount;
     sdioCallback_t *callbackFunc;
     uint32_t callbackParam;
-} sdioStruct_t;
+} CC_ALIGNED sdioStruct_t;
 
 extern void sdioLowLevelInit(void);
 extern void sdioSetCallback(sdioCallback_t *func, uint32_t param);

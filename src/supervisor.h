@@ -107,7 +107,7 @@ typedef struct {
     uint8_t configRead;
     float idlePercent;
     unsigned long lastIdleCounter;
-} supervisorStruct_t;
+} CC_ALIGNED supervisorStruct_t;
 
 extern supervisorStruct_t supervisorData;
 

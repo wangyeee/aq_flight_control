@@ -140,7 +140,7 @@ typedef struct {
     uint8_t hasMissionLeg:1;
     // padding bits: 10
 
-} navStruct_t;
+} CC_ALIGNED navStruct_t;
 
 extern navStruct_t navData;
 

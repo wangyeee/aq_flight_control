@@ -43,7 +43,7 @@ typedef struct {
     pwmPortStruct_t *tiltPort;
     pwmPortStruct_t *triggerPort;
     pwmPortStruct_t *passthroughPort;
-} gimbalStruct_t;
+} CC_ALIGNED gimbalStruct_t;
 
 extern gimbalStruct_t gimbalData;
 

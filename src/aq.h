@@ -88,6 +88,9 @@
 #ifndef __CROSSWORKS_ARM
 // add missing defs for gcc
 #define __sqrtf sqrtf
+#define CC_ALIGNED __attribute__ ((aligned (8)))
+#else
+#define CC_ALIGNED
 #endif
 
 #ifndef NAN

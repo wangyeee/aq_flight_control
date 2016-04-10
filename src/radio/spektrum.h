@@ -28,7 +28,7 @@ typedef struct {
     uint32_t lastCharReceived;
     uint8_t rawBuf[16];
     uint8_t state;
-} spektrumStruct_t;
+} CC_ALIGNED spektrumStruct_t;
 
 extern void spektrumInit(radioInstance_t *r, USART_TypeDef *uart);
 extern uint8_t spektrumCharIn(radioInstance_t *r, int c);

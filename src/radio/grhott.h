@@ -41,7 +41,7 @@ typedef struct {
     uint8_t nb_channel;
     uint8_t dataCount;
     uint8_t rawBuf[32];
-} grhottStruct_t;
+} CC_ALIGNED grhottStruct_t;
 
 extern grhottStruct_t grhottData;
 

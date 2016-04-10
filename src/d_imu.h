@@ -30,7 +30,7 @@
 #include "ms5611.h"
 #include "max21100.h"
 
-#define DIMU_STACK_SIZE	    248     // must be evenly divisible by 8
+#define DIMU_STACK_SIZE	    384     // must be evenly divisible by 8
 #define DIMU_PRIORITY	    11
 
 #define DIMU_OUTER_PERIOD   5000			    // us (200 Hz)
@@ -65,7 +65,7 @@ typedef struct {
     volatile uint32_t lastUpdate;
 
     uint8_t calibReadWriteFlag;		// 0=no request, 1=read request, 2=write request
-} dImuStruct_t;
+} CC_ALIGNED dImuStruct_t;
 
 extern dImuStruct_t dImuData;
 

@@ -88,7 +88,7 @@ typedef struct {
     uint8_t logHandle;
     uint16_t head;
 #endif
-} motorsStruct_t;
+} CC_ALIGNED motorsStruct_t;
 
 extern motorsStruct_t motorsData;
 
