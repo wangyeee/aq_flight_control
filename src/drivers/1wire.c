@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #include "1wire.h"
@@ -45,7 +45,7 @@ uint8_t owTransaction(int8_t write, int8_t read) {
 
     owTransactionISR(OW_STATE_0);
     while (owData.status == OW_STATUS_BUSY)
-	;
+        ;
 
     return owData.status;
 }
@@ -71,149 +71,142 @@ void owInit(GPIO_TypeDef* port, const uint16_t pin) {
 
 void owResetISR(int state) {
     switch (state) {
-	case OW_STATE_0:
-	    owLo();
-	    timerSetAlarm1(490, owResetISR, OW_STATE_1);
-	break;
+    case OW_STATE_0:
+        owLo();
+        timerSetAlarm1(490, owResetISR, OW_STATE_1);
+        break;
 
-	case OW_STATE_1:
-	    owPinIn();
-	    timerSetAlarm1(60, owResetISR, OW_STATE_2);
-	break;
+    case OW_STATE_1:
+        owPinIn();
+        timerSetAlarm1(60, owResetISR, OW_STATE_2);
+        break;
 
-	case OW_STATE_2:
-	    owData.present = !(owRead() & 0x01);
-	    timerSetAlarm1(60, owResetISR, OW_STATE_3);
-	break;
+    case OW_STATE_2:
+        owData.present = !(owRead() & 0x01);
+        timerSetAlarm1(60, owResetISR, OW_STATE_3);
+        break;
 
-	case OW_STATE_3:
-	    owPinOut();
-	break;
+    case OW_STATE_3:
+        owPinOut();
+        break;
     }
 }
 
 void owReadBitISR(int state) {
     switch (state) {
-	case OW_STATE_0:
-	    owLo();
-	    timerSetAlarm1(2, owReadBitISR, OW_STATE_1);
-	break;
+    case OW_STATE_0:
+        owLo();
+        timerSetAlarm1(2, owReadBitISR, OW_STATE_1);
+        break;
 
-	case OW_STATE_1:
-	    owPinIn();
-	    timerSetAlarm1(10, owReadBitISR, OW_STATE_2);
-	break;
+    case OW_STATE_1:
+        owPinIn();
+        timerSetAlarm1(10, owReadBitISR, OW_STATE_2);
+        break;
 
-	case OW_STATE_2:
-	    owData.bitValue = owRead();
-	    timerSetAlarm1(25, owReadBitISR, OW_STATE_3);
-	break;
+    case OW_STATE_2:
+        owData.bitValue = owRead();
+        timerSetAlarm1(25, owReadBitISR, OW_STATE_3);
+        break;
 
-	case OW_STATE_3:
-	    owPinOut();
-	break;
+    case OW_STATE_3:
+        owPinOut();
+        break;
     }
 }
 
 void owWriteBit1ISR(int state) {
     switch (state) {
-	case OW_STATE_0:
-	    owLo();
-	    timerSetAlarm1(2, owWriteBit1ISR, OW_STATE_1);
-	break;
+    case OW_STATE_0:
+        owLo();
+        timerSetAlarm1(2, owWriteBit1ISR, OW_STATE_1);
+        break;
 
-	case OW_STATE_1:
-	    owHi();
-	    timerSetAlarm1(60, owWriteBit1ISR, OW_STATE_2);
-	break;
+    case OW_STATE_1:
+        owHi();
+        timerSetAlarm1(60, owWriteBit1ISR, OW_STATE_2);
+        break;
 
-	case OW_STATE_2:
-	break;
+    case OW_STATE_2:
+        break;
     }
 }
 
 void owWriteBit0ISR(int state) {
     switch (state) {
-	case OW_STATE_0:
-	    owLo();
-	    timerSetAlarm1(60, owWriteBit0ISR, OW_STATE_1);
-	break;
+    case OW_STATE_0:
+        owLo();
+        timerSetAlarm1(60, owWriteBit0ISR, OW_STATE_1);
+        break;
 
-	case OW_STATE_1:
-	    owHi();
-	break;
+    case OW_STATE_1:
+        owHi();
+        break;
     }
 }
 
 void owReadByteISR(int bit) {
     if (bit < 0) {
-	owData.byteValue = 0;
-	owReadBitISR(OW_STATE_0);
-	timerSetAlarm2(65, owReadByteISR, bit+1);
-    }
-    else {
-	owData.byteValue |= (owData.bitValue<<bit);
-	if (bit < 7) {
-	    owReadBitISR(OW_STATE_0);
-	    timerSetAlarm2(65, owReadByteISR, bit+1);
-	}
+        owData.byteValue = 0;
+        owReadBitISR(OW_STATE_0);
+        timerSetAlarm2(65, owReadByteISR, bit+1);
+    } else {
+        owData.byteValue |= (owData.bitValue<<bit);
+        if (bit < 7) {
+            owReadBitISR(OW_STATE_0);
+            timerSetAlarm2(65, owReadByteISR, bit+1);
+        }
     }
 }
 
 void owWriteByteISR(int bit) {
     bit++;
     if (bit < 8) {
-	if ((owData.byteValue>>bit) & 0x01)
-	    owWriteBit1ISR(OW_STATE_0);
-	else
-	    owWriteBit0ISR(OW_STATE_0);
+        if ((owData.byteValue>>bit) & 0x01)
+            owWriteBit1ISR(OW_STATE_0);
+        else
+            owWriteBit0ISR(OW_STATE_0);
 
-	timerSetAlarm2(65, owWriteByteISR, bit);
+        timerSetAlarm2(65, owWriteByteISR, bit);
     }
 }
 
 void owTransactionISR(int state) {
     if (state == OW_STATE_0) {
-	owData.present = 0;
-	owData.status = OW_STATUS_BUSY;
-	owResetISR(OW_STATE_0);
-	timerSetAlarm3(1000, owTransactionISR, OW_STATE_1);
-    }
-    else if (state == OW_STATE_1) {
-	if (!owData.present) {
-	    owData.status = OW_STATUS_NO_PRESENSE;
-	    return;
-	}
-	else {
-	    owData.byteValue = OW_ROM_SKIP;
-	    owData.ptr = owData.buf;
-	    owWriteByteISR(-1);
-	    timerSetAlarm3(600, owTransactionISR, OW_STATE_2);
-	}
-    }
-    else if (owData.writeBytes > 0) {
-	owData.byteValue = *owData.ptr++;
-	owData.writeBytes--;
-	owWriteByteISR(-1);
-	timerSetAlarm3(600, owTransactionISR, OW_STATE_2);
+        owData.present = 0;
+        owData.status = OW_STATUS_BUSY;
+        owResetISR(OW_STATE_0);
+        timerSetAlarm3(1000, owTransactionISR, OW_STATE_1);
+    } else if (state == OW_STATE_1) {
+        if (!owData.present) {
+            owData.status = OW_STATUS_NO_PRESENSE;
+            return;
+        } else {
+            owData.byteValue = OW_ROM_SKIP;
+            owData.ptr = owData.buf;
+            owWriteByteISR(-1);
+            timerSetAlarm3(600, owTransactionISR, OW_STATE_2);
+        }
+    } else if (owData.writeBytes > 0) {
+        owData.byteValue = *owData.ptr++;
+        owData.writeBytes--;
+        owWriteByteISR(-1);
+        timerSetAlarm3(600, owTransactionISR, OW_STATE_2);
 
-	if (owData.writeBytes == 0)
-	    owData.ptr = owData.buf;
-    }
-    else if (owData.readBytes > -1) {
-	owData.readBytes--;
-	if (state == OW_STATE_3) {
-	    *owData.ptr++ = owData.byteValue;
-	}
-	if (owData.readBytes > -1) {
-	    owReadByteISR(-1);
-	    timerSetAlarm3(600, owTransactionISR, OW_STATE_3);
-	}
-	else {
-	    owData.status = OW_STATUS_COMPLETE;
-	}
-    }
-    else {
-	owData.status = OW_STATUS_COMPLETE;
+        if (owData.writeBytes == 0)
+            owData.ptr = owData.buf;
+    } else if (owData.readBytes > -1) {
+        owData.readBytes--;
+        if (state == OW_STATE_3) {
+            *owData.ptr++ = owData.byteValue;
+        }
+        if (owData.readBytes > -1) {
+            owReadByteISR(-1);
+            timerSetAlarm3(600, owTransactionISR, OW_STATE_3);
+        } else {
+            owData.status = OW_STATUS_COMPLETE;
+        }
+    } else {
+        owData.status = OW_STATUS_COMPLETE;
     }
 }

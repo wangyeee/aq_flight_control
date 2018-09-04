@@ -41,8 +41,6 @@
   * @brief This file is the Header file for usbd_bot.c
   * @{
   */
-
-
 /** @defgroup USBD_CORE_Exported_Defines
   * @{
   */
@@ -66,8 +64,6 @@
 #define BOT_STATE_NORMAL              0
 #define BOT_STATE_RECOVERY            1
 #define BOT_STATE_ERROR               2
-
-
 #define DIR_IN                        0
 #define DIR_OUT                       1
 #define BOTH_DIR                      2
@@ -80,33 +76,27 @@
   * @{
   */
 
-typedef struct _MSC_BOT_CBW
-{
-  uint32_t dSignature;
-  uint32_t dTag;
-  uint32_t dDataLength;
-  uint8_t  bmFlags;
-  uint8_t  bLUN;
-  uint8_t  bCBLength;
-  uint8_t  CB[16];
+typedef struct _MSC_BOT_CBW {
+    uint32_t dSignature;
+    uint32_t dTag;
+    uint32_t dDataLength;
+    uint8_t  bmFlags;
+    uint8_t  bLUN;
+    uint8_t  bCBLength;
+    uint8_t  CB[16];
 }
 MSC_BOT_CBW_TypeDef;
-
-
-typedef struct _MSC_BOT_CSW
-{
-  uint32_t dSignature;
-  uint32_t dTag;
-  uint32_t dDataResidue;
-  uint8_t  bStatus;
+typedef struct _MSC_BOT_CSW {
+    uint32_t dSignature;
+    uint32_t dTag;
+    uint32_t dDataResidue;
+    uint8_t  bStatus;
 }
 MSC_BOT_CSW_TypeDef;
 
 /**
   * @}
   */
-
-
 /** @defgroup USBD_CORE_Exported_Types
   * @{
   */
@@ -134,7 +124,7 @@ void MSC_BOT_DataOut (USB_OTG_CORE_HANDLE  *pdev,
                       uint8_t epnum);
 
 void MSC_BOT_SendCSW (USB_OTG_CORE_HANDLE  *pdev,
-                             uint8_t CSW_Status);
+                      uint8_t CSW_Status);
 
 void  MSC_BOT_CplClrFeature (USB_OTG_CORE_HANDLE  *pdev,
                              uint8_t epnum);

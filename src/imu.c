@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #include "imu.h"
@@ -35,22 +35,22 @@ void imuQuasiStatic(int n) {
     i = 0;
     j = 0;
     do {
-	lastUpdate = IMU_LASTUPD;
-	while (lastUpdate == IMU_LASTUPD)
-	    ;
+        lastUpdate = IMU_LASTUPD;
+        while (lastUpdate == IMU_LASTUPD)
+            ;
 
-	vX[j] = IMU_ACCX;
-	vY[j] = IMU_ACCY;
-	vZ[j] = IMU_ACCZ;
-	j = (j + 1) % n;
+        vX[j] = IMU_ACCX;
+        vY[j] = IMU_ACCY;
+        vZ[j] = IMU_ACCZ;
+        j = (j + 1) % n;
 
-	if (i >= n) {
-	    arm_std_f32(vX, n, &stdX);
-	    arm_std_f32(vY, n, &stdY);
-	    arm_std_f32(vZ, n, &stdZ);
-	}
+        if (i >= n) {
+            arm_std_f32(vX, n, &stdX);
+            arm_std_f32(vY, n, &stdY);
+            arm_std_f32(vZ, n, &stdZ);
+        }
 
-	i++;
+        i++;
     } while (i < (int)(1.0f / AQ_OUTER_TIMESTEP)*IMU_STATIC_TIMEOUT && (i <= n || (stdX + stdY + stdZ) > IMU_STATIC_STD));
 }
 
@@ -69,7 +69,7 @@ void imuInit(void) {
     imuData.dRateFlag = CoCreateFlag(1, 0);
     imuData.sensorFlag = CoCreateFlag(1, 0);
 
-     // calculate IMU rotation
+    // calculate IMU rotation
     imuCalcRot();
 
 #ifdef HAS_AIMU
@@ -78,7 +78,7 @@ void imuInit(void) {
 
 #ifdef HAS_DIGITAL_IMU
     dIMUInit();
-#endif	// HAS_DIGITAL_IMU
+#endif // HAS_DIGITAL_IMU
 }
 
 void imuAdcDRateReady(void) {
@@ -99,12 +99,12 @@ void imuDImuDRateReady(void) {
 #ifdef USE_DIGITAL_IMU
     imuData.halfUpdates++;
     CoSetFlag(imuData.dRateFlag);
-#endif	// USE_DIGITAL_IMU
+#endif // USE_DIGITAL_IMU
 }
 
 void imuDImuSensorReady(void) {
 #ifdef USE_DIGITAL_IMU
     imuData.fullUpdates++;
     CoSetFlag(imuData.sensorFlag);
-#endif	// USE_DIGITAL_IMU
+#endif // USE_DIGITAL_IMU
 }

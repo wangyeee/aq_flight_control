@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #ifndef _aq_math_h
@@ -41,7 +41,8 @@ extern void matrixInit(arm_matrix_instance_f32 *m, int rows, int cols);
 extern void matrixFree(arm_matrix_instance_f32 *m);
 extern void matrixDump(char *name, arm_matrix_instance_f32 *m);
 extern int qrDecompositionT_f32(arm_matrix_instance_f32 *A, arm_matrix_instance_f32 *Q, arm_matrix_instance_f32 *R);
-extern void matrixDiv_f32(arm_matrix_instance_f32 *X, arm_matrix_instance_f32 *A, arm_matrix_instance_f32 *B, arm_matrix_instance_f32 *Q, arm_matrix_instance_f32 *R, arm_matrix_instance_f32 *AQ);
+extern void matrixDiv_f32(arm_matrix_instance_f32 *X, arm_matrix_instance_f32 *A, arm_matrix_instance_f32 *B, arm_matrix_instance_f32 *Q,
+                          arm_matrix_instance_f32 *R, arm_matrix_instance_f32 *AQ);
 extern void quatMultiply(float32_t *qr, float32_t *q1, float32_t *q2);
 extern void eulerToQuatYPR(float32_t *q, float32_t yaw, float32_t pitch, float32_t roll);
 extern void eulerToQuatRPY(float32_t *q, float32_t roll, float32_t pitch, float32_t yaw);

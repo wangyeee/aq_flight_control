@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #ifndef _spi_h
@@ -21,10 +21,10 @@
 
 #include "digital.h"
 
-#define SPI_BAUD_MASK		    (~((int16_t)0b111<<3))
+#define SPI_BAUD_MASK      (~((int16_t)0b111<<3))
 
 #define SPI_SLOTS               5
-#define SPI_MAX_TXN_TIME	    30	    // us
+#define SPI_MAX_TXN_TIME     30     // us
 
 typedef void spiCallback_t(int);
 
@@ -61,7 +61,8 @@ typedef struct {
 extern spiStruct_t spiData[];
 
 extern uint8_t spiWriteByte(spiClient_t *spi, uint8_t val);
-extern spiClient_t *spiClientInit(SPI_TypeDef *spi, uint16_t baud, uint8_t invert, GPIO_TypeDef *csPort, uint16_t csPin, volatile uint32_t *flag, spiCallback_t *callback);
+extern spiClient_t *spiClientInit(SPI_TypeDef *spi, uint16_t baud, uint8_t invert, GPIO_TypeDef *csPort, uint16_t csPin, volatile uint32_t *flag,
+                                  spiCallback_t *callback);
 extern void spiChangeBaud(spiClient_t *spi, uint16_t baud);
 extern void spiChangeCallback(spiClient_t *client, spiCallback_t *callback);
 extern void spiTransaction(spiClient_t *client, volatile void *rxBuf, void *txBuf, uint16_t size);

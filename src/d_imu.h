@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #ifndef _digital_imu_h
@@ -30,23 +30,23 @@
 #include "ms5611.h"
 #include "max21100.h"
 
-#define DIMU_STACK_SIZE	    384     // must be evenly divisible by 8
-#define DIMU_PRIORITY	    11
+#define DIMU_STACK_SIZE     384     // must be evenly divisible by 8
+#define DIMU_PRIORITY     11
 
-#define DIMU_OUTER_PERIOD   5000			    // us (200 Hz)
-#define DIMU_INNER_PERIOD   2500			    // us (400 Hz)
-#define DIMU_OUTER_DT	    ((float)DIMU_OUTER_PERIOD / 1e6f)
-#define DIMU_INNER_DT	    ((float)DIMU_INNER_PERIOD / 1e6f)
-#define DIMU_TEMP_TAU	    5.0f
+#define DIMU_OUTER_PERIOD   5000       // us (200 Hz)
+#define DIMU_INNER_PERIOD   2500       // us (400 Hz)
+#define DIMU_OUTER_DT     ((float)DIMU_OUTER_PERIOD / 1e6f)
+#define DIMU_INNER_DT     ((float)DIMU_INNER_PERIOD / 1e6f)
+#define DIMU_TEMP_TAU     5.0f
 
-#define DIMU_TIM	    TIM12
-#define DIMU_CLOCK	    (rccClocks.PCLK1_Frequency * 2)
-#define DIMU_EN		    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM12, ENABLE)
-#define DIMU_IRQ_CH	    TIM8_BRK_TIM12_IRQn
-#define DIMU_ISR	    TIM8_BRK_TIM12_IRQHandler
+#define DIMU_TIM     TIM12
+#define DIMU_CLOCK     (rccClocks.PCLK1_Frequency * 2)
+#define DIMU_EN      RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM12, ENABLE)
+#define DIMU_IRQ_CH     TIM8_BRK_TIM12_IRQn
+#define DIMU_ISR     TIM8_BRK_TIM12_IRQHandler
 
 #ifndef __rev16
-    #define __rev16 __REV16
+#define __rev16 __REV16
 #endif
 
 typedef void dIMUCallback_t(int);
@@ -64,7 +64,7 @@ typedef struct {
     uint16_t nextPeriod;
     volatile uint32_t lastUpdate;
 
-    uint8_t calibReadWriteFlag;		// 0=no request, 1=read request, 2=write request
+    uint8_t calibReadWriteFlag;  // 0=no request, 1=read request, 2=write request
 } CC_ALIGNED dImuStruct_t;
 
 extern dImuStruct_t dImuData;

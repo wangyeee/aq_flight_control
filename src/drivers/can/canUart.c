@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #include "canUart.h"
@@ -90,12 +90,10 @@ void canUartStream(void) {
                     canUartData[i].txTail = canUartData[i].txHead;
 
                     txCallback(txCallbackParam);
-                }
-                else {
+                } else {
                     canUartData[i].txTail += sent;
                 }
-            }
-            else {
+            } else {
                 finished++;
             }
         }

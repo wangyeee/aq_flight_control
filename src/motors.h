@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #ifndef _motors_h
@@ -24,23 +24,23 @@
 #include "pwm.h"
 #include "esc32.h"
 
-#define MOTORS_CELL_VOLTS	    3.7f
-#define MOTORS_THROTTLE_LIMITER	    0.15f
-#define MOTORS_SCALE		    ((1<<12) - 1)    // internal, unitless scale of motor output (0 -> 4095)
-#define MOTORS_NUM		    16
+#define MOTORS_CELL_VOLTS     3.7f
+#define MOTORS_THROTTLE_LIMITER     0.15f
+#define MOTORS_SCALE      ((1<<12) - 1)    // internal, unitless scale of motor output (0 -> 4095)
+#define MOTORS_NUM      16
 
-#define MOTORS_CAN_GROUP_SIZE	    4
-#define MOTORS_CAN_TELEM_RATE	    100		    // Hz
+#define MOTORS_CAN_GROUP_SIZE     4
+#define MOTORS_CAN_TELEM_RATE     100      // Hz
 
-#define MOTORS_COMP_PRELOAD_TAU	    0.3f//0.4f
+#define MOTORS_COMP_PRELOAD_TAU     0.3f//0.4f
 #define MOTORS_COMP_PRELOAD_PTERM   3.0f//3.5f
 #define MOTORS_COMP_PRELOAD_NFACT   2.0f//3.0f
 
-#define MOTORS_ESC_TYPE		    ((uint32_t)p[MOT_ESC_TYPE] & 0x0FFFFF)  // actual ESC type, ignore calibration bits
+#define MOTORS_ESC_TYPE      ((uint32_t)p[MOT_ESC_TYPE] & 0x0FFFFF)  // actual ESC type, ignore calibration bits
 #ifdef HAS_QUATOS
-    #define USE_QUATOS		    (int)p[QUATOS_ENABLE]
+#define USE_QUATOS      (int)p[QUATOS_ENABLE]
 #else
-    #define USE_QUATOS		    0
+#define USE_QUATOS      0
 #endif
 
 //#define MOTORS_CAN_LOGGING          256             // number of records in log buffer, comment out to disable logging
@@ -73,7 +73,8 @@ typedef struct {
     esc32CanStatus_t canStatus[MOTORS_NUM];
     uint32_t canStatusTime[MOTORS_NUM];
     uint32_t canTelemReqTime[MOTORS_NUM];
-    pwmPortStruct_t *pwm[14];           // max number on any board yet -- array size cannot be variable (PWM_NUM_PORTS) due to Quatos library compatibility constraints
+    pwmPortStruct_t
+    *pwm[14];           // max number on any board yet -- array size cannot be variable (PWM_NUM_PORTS) due to Quatos library compatibility constraints
     uint16_t esc32Version[MOTORS_NUM];  // currently only storing this if using CAN
     uint16_t value[MOTORS_NUM];
     float thrust[MOTORS_NUM];

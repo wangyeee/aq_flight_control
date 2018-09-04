@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #include "usb.h"
@@ -39,28 +39,28 @@ CDC_IF_Prop_TypeDef VCP_fops = {
 };
 
 USBD_Usr_cb_TypeDef USR_cb = {
-  USBD_USR_Init,
-  USBD_USR_DeviceReset,
-  USBD_USR_DeviceConfigured,
-  USBD_USR_DeviceSuspended,
-  USBD_USR_DeviceResumed,
-  USBD_USR_DeviceConnected,
-  USBD_USR_DeviceDisconnected,
+    USBD_USR_Init,
+    USBD_USR_DeviceReset,
+    USBD_USR_DeviceConfigured,
+    USBD_USR_DeviceSuspended,
+    USBD_USR_DeviceResumed,
+    USBD_USR_DeviceConnected,
+    USBD_USR_DeviceDisconnected,
 };
 
 // These are external variables imported from CDC core to be used for IN
 // transfer management.
-extern uint8_t APP_Rx_Buffer[];	    // Write CDC received data in this buffer.
-				    //   These data will be sent over USB IN endpoint
-				    //   in the CDC core functions.
-extern uint32_t APP_Rx_ptr_in;	    // Increment this pointer or roll it back to
-				    //   start address when writing received data
-				    //   in the buffer APP_Rx_Buffer.
+extern uint8_t APP_Rx_Buffer[];     // Write CDC received data in this buffer.
+//   These data will be sent over USB IN endpoint
+//   in the CDC core functions.
+extern uint32_t APP_Rx_ptr_in;     // Increment this pointer or roll it back to
+//   start address when writing received data
+//   in the buffer APP_Rx_Buffer.
 
 #ifdef USB_OTG_HS_INTERNAL_DMA_ENABLED
-  #if defined ( __ICCARM__ ) /*!< IAR Compiler */
-    #pragma data_alignment=4
-  #endif
+#if defined ( __ICCARM__ ) /*!< IAR Compiler */
+#pragma data_alignment=4
+#endif
 #endif /* USB_OTG_HS_INTERNAL_DMA_ENABLED */
 
 __ALIGN_BEGIN USB_OTG_CORE_HANDLE    USB_OTG_dev __ALIGN_END ;
@@ -70,13 +70,13 @@ usbStruct_t usbData __attribute__((section(".ccm")));
 void usbInit(void) {
     USBD_Init(&USB_OTG_dev,
 #ifdef USE_USB_OTG_HS
-			    USB_OTG_HS_CORE_ID,
+              USB_OTG_HS_CORE_ID,
 #else
-			    USB_OTG_FS_CORE_ID,
+              USB_OTG_FS_CORE_ID,
 #endif
-			    &USR_desc,
-			    &USBD_CDC_MSC_cb,
-			    &USR_cb);
+              &USR_desc,
+              &USBD_CDC_MSC_cb,
+              &USR_cb);
 }
 
 static uint16_t usbVcpInit(void) {
@@ -89,45 +89,45 @@ static uint16_t usbVcpDeInit(void) {
 
 static uint16_t usbVcpCtrl(uint32_t Cmd, uint8_t* Buf, uint32_t Len) {
     switch (Cmd) {
-	case SET_LINE_CODING:
-	    usbData.lineCoding.bitrate = (uint32_t)(Buf[0] | (Buf[1] << 8) | (Buf[2] << 16) | (Buf[3] << 24));
-	    usbData.lineCoding.format = Buf[4];
-	    usbData.lineCoding.parityType = Buf[5];
-	    usbData.lineCoding.dataType = Buf[6];
+    case SET_LINE_CODING:
+        usbData.lineCoding.bitrate = (uint32_t)(Buf[0] | (Buf[1] << 8) | (Buf[2] << 16) | (Buf[3] << 24));
+        usbData.lineCoding.format = Buf[4];
+        usbData.lineCoding.parityType = Buf[5];
+        usbData.lineCoding.dataType = Buf[6];
 
-	    switch (usbData.lineCoding.bitrate) {
+        switch (usbData.lineCoding.bitrate) {
 #ifdef HAS_AQ_TELEMETRY
-		case USB_STREAM_TELEMETRY:
-		    commSetStreamType(COMM_USB_PORT, COMM_STREAM_TYPE_TELEMETRY);
-		    break;
+        case USB_STREAM_TELEMETRY:
+            commSetStreamType(COMM_USB_PORT, COMM_STREAM_TYPE_TELEMETRY);
+            break;
 #endif
 
-		case USB_STREAM_MAVLINK:
-		    commSetStreamType(COMM_USB_PORT, COMM_STREAM_TYPE_MAVLINK);
-		    break;
+        case USB_STREAM_MAVLINK:
+            commSetStreamType(COMM_USB_PORT, COMM_STREAM_TYPE_MAVLINK);
+            break;
 
-		case USB_STREAM_GPS:
-		    commSetStreamType(COMM_USB_PORT, COMM_STREAM_TYPE_GPS);
-		    break;
+        case USB_STREAM_GPS:
+            commSetStreamType(COMM_USB_PORT, COMM_STREAM_TYPE_GPS);
+            break;
 
-		default:
-		    commSetStreamType(COMM_USB_PORT, COMM_STREAM_TYPE_MAVLINK);
-		    break;
-	    }
-	    break;
+        default:
+            commSetStreamType(COMM_USB_PORT, COMM_STREAM_TYPE_MAVLINK);
+            break;
+        }
+        break;
 
-	case GET_LINE_CODING:
-	    Buf[0] = (uint8_t)(usbData.lineCoding.bitrate);
-	    Buf[1] = (uint8_t)(usbData.lineCoding.bitrate >> 8);
-	    Buf[2] = (uint8_t)(usbData.lineCoding.bitrate >> 16);
-	    Buf[3] = (uint8_t)(usbData.lineCoding.bitrate >> 24);
-	    Buf[4] = usbData.lineCoding.format;
-	    Buf[5] = usbData.lineCoding.parityType;
-	    Buf[6] = usbData.lineCoding.dataType;
-	    break;
+    case GET_LINE_CODING:
+        Buf[0] = (uint8_t)(usbData.lineCoding.bitrate);
+        Buf[1] = (uint8_t)(usbData.lineCoding.bitrate >> 8);
+        Buf[2] = (uint8_t)(usbData.lineCoding.bitrate >> 16);
+        Buf[3] = (uint8_t)(usbData.lineCoding.bitrate >> 24);
+        Buf[4] = usbData.lineCoding.format;
+        Buf[5] = usbData.lineCoding.parityType;
+        Buf[6] = usbData.lineCoding.dataType;
+        break;
 
-	default:
-	break;
+    default:
+        break;
     }
 
     return USBD_OK;
@@ -138,7 +138,7 @@ static uint16_t usbVcpDataTx(uint8_t* buf, uint32_t len) {
     int i;
 
     for (i = 0; i < len; i++)
-	APP_Rx_Buffer[ptr++ & (APP_RX_DATA_SIZE-1)] = buf[i];
+        APP_Rx_Buffer[ptr++ & (APP_RX_DATA_SIZE-1)] = buf[i];
 
     APP_Rx_ptr_in = ptr % APP_RX_DATA_SIZE;
 
@@ -150,7 +150,7 @@ static uint16_t usbVcpDataRx(uint8_t* buf, uint32_t len) {
     int i;
 
     for (i = 0; i < len; i++)
-	usbData.rxBuf[ptr++ & (USB_RX_BUFSIZE-1)] = buf[i];
+        usbData.rxBuf[ptr++ & (USB_RX_BUFSIZE-1)] = buf[i];
 
     usbData.rxBufHead = ptr % USB_RX_BUFSIZE;
 
@@ -200,8 +200,8 @@ uint8_t usbRx(void) {
     uint8_t ch = 0;
 
     if (usbAvailable()) {
-	ch = usbData.rxBuf[usbData.rxBufTail];
-	usbData.rxBufTail = (usbData.rxBufTail + 1) % USB_RX_BUFSIZE;
+        ch = usbData.rxBuf[usbData.rxBufTail];
+        usbData.rxBufTail = (usbData.rxBufTail + 1) % USB_RX_BUFSIZE;
     }
 
     return ch;
@@ -222,9 +222,9 @@ extern uint32_t USBD_OTG_EP1OUT_ISR_Handler (USB_OTG_CORE_HANDLE *pdev);
 #ifdef USE_USB_OTG_FS
 void OTG_FS_WKUP_IRQHandler(void) {
     if(USB_OTG_dev.cfg.low_power) {
-	*(uint32_t *)(0xE000ED10) &= 0xFFFFFFF9 ;
-	SystemInit();
-	USB_OTG_UngateClock(&USB_OTG_dev);
+        *(uint32_t *)(0xE000ED10) &= 0xFFFFFFF9 ;
+        SystemInit();
+        USB_OTG_UngateClock(&USB_OTG_dev);
     }
     EXTI_ClearITPendingBit(EXTI_Line18);
 }
@@ -233,9 +233,9 @@ void OTG_FS_WKUP_IRQHandler(void) {
 #ifdef USE_USB_OTG_HS
 void OTG_HS_WKUP_IRQHandler(void) {
     if(USB_OTG_dev.cfg.low_power) {
-	*(uint32_t *)(0xE000ED10) &= 0xFFFFFFF9 ;
-	SystemInit();
-	USB_OTG_UngateClock(&USB_OTG_dev);
+        *(uint32_t *)(0xE000ED10) &= 0xFFFFFFF9 ;
+        SystemInit();
+        USB_OTG_UngateClock(&USB_OTG_dev);
     }
 
     EXTI_ClearITPendingBit(EXTI_Line20);
@@ -261,4 +261,4 @@ void OTG_HS_EP1_OUT_IRQHandler(void) {
 }
 #endif
 
-#endif	// HAS_USB
+#endif // HAS_USB

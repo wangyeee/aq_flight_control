@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2015  Bill Nesbitt
+    Copyright (c) 2011-2015  Bill Nesbitt
 */
 
 #ifndef AQ_VERSION_H
@@ -21,9 +21,9 @@
 
 #include "buildnum.h"
 
-#define FIMRWARE_VER_MAJ	7
-#define FIMRWARE_VER_MIN	1
-#define FIMRWARE_VER_BLD	BUILDNUMBER
-#define FIMRWARE_VER_STR	"MP-EXPR"
+#define FIMRWARE_VER_MAJ 7
+#define FIMRWARE_VER_MIN 1
+#define FIMRWARE_VER_BLD BUILDNUMBER
+#define FIMRWARE_VER_STR "MP-EXPR"
 
 #endif

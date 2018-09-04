@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #ifndef _1wire_h
@@ -22,23 +22,23 @@
 #include "digital.h"
 #include "stm32f4xx.h"
 
-#define owHi()		    { owData.port->BSRRL = owData.pin; }
-#define owLo()		    { owData.port->BSRRH = owData.pin; }
-#define owRead()	    ((owData.port->IDR & owData.pin) != (uint32_t)Bit_RESET)
+#define owHi()      { owData.port->BSRRL = owData.pin; }
+#define owLo()      { owData.port->BSRRH = owData.pin; }
+#define owRead()     ((owData.port->IDR & owData.pin) != (uint32_t)Bit_RESET)
 
-#define OW_ROM_READ	    0x33
-#define OW_ROM_MATCH	    0x55
-#define OW_ROM_SKIP	    0xCC
-#define OW_READ_SCRATCH	    0xBE
-#define OW_TCONV	    0x44
-#define OW_VERSION	    0x03
-#define OW_PARAM_READ	    0x04
-#define OW_PARAM_WRITE	    0x05
-#define OW_CONFIG_READ	    0x06
-#define OW_CONFIG_WRITE	    0x07
+#define OW_ROM_READ     0x33
+#define OW_ROM_MATCH     0x55
+#define OW_ROM_SKIP     0xCC
+#define OW_READ_SCRATCH     0xBE
+#define OW_TCONV     0x44
+#define OW_VERSION     0x03
+#define OW_PARAM_READ     0x04
+#define OW_PARAM_WRITE     0x05
+#define OW_CONFIG_READ     0x06
+#define OW_CONFIG_WRITE     0x07
 #define OW_CONFIG_DEFAULT   0x08
-#define OW_SET_MODE	    0x09
-#define OW_GET_MODE	    0x0A
+#define OW_SET_MODE     0x09
+#define OW_GET_MODE     0x0A
 #define OW_GET_PARAM_ID     0x0B
 
 enum {

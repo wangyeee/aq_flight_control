@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2014  Bill Nesbitt
+    Copyright (c) 2014  Bill Nesbitt
 
     Portions borrowed from the superbitrf project
     Copyright (C) 2013 Freek van Tienen <freek.v.tienen@gmail.com>
@@ -32,61 +32,66 @@
 
 // The PN codes
 const uint8_t pn_codes[5][9][8] = {
-{ /* Row 0 */
-  /* Col 0 */ {0x03, 0xBC, 0x6E, 0x8A, 0xEF, 0xBD, 0xFE, 0xF8},
-  /* Col 1 */ {0x88, 0x17, 0x13, 0x3B, 0x2D, 0xBF, 0x06, 0xD6},
-  /* Col 2 */ {0xF1, 0x94, 0x30, 0x21, 0xA1, 0x1C, 0x88, 0xA9},
-  /* Col 3 */ {0xD0, 0xD2, 0x8E, 0xBC, 0x82, 0x2F, 0xE3, 0xB4},
-  /* Col 4 */ {0x8C, 0xFA, 0x47, 0x9B, 0x83, 0xA5, 0x66, 0xD0},
-  /* Col 5 */ {0x07, 0xBD, 0x9F, 0x26, 0xC8, 0x31, 0x0F, 0xB8},
-  /* Col 6 */ {0xEF, 0x03, 0x95, 0x89, 0xB4, 0x71, 0x61, 0x9D},
-  /* Col 7 */ {0x40, 0xBA, 0x97, 0xD5, 0x86, 0x4F, 0xCC, 0xD1},
-  /* Col 8 */ {0xD7, 0xA1, 0x54, 0xB1, 0x5E, 0x89, 0xAE, 0x86}
-},
-{ /* Row 1 */
-  /* Col 0 */ {0x83, 0xF7, 0xA8, 0x2D, 0x7A, 0x44, 0x64, 0xD3},
-  /* Col 1 */ {0x3F, 0x2C, 0x4E, 0xAA, 0x71, 0x48, 0x7A, 0xC9},
-  /* Col 2 */ {0x17, 0xFF, 0x9E, 0x21, 0x36, 0x90, 0xC7, 0x82},
-  /* Col 3 */ {0xBC, 0x5D, 0x9A, 0x5B, 0xEE, 0x7F, 0x42, 0xEB},
-  /* Col 4 */ {0x24, 0xF5, 0xDD, 0xF8, 0x7A, 0x77, 0x74, 0xE7},
-  /* Col 5 */ {0x3D, 0x70, 0x7C, 0x94, 0xDC, 0x84, 0xAD, 0x95},
-  /* Col 6 */ {0x1E, 0x6A, 0xF0, 0x37, 0x52, 0x7B, 0x11, 0xD4},
-  /* Col 7 */ {0x62, 0xF5, 0x2B, 0xAA, 0xFC, 0x33, 0xBF, 0xAF},
-  /* Col 8 */ {0x40, 0x56, 0x32, 0xD9, 0x0F, 0xD9, 0x5D, 0x97}
-},
-{ /* Row 2 */
-  /* Col 0 */ {0x40, 0x56, 0x32, 0xD9, 0x0F, 0xD9, 0x5D, 0x97},
-  /* Col 1 */ {0x8E, 0x4A, 0xD0, 0xA9, 0xA7, 0xFF, 0x20, 0xCA},
-  /* Col 2 */ {0x4C, 0x97, 0x9D, 0xBF, 0xB8, 0x3D, 0xB5, 0xBE},
-  /* Col 3 */ {0x0C, 0x5D, 0x24, 0x30, 0x9F, 0xCA, 0x6D, 0xBD},
-  /* Col 4 */ {0x50, 0x14, 0x33, 0xDE, 0xF1, 0x78, 0x95, 0xAD},
-  /* Col 5 */ {0x0C, 0x3C, 0xFA, 0xF9, 0xF0, 0xF2, 0x10, 0xC9},
-  /* Col 6 */ {0xF4, 0xDA, 0x06, 0xDB, 0xBF, 0x4E, 0x6F, 0xB3},
-  /* Col 7 */ {0x9E, 0x08, 0xD1, 0xAE, 0x59, 0x5E, 0xE8, 0xF0},
-  /* Col 8 */ {0xC0, 0x90, 0x8F, 0xBB, 0x7C, 0x8E, 0x2B, 0x8E}
-},
-{ /* Row 3 */
-  /* Col 0 */ {0xC0, 0x90, 0x8F, 0xBB, 0x7C, 0x8E, 0x2B, 0x8E},
-  /* Col 1 */ {0x80, 0x69, 0x26, 0x80, 0x08, 0xF8, 0x49, 0xE7},
-  /* Col 2 */ {0x7D, 0x2D, 0x49, 0x54, 0xD0, 0x80, 0x40, 0xC1},
-  /* Col 3 */ {0xB6, 0xF2, 0xE6, 0x1B, 0x80, 0x5A, 0x36, 0xB4},
-  /* Col 4 */ {0x42, 0xAE, 0x9C, 0x1C, 0xDA, 0x67, 0x05, 0xF6},
-  /* Col 5 */ {0x9B, 0x75, 0xF7, 0xE0, 0x14, 0x8D, 0xB5, 0x80},
-  /* Col 6 */ {0xBF, 0x54, 0x98, 0xB9, 0xB7, 0x30, 0x5A, 0x88},
-  /* Col 7 */ {0x35, 0xD1, 0xFC, 0x97, 0x23, 0xD4, 0xC9, 0x88},
-  /* Col 8 */ {0x88, 0xE1, 0xD6, 0x31, 0x26, 0x5F, 0xBD, 0x40}
-},
-{ /* Row 4 */
-  /* Col 0 */ {0xE1, 0xD6, 0x31, 0x26, 0x5F, 0xBD, 0x40, 0x93},
-  /* Col 1 */ {0xDC, 0x68, 0x08, 0x99, 0x97, 0xAE, 0xAF, 0x8C},
-  /* Col 2 */ {0xC3, 0x0E, 0x01, 0x16, 0x0E, 0x32, 0x06, 0xBA},
-  /* Col 3 */ {0xE0, 0x83, 0x01, 0xFA, 0xAB, 0x3E, 0x8F, 0xAC},
-  /* Col 4 */ {0x5C, 0xD5, 0x9C, 0xB8, 0x46, 0x9C, 0x7D, 0x84},
-  /* Col 5 */ {0xF1, 0xC6, 0xFE, 0x5C, 0x9D, 0xA5, 0x4F, 0xB7},
-  /* Col 6 */ {0x58, 0xB5, 0xB3, 0xDD, 0x0E, 0x28, 0xF1, 0xB0},
-  /* Col 7 */ {0x5F, 0x30, 0x3B, 0x56, 0x96, 0x45, 0xF4, 0xA1},
-  /* Col 8 */ {0x03, 0xBC, 0x6E, 0x8A, 0xEF, 0xBD, 0xFE, 0xF8}
-},
+    {
+        /* Row 0 */
+        /* Col 0 */ {0x03, 0xBC, 0x6E, 0x8A, 0xEF, 0xBD, 0xFE, 0xF8},
+        /* Col 1 */ {0x88, 0x17, 0x13, 0x3B, 0x2D, 0xBF, 0x06, 0xD6},
+        /* Col 2 */ {0xF1, 0x94, 0x30, 0x21, 0xA1, 0x1C, 0x88, 0xA9},
+        /* Col 3 */ {0xD0, 0xD2, 0x8E, 0xBC, 0x82, 0x2F, 0xE3, 0xB4},
+        /* Col 4 */ {0x8C, 0xFA, 0x47, 0x9B, 0x83, 0xA5, 0x66, 0xD0},
+        /* Col 5 */ {0x07, 0xBD, 0x9F, 0x26, 0xC8, 0x31, 0x0F, 0xB8},
+        /* Col 6 */ {0xEF, 0x03, 0x95, 0x89, 0xB4, 0x71, 0x61, 0x9D},
+        /* Col 7 */ {0x40, 0xBA, 0x97, 0xD5, 0x86, 0x4F, 0xCC, 0xD1},
+        /* Col 8 */ {0xD7, 0xA1, 0x54, 0xB1, 0x5E, 0x89, 0xAE, 0x86}
+    },
+    {
+        /* Row 1 */
+        /* Col 0 */ {0x83, 0xF7, 0xA8, 0x2D, 0x7A, 0x44, 0x64, 0xD3},
+        /* Col 1 */ {0x3F, 0x2C, 0x4E, 0xAA, 0x71, 0x48, 0x7A, 0xC9},
+        /* Col 2 */ {0x17, 0xFF, 0x9E, 0x21, 0x36, 0x90, 0xC7, 0x82},
+        /* Col 3 */ {0xBC, 0x5D, 0x9A, 0x5B, 0xEE, 0x7F, 0x42, 0xEB},
+        /* Col 4 */ {0x24, 0xF5, 0xDD, 0xF8, 0x7A, 0x77, 0x74, 0xE7},
+        /* Col 5 */ {0x3D, 0x70, 0x7C, 0x94, 0xDC, 0x84, 0xAD, 0x95},
+        /* Col 6 */ {0x1E, 0x6A, 0xF0, 0x37, 0x52, 0x7B, 0x11, 0xD4},
+        /* Col 7 */ {0x62, 0xF5, 0x2B, 0xAA, 0xFC, 0x33, 0xBF, 0xAF},
+        /* Col 8 */ {0x40, 0x56, 0x32, 0xD9, 0x0F, 0xD9, 0x5D, 0x97}
+    },
+    {
+        /* Row 2 */
+        /* Col 0 */ {0x40, 0x56, 0x32, 0xD9, 0x0F, 0xD9, 0x5D, 0x97},
+        /* Col 1 */ {0x8E, 0x4A, 0xD0, 0xA9, 0xA7, 0xFF, 0x20, 0xCA},
+        /* Col 2 */ {0x4C, 0x97, 0x9D, 0xBF, 0xB8, 0x3D, 0xB5, 0xBE},
+        /* Col 3 */ {0x0C, 0x5D, 0x24, 0x30, 0x9F, 0xCA, 0x6D, 0xBD},
+        /* Col 4 */ {0x50, 0x14, 0x33, 0xDE, 0xF1, 0x78, 0x95, 0xAD},
+        /* Col 5 */ {0x0C, 0x3C, 0xFA, 0xF9, 0xF0, 0xF2, 0x10, 0xC9},
+        /* Col 6 */ {0xF4, 0xDA, 0x06, 0xDB, 0xBF, 0x4E, 0x6F, 0xB3},
+        /* Col 7 */ {0x9E, 0x08, 0xD1, 0xAE, 0x59, 0x5E, 0xE8, 0xF0},
+        /* Col 8 */ {0xC0, 0x90, 0x8F, 0xBB, 0x7C, 0x8E, 0x2B, 0x8E}
+    },
+    {
+        /* Row 3 */
+        /* Col 0 */ {0xC0, 0x90, 0x8F, 0xBB, 0x7C, 0x8E, 0x2B, 0x8E},
+        /* Col 1 */ {0x80, 0x69, 0x26, 0x80, 0x08, 0xF8, 0x49, 0xE7},
+        /* Col 2 */ {0x7D, 0x2D, 0x49, 0x54, 0xD0, 0x80, 0x40, 0xC1},
+        /* Col 3 */ {0xB6, 0xF2, 0xE6, 0x1B, 0x80, 0x5A, 0x36, 0xB4},
+        /* Col 4 */ {0x42, 0xAE, 0x9C, 0x1C, 0xDA, 0x67, 0x05, 0xF6},
+        /* Col 5 */ {0x9B, 0x75, 0xF7, 0xE0, 0x14, 0x8D, 0xB5, 0x80},
+        /* Col 6 */ {0xBF, 0x54, 0x98, 0xB9, 0xB7, 0x30, 0x5A, 0x88},
+        /* Col 7 */ {0x35, 0xD1, 0xFC, 0x97, 0x23, 0xD4, 0xC9, 0x88},
+        /* Col 8 */ {0x88, 0xE1, 0xD6, 0x31, 0x26, 0x5F, 0xBD, 0x40}
+    },
+    {
+        /* Row 4 */
+        /* Col 0 */ {0xE1, 0xD6, 0x31, 0x26, 0x5F, 0xBD, 0x40, 0x93},
+        /* Col 1 */ {0xDC, 0x68, 0x08, 0x99, 0x97, 0xAE, 0xAF, 0x8C},
+        /* Col 2 */ {0xC3, 0x0E, 0x01, 0x16, 0x0E, 0x32, 0x06, 0xBA},
+        /* Col 3 */ {0xE0, 0x83, 0x01, 0xFA, 0xAB, 0x3E, 0x8F, 0xAC},
+        /* Col 4 */ {0x5C, 0xD5, 0x9C, 0xB8, 0x46, 0x9C, 0x7D, 0x84},
+        /* Col 5 */ {0xF1, 0xC6, 0xFE, 0x5C, 0x9D, 0xA5, 0x4F, 0xB7},
+        /* Col 6 */ {0x58, 0xB5, 0xB3, 0xDD, 0x0E, 0x28, 0xF1, 0xB0},
+        /* Col 7 */ {0x5F, 0x30, 0x3B, 0x56, 0x96, 0x45, 0xF4, 0xA1},
+        /* Col 8 */ {0x03, 0xBC, 0x6E, 0x8A, 0xEF, 0xBD, 0xFE, 0xF8}
+    },
 };
 
 const uint8_t pn_bind[] = {0x98, 0x88, 0x1B, 0xE4, 0x30, 0x79, 0x03, 0x84};
@@ -158,10 +163,10 @@ void dsmSetBindChannel(void) {
 }
 
 uint16_t dsmChannelTime(void) {
-	if (dsmData.crcSeed == dsmData.crc)
-		return DSM_CHB_TIME;
-	else
-		return DSM_CHA_TIME;
+    if (dsmData.crcSeed == dsmData.crc)
+        return DSM_CHB_TIME;
+    else
+        return DSM_CHA_TIME;
 }
 
 void dsmSetChannel(uint8_t channel, uint8_t isDsm2, uint8_t sopCol, uint8_t dataCol, uint16_t crcSeed) {
@@ -187,7 +192,7 @@ void dsmReceiverSetChannel(uint8_t chan) {
 void dsmGenerateChannelsDsmx(uint8_t mfgId[], uint8_t *channels) {
     int idx = 0;
     uint32_t id = ~((mfgId[0] << 24) | (mfgId[1] << 16) |
-        (mfgId[2] << 8) | (mfgId[3] << 0));
+                    (mfgId[2] << 8) | (mfgId[3] << 0));
     uint32_t id_tmp = id;
 
     // While not all channels are set
@@ -204,7 +209,7 @@ void dsmGenerateChannelsDsmx(uint8_t mfgId[], uint8_t *channels) {
         for (i = 0; i < idx; i++) {
             // Channel is already used
             if(channels[i] == next_ch)
-            break;
+                break;
 
             // Count the channel groups
             if(channels[i] <= 27)
@@ -221,25 +226,24 @@ void dsmGenerateChannelsDsmx(uint8_t mfgId[], uint8_t *channels) {
 
         // Set the channel when channel groups aren't full
         if ((next_ch < 28 && count_3_27 < 8)                        // Channels 3-27: max 8
-            || (next_ch >= 28 && next_ch < 52 && count_28_51 < 7)   // Channels 28-52: max 7
-            || (next_ch >= 52 && count_52_76 < 8)) {                // Channels 52-76: max 8
-                channels[idx++] = next_ch;
+                || (next_ch >= 28 && next_ch < 52 && count_28_51 < 7)   // Channels 28-52: max 7
+                || (next_ch >= 52 && count_52_76 < 8)) {                // Channels 52-76: max 8
+            channels[idx++] = next_ch;
         }
     }
 }
 
 void dsmSetNextChannel(void) {
-	if (dsmData.isDsm2) {
-		dsmData.rfChannelIdx = (dsmData.rfChannelIdx+1) % 2;
-		if (dsmData.rfChannelIdx == 0)
-			dsmData.crcSeed = ~dsmData.crc;
-		else
-			dsmData.crcSeed = dsmData.crc;
-	}
-	else {
-		dsmData.rfChannelIdx = (dsmData.rfChannelIdx+1) % 23;
-		dsmData.crcSeed = ~dsmData.crcSeed;
-	}
+    if (dsmData.isDsm2) {
+        dsmData.rfChannelIdx = (dsmData.rfChannelIdx+1) % 2;
+        if (dsmData.rfChannelIdx == 0)
+            dsmData.crcSeed = ~dsmData.crc;
+        else
+            dsmData.crcSeed = dsmData.crc;
+    } else {
+        dsmData.rfChannelIdx = (dsmData.rfChannelIdx+1) % 23;
+        dsmData.crcSeed = ~dsmData.crcSeed;
+    }
 
     dsmData.rfChannel = dsmData.rfChannels[dsmData.rfChannelIdx];
     dsmSetChannel(dsmData.rfChannel, dsmData.isDsm2, dsmData.sopCol, dsmData.dataCol, dsmData.crcSeed);
@@ -314,8 +318,7 @@ void dsmSyncTimeoutCallback(int state) {
         if (dsmData.isDsm2) {
             // Set the next channel
             dsmReceiverSetChannel((dsmData.rfChannel + 2) % DSM_MAX_CHANNEL);
-        }
-        else {
+        } else {
             // Just set the next channel we know
             dsmSetNextChannel();
         }
@@ -356,8 +359,7 @@ void dsmTransferTimeoutCallback(int state) {
 
             // Set the new timeout
             cyrfTimeoutSet(dsmChannelTime(), dsmTransferTimeoutCallback, 0);
-        }
-        else {
+        } else {
             // yes, drop back to sync mode
             dsmData.lostSyncs++;
             dsmStartTransfer();
@@ -385,20 +387,20 @@ void dsmTransferReceive(int state) {
     case 0:
         dsmData.inReceive = 1;
 
-		// de-bounce
-		if ((myIrqStatus & CYRF_RXC_IRQ) && !error) {
-			// get the RX IRQ status
-			cyrfQueueReadReg(CYRF_RX_IRQ_STATUS, &cyrfData.rxIrqStatus);
-		}
+        // de-bounce
+        if ((myIrqStatus & CYRF_RXC_IRQ) && !error) {
+            // get the RX IRQ status
+            cyrfQueueReadReg(CYRF_RX_IRQ_STATUS, &cyrfData.rxIrqStatus);
+        }
 
-		// get the number of bytes available for read
-		cyrfQueueReadReg(CYRF_RX_COUNT, &dsmData.packetLen);
+        // get the number of bytes available for read
+        cyrfQueueReadReg(CYRF_RX_COUNT, &dsmData.packetLen);
 
-		cyrfQueueExec(dsmTransferReceive, 1);
-		cyrfProcessStack();
-		break;
+        cyrfQueueExec(dsmTransferReceive, 1);
+        cyrfProcessStack();
+        break;
 
-	case 1:
+    case 1:
         dsmReadPacket(dsmTransferReceive, 2);
         break;
 
@@ -453,20 +455,20 @@ void dsmSyncBReceive(int state) {
     case 0:
         dsmData.inReceive = 1;
 
-		// de-bounce
-		if ((myIrqStatus & CYRF_RXC_IRQ) && !error) {
-			// get the RX IRQ status
-			cyrfQueueReadReg(CYRF_RX_IRQ_STATUS, &cyrfData.rxIrqStatus);
-		}
+        // de-bounce
+        if ((myIrqStatus & CYRF_RXC_IRQ) && !error) {
+            // get the RX IRQ status
+            cyrfQueueReadReg(CYRF_RX_IRQ_STATUS, &cyrfData.rxIrqStatus);
+        }
 
-		// get the number of bytes available for read
-		cyrfQueueReadReg(CYRF_RX_COUNT, &dsmData.packetLen);
+        // get the number of bytes available for read
+        cyrfQueueReadReg(CYRF_RX_COUNT, &dsmData.packetLen);
 
-		cyrfQueueExec(dsmSyncBReceive, 1);
-		cyrfProcessStack();
-		break;
+        cyrfQueueExec(dsmSyncBReceive, 1);
+        cyrfProcessStack();
+        break;
 
-	case 1:
+    case 1:
         dsmReadPacket(dsmSyncBReceive, 2);
         break;
 
@@ -489,8 +491,8 @@ void dsmSyncBReceive(int state) {
         dsmData.bound = 1;
         dsmData.state = DSM_RECEIVER_RECV;
         dsmData.missedPackets = 0;
-		dsmData.missedPacketsTotal = 0;
-		dsmData.rfChannelIdx = 1;
+        dsmData.missedPacketsTotal = 0;
+        dsmData.rfChannelIdx = 1;
         dsmSetNextChannel();
 
         cyrfQueueBatch(cyrf_start_receive);
@@ -520,20 +522,20 @@ void dsmSyncAReceive(int state) {
     case 0:
         dsmData.inReceive = 1;
 
-		// de-bounce
-		if ((myIrqStatus & CYRF_RXC_IRQ) && !error) {
-			// get the RX IRQ status
-			cyrfQueueReadReg(CYRF_RX_IRQ_STATUS, &cyrfData.rxIrqStatus);
-		}
+        // de-bounce
+        if ((myIrqStatus & CYRF_RXC_IRQ) && !error) {
+            // get the RX IRQ status
+            cyrfQueueReadReg(CYRF_RX_IRQ_STATUS, &cyrfData.rxIrqStatus);
+        }
 
-		// get the number of bytes available for read
-		cyrfQueueReadReg(CYRF_RX_COUNT, &dsmData.packetLen);
+        // get the number of bytes available for read
+        cyrfQueueReadReg(CYRF_RX_COUNT, &dsmData.packetLen);
 
-		cyrfQueueExec(dsmSyncAReceive, 1);
-		cyrfProcessStack();
-		break;
+        cyrfQueueExec(dsmSyncAReceive, 1);
+        cyrfProcessStack();
+        break;
 
-	case 1:
+    case 1:
         dsmReadPacket(dsmSyncAReceive, 2);
         break;
 
@@ -550,33 +552,32 @@ void dsmSyncAReceive(int state) {
         // sync the timer
         cyrfTimeoutReset();
 
-		// Check whether it is DSM2 or DSMX
+        // Check whether it is DSM2 or DSMX
         if (dsmData.isDsm2) {
             dsmData.rfChannels[0] = dsmData.rfChannel;
 
             dsmData.state = DSM_RECEIVER_SYNC_B;
             cyrfSetIsrCallback(dsmSyncBReceive, 0);
-			dsmData.crcSeed = dsmData.crc;
+            dsmData.crcSeed = dsmData.crc;
 
             // scan next channel
             dsmReceiverSetChannel((dsmData.rfChannel + 2) % DSM_MAX_CHANNEL);
 
-			// Start the timer
+            // Start the timer
             cyrfTimeoutSetRelative(DSM_SYNC_RECV_TIME, dsmSyncTimeoutCallback, 0);
-		}
-        else {
+        } else {
             // When it is DSMX we can stop because we know all the channels
             dsmData.state = DSM_RECEIVER_RECV;
-			dsmData.bound = 1;
+            dsmData.bound = 1;
             dsmData.missedPackets = 0;
-			dsmData.missedPacketsTotal = 0;
+            dsmData.missedPacketsTotal = 0;
             cyrfSetIsrCallback(dsmTransferReceive, 0);
 
             // Set the next channel and start receiving
             dsmSetNextChannel();
 
             cyrfTimeoutSet(dsmChannelTime()+DSM_TIMEOUT, dsmTransferTimeoutCallback, 0);
-		}
+        }
 
         cyrfQueueBatch(cyrf_start_receive);
 
@@ -613,7 +614,7 @@ void dsmStartTransfer(void) {
 
     // Calculate the CRC seed, SOP column and Data column
     dsmData.crc = (dsmData.mfgId[0] << 8) + dsmData.mfgId[1];
-	dsmData.crcSeed = ~dsmData.crc;
+    dsmData.crcSeed = ~dsmData.crc;
     dsmData.sopCol = (dsmData.mfgId[0] + dsmData.mfgId[1] + dsmData.mfgId[2] + 2) & 0x07;
     dsmData.dataCol = 7 - dsmData.sopCol;
 
@@ -622,8 +623,7 @@ void dsmStartTransfer(void) {
         dsmGenerateChannelsDsmx(dsmData.mfgId, dsmData.rfChannels);
         dsmData.rfChannelIdx = 22;
         dsmSetNextChannel();
-    }
-    else {
+    } else {
         dsmReceiverSetChannel(0);
     }
 
@@ -697,8 +697,7 @@ void dsmBindTimeoutCallback(int state) {
         if (dsmData.bound) {
             cyrfSetIsrCallback(0, 0);
             dsmBindAck(0);
-        }
-        else {
+        } else {
             // Set the next bind channel
             dsmSetBindChannel();
 
@@ -733,18 +732,18 @@ void dsmBindReceive(int state) {
     case 0:
         dsmData.inReceive = 1;
 
-		// de-bounce
-		if ((myIrqStatus & CYRF_RXC_IRQ) && !error) {
-			// get the RX IRQ status
-			cyrfQueueReadReg(CYRF_RX_IRQ_STATUS, &cyrfData.rxIrqStatus);
-		}
+        // de-bounce
+        if ((myIrqStatus & CYRF_RXC_IRQ) && !error) {
+            // get the RX IRQ status
+            cyrfQueueReadReg(CYRF_RX_IRQ_STATUS, &cyrfData.rxIrqStatus);
+        }
 
-		// get the number of bytes available for read
-		cyrfQueueReadReg(CYRF_RX_COUNT, &dsmData.packetLen);
+        // get the number of bytes available for read
+        cyrfQueueReadReg(CYRF_RX_COUNT, &dsmData.packetLen);
 
-		cyrfQueueExec(dsmBindReceive, 1);
-		cyrfProcessStack();
-		break;
+        cyrfQueueExec(dsmBindReceive, 1);
+        cyrfProcessStack();
+        break;
 
     case 1:
         dsmReadPacket(dsmBindReceive, 2);
@@ -787,7 +786,7 @@ void dsmBindReceive(int state) {
         dsmData.mfgId[3] = ~packet[3];
         dsmData.dsmNumChannels = packet[11];
         dsmData.dsmProtocol = packet[12];
-		dsmData.isDsm2 = IS_DSM2(dsmData.dsmProtocol);
+        dsmData.isDsm2 = IS_DSM2(dsmData.dsmProtocol);
         dsmData.bound++;// = 1;
         dsmData.newBind = 1;
 
@@ -801,7 +800,7 @@ void dsmBindReceive(int state) {
             abortCallback(abortCallbackParam + 2);
         break;
 
-        bindRcvEnd:
+bindRcvEnd:
 
         // Start receiving
         cyrfQueueBatch(cyrf_start_receive);
@@ -843,8 +842,8 @@ void dsmStartBind(void) {
     cyrfQueueBatch(cyrf_bind_config);
 
     // Set the CYRF data code
-	cyrfQueueWriteBlock(CYRF_DATA_CODE, 8, (uint8_t *)pn_codes[0][8]);
-	cyrfQueueWriteBlock(CYRF_DATA_CODE, 8, (uint8_t *)pn_bind);
+    cyrfQueueWriteBlock(CYRF_DATA_CODE, 8, (uint8_t *)pn_codes[0][8]);
+    cyrfQueueWriteBlock(CYRF_DATA_CODE, 8, (uint8_t *)pn_bind);
 
     // Set the initial bind channel
     dsmSetRfChannel(1);
@@ -881,8 +880,7 @@ void dsmDecode(radioInstance_t *r) {
                 // 11bit
                 addr = (chan[0]>>3) & 0x0f;
                 val = ((chan[0] & 0x07)<<8) | chan[1];
-            }
-            else {
+            } else {
                 // 10bit
                 addr = (chan[0]>>2) & 0x0f;
                 val = (((chan[0] & 0x03)<<8) | chan[1])<<1;
@@ -909,25 +907,25 @@ uint8_t dsmReceive(radioInstance_t *r) {
         dsmData.lastState = dsmData.state;
 
         switch (dsmData.state) {
-            case DSM_RECEIVER_STOP:
-                AQ_NOTICE("CYRF: stopped\n");
-                break;
+        case DSM_RECEIVER_STOP:
+            AQ_NOTICE("CYRF: stopped\n");
+            break;
 
-            case DSM_RECEIVER_BIND:
-                AQ_NOTICE("CYRF: binding\n");
-                break;
+        case DSM_RECEIVER_BIND:
+            AQ_NOTICE("CYRF: binding\n");
+            break;
 
-            case DSM_RECEIVER_SYNC_A:
-                AQ_NOTICE("CYRF: sync A\n");
-                break;
+        case DSM_RECEIVER_SYNC_A:
+            AQ_NOTICE("CYRF: sync A\n");
+            break;
 
-            case DSM_RECEIVER_SYNC_B:
-                AQ_NOTICE("CYRF: sync B\n");
-                break;
+        case DSM_RECEIVER_SYNC_B:
+            AQ_NOTICE("CYRF: sync B\n");
+            break;
 
-            case DSM_RECEIVER_RECV:
-                AQ_NOTICE("CYRF: receiving\n");
-                break;
+        case DSM_RECEIVER_RECV:
+            AQ_NOTICE("CYRF: receiving\n");
+            break;
         }
     }
 
@@ -963,8 +961,7 @@ uint8_t dsmReceive(radioInstance_t *r) {
         dsmDecode(r);
 
         return 1;
-    }
-    else {
+    } else {
         return 0;
     }
 #else
@@ -986,7 +983,7 @@ uint8_t dsmInit(void) {
         t = configTokenGet(*(uint32_t *)"CYRF");
 
         if (1 && t) {
-			// load binding data from flash
+            // load binding data from flash
             dsmData.mfgId[0] = t->data[0];
             dsmData.mfgId[1] = t->data[1];
             dsmData.mfgId[2] = t->data[2];
@@ -994,24 +991,20 @@ uint8_t dsmInit(void) {
 
             dsmData.dsmProtocol = t->data[4];
             dsmData.dsmNumChannels = t->data[5];
-			dsmData.isDsm2 = IS_DSM2(dsmData.dsmProtocol);
+            dsmData.isDsm2 = IS_DSM2(dsmData.dsmProtocol);
 
             dsmStartTransfer();
-        }
-        else {
+        } else {
             dsmStartBind();
         }
 
         AQ_NOTICE("DSM: Found CYRF6963 chip\n");
-    }
-    else {
+    } else {
         AQ_NOTICE("DSM: Could not find CYRF6963 chip\n");
     }
 #else
-        AQ_NOTICE("DSM: CYRF6936 not installed\n");
+    AQ_NOTICE("DSM: CYRF6936 not installed\n");
 #endif
-
-
     return ret;
 }
 

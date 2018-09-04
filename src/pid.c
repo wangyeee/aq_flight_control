@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #include "pid.h"
@@ -24,7 +24,8 @@
 #include "nav.h"
 #include <stdlib.h>
 
-pidStruct_t *pidInit(float *p, float *i, float *d, float *f, float *pMax, float *iMax, float *dMax, float *oMax, int16_t *pTrim, int16_t *iTrim, int16_t *dTrim, int16_t *fTrim) {
+pidStruct_t *pidInit(float *p, float *i, float *d, float *f, float *pMax, float *iMax, float *dMax, float *oMax, int16_t *pTrim, int16_t *iTrim,
+                     int16_t *dTrim, int16_t *fTrim) {
     pidStruct_t *pid;
 
     pid = (pidStruct_t *)aqDataCalloc(1, sizeof(pidStruct_t));
@@ -46,63 +47,63 @@ pidStruct_t *pidInit(float *p, float *i, float *d, float *f, float *pMax, float 
 }
 
 //float pidUpdate(pidStruct_t *pid, float setpoint, float position) {
-//	float error;
-//	float p = *pid->pGain;
-//	float i = *pid->iGain;
-//	float d = *pid->dGain;
+// float error;
+// float p = *pid->pGain;
+// float i = *pid->iGain;
+// float d = *pid->dGain;
 //
-//	if (pid->pTrim)
-//		p += (*pid->pTrim * p / 500.0f);
-//	if (pid->iTrim)
-//		i += (*pid->iTrim * i / 500.0f);
-//	if (pid->dTrim)
-//		d += (*pid->dTrim * d / 500.0f);
+// if (pid->pTrim)
+//  p += (*pid->pTrim * p / 500.0f);
+// if (pid->iTrim)
+//  i += (*pid->iTrim * i / 500.0f);
+// if (pid->dTrim)
+//  d += (*pid->dTrim * d / 500.0f);
 //
-//	error = setpoint - position;
+// error = setpoint - position;
 //
-//	// calculate the proportional term
-//	pid->pTerm_1 = p * error;
-//	if (pid->pTerm_1 > *pid->pMax) {
-//		pid->pTerm_1 = *pid->pMax;
-//	}
-//	else if (pid->pTerm_1 < -*pid->pMax) {
-//		pid->pTerm_1 = -*pid->pMax;
-//	}
+// // calculate the proportional term
+// pid->pTerm_1 = p * error;
+// if (pid->pTerm_1 > *pid->pMax) {
+//  pid->pTerm_1 = *pid->pMax;
+// }
+// else if (pid->pTerm_1 < -*pid->pMax) {
+//  pid->pTerm_1 = -*pid->pMax;
+// }
 //
-//	// calculate the integral state with appropriate limiting
-//	pid->iState += error;
-//	pid->iTerm_1 = i * pid->iState;
-//	if (pid->iTerm_1 > *pid->iMax) {
-//		pid->iTerm_1 = *pid->iMax;
-//		pid->iState -= error;
-//	}
-//	else if (pid->iTerm_1 < -*pid->iMax) {
-//		pid->iTerm_1 = -*pid->iMax;
-//		pid->iState -= error;
-//	}
+// // calculate the integral state with appropriate limiting
+// pid->iState += error;
+// pid->iTerm_1 = i * pid->iState;
+// if (pid->iTerm_1 > *pid->iMax) {
+//  pid->iTerm_1 = *pid->iMax;
+//  pid->iState -= error;
+// }
+// else if (pid->iTerm_1 < -*pid->iMax) {
+//  pid->iTerm_1 = -*pid->iMax;
+//  pid->iState -= error;
+// }
 //
-//	// derivative
-//	pid->dTerm_1 = (d * pid->fGain) * (error - pid->dState);
-//	pid->dState += pid->fGain * (error - pid->dState);
-//	if (pid->dTerm_1 > *pid->dMax) {
-//		pid->dTerm_1 = *pid->dMax;
-//	}
-//	else if (pid->dTerm_1 < -*pid->dMax) {
-//		pid->dTerm_1 = -*pid->dMax;
-//	}
+// // derivative
+// pid->dTerm_1 = (d * pid->fGain) * (error - pid->dState);
+// pid->dState += pid->fGain * (error - pid->dState);
+// if (pid->dTerm_1 > *pid->dMax) {
+//  pid->dTerm_1 = *pid->dMax;
+// }
+// else if (pid->dTerm_1 < -*pid->dMax) {
+//  pid->dTerm_1 = -*pid->dMax;
+// }
 //
-//	pid->pv_1 = position;
-//	pid->sp_1 = setpoint;
-//	pid->co_1 = pid->pTerm_1 + pid->iTerm_1 + pid->dTerm_1;
+// pid->pv_1 = position;
+// pid->sp_1 = setpoint;
+// pid->co_1 = pid->pTerm_1 + pid->iTerm_1 + pid->dTerm_1;
 //
-//	if (pid->co_1 > *pid->oMax) {
-//		pid->co_1 = *pid->oMax;
-//	}
-//	else if (pid->co_1 < -*pid->oMax) {
-//		pid->co_1 = -*pid->oMax;
-//	}
+// if (pid->co_1 > *pid->oMax) {
+//  pid->co_1 = *pid->oMax;
+// }
+// else if (pid->co_1 < -*pid->oMax) {
+//  pid->co_1 = -*pid->oMax;
+// }
 //
-//	return pid->co_1;
+// return pid->co_1;
 //}
 
 float pidUpdate(pidStruct_t *pid, float setpoint, float position) {
@@ -113,53 +114,49 @@ float pidUpdate(pidStruct_t *pid, float setpoint, float position) {
     float f = (pid->fGain) ? *pid->fGain : 1.0f;
 
     if (pid->pTrim)
-	p += (*pid->pTrim * p * 0.002f);
+        p += (*pid->pTrim * p * 0.002f);
     if (pid->iTrim)
-	i += (*pid->iTrim * i * 0.002f);
+        i += (*pid->iTrim * i * 0.002f);
     if (pid->dTrim)
-	d += (*pid->dTrim * d * 0.002f);
+        d += (*pid->dTrim * d * 0.002f);
     if (pid->fTrim)
-	f += (*pid->fTrim * f * 0.002f);
+        f += (*pid->fTrim * f * 0.002f);
 
     error = setpoint - position;
 
     // calculate the proportional term
     pid->pTerm_1 = p * error;
     if (pid->pTerm_1 > *pid->pMax) {
-	pid->pTerm_1 = *pid->pMax;
-    }
-    else if (pid->pTerm_1 < -*pid->pMax) {
-	pid->pTerm_1 = -*pid->pMax;
+        pid->pTerm_1 = *pid->pMax;
+    } else if (pid->pTerm_1 < -*pid->pMax) {
+        pid->pTerm_1 = -*pid->pMax;
     }
 
     // calculate the integral state with appropriate limiting
     pid->iState += error;
     pid->iTerm_1 = i * pid->iState;
     if (pid->iTerm_1 > *pid->iMax) {
-	pid->iTerm_1 = *pid->iMax;
-	pid->iState = pid->iTerm_1 / i;
-    }
-    else if (pid->iTerm_1 < -*pid->iMax) {
-	pid->iTerm_1 = -*pid->iMax;
-	pid->iState = pid->iTerm_1 / i;
+        pid->iTerm_1 = *pid->iMax;
+        pid->iState = pid->iTerm_1 / i;
+    } else if (pid->iTerm_1 < -*pid->iMax) {
+        pid->iTerm_1 = -*pid->iMax;
+        pid->iState = pid->iTerm_1 / i;
     }
 
     // derivative
     if (pid->dGain) {
-	// uncomment this line if you want the D term to ignore set point changes
-	error = -position;
+// uncomment this line if you want the D term to ignore set point changes
+        error = -position;
 
-	pid->dTerm_1 = (d * f) * (error - pid->dState);
-	pid->dState += f * (error - pid->dState);
-	if (pid->dTerm_1 > *pid->dMax) {
-	    pid->dTerm_1 = *pid->dMax;
-	}
-	else if (pid->dTerm_1 < -*pid->dMax) {
-	    pid->dTerm_1 = -*pid->dMax;
-	}
-    }
-    else {
-	pid->dTerm_1 = 0.0f;
+        pid->dTerm_1 = (d * f) * (error - pid->dState);
+        pid->dState += f * (error - pid->dState);
+        if (pid->dTerm_1 > *pid->dMax) {
+            pid->dTerm_1 = *pid->dMax;
+        } else if (pid->dTerm_1 < -*pid->dMax) {
+            pid->dTerm_1 = -*pid->dMax;
+        }
+    } else {
+        pid->dTerm_1 = 0.0f;
     }
 
     pid->pv_1 = position;
@@ -167,10 +164,9 @@ float pidUpdate(pidStruct_t *pid, float setpoint, float position) {
     pid->co_1 = pid->pTerm_1 + pid->iTerm_1 + pid->dTerm_1;
 
     if (pid->co_1 > *pid->oMax) {
-	pid->co_1 = *pid->oMax;
-    }
-    else if (pid->co_1 < -*pid->oMax) {
-	pid->co_1 = -*pid->oMax;
+        pid->co_1 = *pid->oMax;
+    } else if (pid->co_1 < -*pid->oMax) {
+        pid->co_1 = -*pid->oMax;
     }
 
     return pid->co_1;
@@ -184,34 +180,34 @@ float pidUpdate2(pidStruct_t *pid, float setpoint, float position) {
     float f = (pid->fGain) ? *pid->fGain : 1.0f;
 
     if (pid->pTrim)
-	p += (*pid->pTrim * p * 0.002f);
+        p += (*pid->pTrim * p * 0.002f);
     if (pid->iTrim)
-	i += (*pid->iTrim * i * 0.002f);
+        i += (*pid->iTrim * i * 0.002f);
     if (pid->dTrim)
-	d += (*pid->dTrim * d * 0.002f);
+        d += (*pid->dTrim * d * 0.002f);
     if (pid->fTrim)
-	f += (*pid->fTrim * f * 0.002f);
+        f += (*pid->fTrim * f * 0.002f);
 
     error = setpoint - position;
 
     // calculate the proportional term
     pid->pTerm_1 = p * error;
 //    if (pid->pTerm_1 > *pid->pMax) {
-//	    pid->pTerm_1 = *pid->pMax;
+//     pid->pTerm_1 = *pid->pMax;
 //    }
 //    else if (pid->pTerm_1 < -*pid->pMax) {
-//	    pid->pTerm_1 = -*pid->pMax;
+//     pid->pTerm_1 = -*pid->pMax;
 //    }
 
     // calculate the integral state with appropriate limiting
     pid->iTerm_1 += i * error;
 //    if (pid->iTerm_1 > *pid->iMax) {
-//	    pid->iTerm_1 = *pid->iMax;
-//	    pid->iState -= error;
+//     pid->iTerm_1 = *pid->iMax;
+//     pid->iState -= error;
 //    }
 //    else if (pid->iTerm_1 < -*pid->iMax) {
-//	    pid->iTerm_1 = -*pid->iMax;
-//	    pid->iState -= error;
+//     pid->iTerm_1 = -*pid->iMax;
+//     pid->iState -= error;
 //    }
 
     // derivative
@@ -219,10 +215,10 @@ float pidUpdate2(pidStruct_t *pid, float setpoint, float position) {
     pid->dState += pid->dTerm_1;
 
 //    if (pid->dTerm_1 > *pid->dMax) {
-//	    pid->dTerm_1 = *pid->dMax;
+//     pid->dTerm_1 = *pid->dMax;
 //    }
 //    else if (pid->dTerm_1 < -*pid->dMax) {
-//	    pid->dTerm_1 = -*pid->dMax;
+//     pid->dTerm_1 = -*pid->dMax;
 //    }
 
     pid->pv_1 = position;
@@ -230,10 +226,9 @@ float pidUpdate2(pidStruct_t *pid, float setpoint, float position) {
     pid->co_1 = pid->pTerm_1 + pid->iTerm_1 + pid->dTerm_1;
 
     if (pid->co_1 > *pid->oMax) {
-	    pid->co_1 = *pid->oMax;
-    }
-    else if (pid->co_1 < -*pid->oMax) {
-	    pid->co_1 = -*pid->oMax;
+        pid->co_1 = *pid->oMax;
+    } else if (pid->co_1 < -*pid->oMax) {
+        pid->co_1 = -*pid->oMax;
     }
 
     return pid->co_1;
@@ -242,156 +237,156 @@ float pidUpdate2(pidStruct_t *pid, float setpoint, float position) {
 /*
 // P & I tracking setpoint, D resisting change in position
 float pidUpdate3(pidStruct_t *pid, float setpoint, float position) {
-	float error;
+ float error;
 
-	error = setpoint - position;
+ error = setpoint - position;
 
-	// calculate the proportional term
-	pid->pTerm_1 = pid->pGain * error;
-	if (pid->pTerm_1 > pid->pMax) {
-		pid->pTerm_1 = pid->pMax;
-	}
-	else if (pid->pTerm_1 < -pid->pMax) {
-		pid->pTerm_1 = -pid->pMax;
-	}
+ // calculate the proportional term
+ pid->pTerm_1 = pid->pGain * error;
+ if (pid->pTerm_1 > pid->pMax) {
+  pid->pTerm_1 = pid->pMax;
+ }
+ else if (pid->pTerm_1 < -pid->pMax) {
+  pid->pTerm_1 = -pid->pMax;
+ }
 
-	// calculate the integral state with appropriate limiting
-	pid->iState += error;
-	pid->iTerm_1 = pid->iGain * pid->iState;
-	if (pid->iTerm_1 > pid->iMax) {
-		pid->iTerm_1 = pid->iMax;
-		pid->iState -= error;
-	}
-	else if (pid->iTerm_1 < -pid->iMax) {
-		pid->iTerm_1 = -pid->iMax;
-		pid->iState -= error;
-	}
+ // calculate the integral state with appropriate limiting
+ pid->iState += error;
+ pid->iTerm_1 = pid->iGain * pid->iState;
+ if (pid->iTerm_1 > pid->iMax) {
+  pid->iTerm_1 = pid->iMax;
+  pid->iState -= error;
+ }
+ else if (pid->iTerm_1 < -pid->iMax) {
+  pid->iTerm_1 = -pid->iMax;
+  pid->iState -= error;
+ }
 
-	// derivative
-//	pid->dTerm_1 = pid->dGain * (position - (2.0f * pid->pv_1) + pid->pv_2);
-	pid->dTerm_1 = pid->dGain * (position - pid->pv_1);
-	if (pid->dTerm_1 > pid->dMax) {
-		pid->dTerm_1 = pid->dMax;
-	}
-	else if (pid->dTerm_1 < -pid->dMax) {
-		pid->dTerm_1 = -pid->dMax;
-	}
+ // derivative
+// pid->dTerm_1 = pid->dGain * (position - (2.0f * pid->pv_1) + pid->pv_2);
+ pid->dTerm_1 = pid->dGain * (position - pid->pv_1);
+ if (pid->dTerm_1 > pid->dMax) {
+  pid->dTerm_1 = pid->dMax;
+ }
+ else if (pid->dTerm_1 < -pid->dMax) {
+  pid->dTerm_1 = -pid->dMax;
+ }
 
-	pid->pv_2 = pid->pv_1;
-	pid->pv_1 = position;
-	pid->sp_1 = setpoint;
-	pid->co_1 = pid->pTerm_1 + pid->iTerm_1 - pid->dTerm_1;
+ pid->pv_2 = pid->pv_1;
+ pid->pv_1 = position;
+ pid->sp_1 = setpoint;
+ pid->co_1 = pid->pTerm_1 + pid->iTerm_1 - pid->dTerm_1;
 
-	if (pid->co_1 > pid->oMax) {
-		pid->co_1 = pid->oMax;
-	}
-	else if (pid->co_1 < -pid->oMax) {
-		pid->co_1 = -pid->oMax;
-	}
+ if (pid->co_1 > pid->oMax) {
+  pid->co_1 = pid->oMax;
+ }
+ else if (pid->co_1 < -pid->oMax) {
+  pid->co_1 = -pid->oMax;
+ }
 
-	return pid->co_1;
+ return pid->co_1;
 }
 
 // type B PID controller
 float pidUpdateB(pidStruct_t *pid, float setpoint, float position) {
-	float error;
+ float error;
 
-	error = setpoint - position;
+ error = setpoint - position;
 
-	// calculate the proportional term
-	pid->pTerm_1 = pid->pGain * error;
-	if (pid->pTerm_1 > pid->pMax) {
-		pid->pTerm_1 = pid->pMax;
-	}
-	else if (pid->pTerm_1 < -pid->pMax) {
-		pid->pTerm_1 = -pid->pMax;
-	}
+ // calculate the proportional term
+ pid->pTerm_1 = pid->pGain * error;
+ if (pid->pTerm_1 > pid->pMax) {
+  pid->pTerm_1 = pid->pMax;
+ }
+ else if (pid->pTerm_1 < -pid->pMax) {
+  pid->pTerm_1 = -pid->pMax;
+ }
 
-	// calculate the integral state with appropriate limiting
-	pid->iState += error;
-	pid->iTerm_1 = pid->iGain * pid->iState;
-	if (pid->iTerm_1 > pid->iMax) {
-		pid->iTerm_1 = pid->iMax;
-		pid->iState -= error;
-	}
-	else if (pid->iTerm_1 < -pid->iMax) {
-		pid->iTerm_1 = -pid->iMax;
-		pid->iState -= error;
-	}
+ // calculate the integral state with appropriate limiting
+ pid->iState += error;
+ pid->iTerm_1 = pid->iGain * pid->iState;
+ if (pid->iTerm_1 > pid->iMax) {
+  pid->iTerm_1 = pid->iMax;
+  pid->iState -= error;
+ }
+ else if (pid->iTerm_1 < -pid->iMax) {
+  pid->iTerm_1 = -pid->iMax;
+  pid->iState -= error;
+ }
 
-	// derivative
-	pid->dTerm_1 = pid->dGain * (position - (2.0f * pid->pv_1) + pid->pv_2);
-	if (pid->dTerm_1 > pid->dMax) {
-		pid->dTerm_1 = pid->dMax;
-	}
-	else if (pid->dTerm_1 < -pid->dMax) {
-		pid->dTerm_1 = -pid->dMax;
-	}
+ // derivative
+ pid->dTerm_1 = pid->dGain * (position - (2.0f * pid->pv_1) + pid->pv_2);
+ if (pid->dTerm_1 > pid->dMax) {
+  pid->dTerm_1 = pid->dMax;
+ }
+ else if (pid->dTerm_1 < -pid->dMax) {
+  pid->dTerm_1 = -pid->dMax;
+ }
 
-	pid->sp_1 = setpoint;
-	pid->pv_2 = pid->pv_1;
-	pid->pv_1 = position;
-	pid->co_1 = pid->pTerm_1 + pid->iTerm_1 - pid->dTerm_1;
+ pid->sp_1 = setpoint;
+ pid->pv_2 = pid->pv_1;
+ pid->pv_1 = position;
+ pid->co_1 = pid->pTerm_1 + pid->iTerm_1 - pid->dTerm_1;
 
-	if (pid->co_1 > pid->oMax) {
-		pid->co_1 = pid->oMax;
-	}
-	else if (pid->co_1 < -pid->oMax) {
-		pid->co_1 = -pid->oMax;
-	}
+ if (pid->co_1 > pid->oMax) {
+  pid->co_1 = pid->oMax;
+ }
+ else if (pid->co_1 < -pid->oMax) {
+  pid->co_1 = -pid->oMax;
+ }
 
-	return pid->co_1;
+ return pid->co_1;
 }
 
 // type C PID controller
 float pidUpdateC(pidStruct_t *pid, float setpoint, float position) {
-	float error;
+ float error;
 
-	error = setpoint - position;
+ error = setpoint - position;
 
-	pid->pTerm_1 = (position - pid->pv_1) * pid->pGain;
-	if (pid->pTerm_1 > pid->pMax) {
-		pid->pTerm_1 = pid->pMax;
-	}
-	else if (pid->pTerm_1 < -pid->pMax) {
-		pid->pTerm_1 = -pid->pMax;
-	}
+ pid->pTerm_1 = (position - pid->pv_1) * pid->pGain;
+ if (pid->pTerm_1 > pid->pMax) {
+  pid->pTerm_1 = pid->pMax;
+ }
+ else if (pid->pTerm_1 < -pid->pMax) {
+  pid->pTerm_1 = -pid->pMax;
+ }
 
-	pid->iTerm_1 = error * pid->iGain;
-	if (pid->iTerm_1 > pid->iMax) {
-		pid->iTerm_1 = pid->iMax;
-	}
-	else if (pid->iTerm_1 < -pid->iMax) {
-		pid->iTerm_1 = -pid->iMax;
-	}
+ pid->iTerm_1 = error * pid->iGain;
+ if (pid->iTerm_1 > pid->iMax) {
+  pid->iTerm_1 = pid->iMax;
+ }
+ else if (pid->iTerm_1 < -pid->iMax) {
+  pid->iTerm_1 = -pid->iMax;
+ }
 
-	pid->dTerm_1 = pid->dGain * (position - (2.0f * pid->pv_1) + pid->pv_2);
-	if (pid->dTerm_1 > pid->dMax) {
-		pid->dTerm_1 = pid->dMax;
-	}
-	else if (pid->dTerm_1 < -pid->dMax) {
-		pid->dTerm_1 = -pid->dMax;
-	}
+ pid->dTerm_1 = pid->dGain * (position - (2.0f * pid->pv_1) + pid->pv_2);
+ if (pid->dTerm_1 > pid->dMax) {
+  pid->dTerm_1 = pid->dMax;
+ }
+ else if (pid->dTerm_1 < -pid->dMax) {
+  pid->dTerm_1 = -pid->dMax;
+ }
 
-	pid->sp_1 = setpoint;
-	pid->pv_2 = pid->pv_1;
-	pid->pv_1 = position;
-	pid->co_1 = pid->co_1 - pid->pTerm_1 + pid->iTerm_1 - pid->dTerm_1;
+ pid->sp_1 = setpoint;
+ pid->pv_2 = pid->pv_1;
+ pid->pv_1 = position;
+ pid->co_1 = pid->co_1 - pid->pTerm_1 + pid->iTerm_1 - pid->dTerm_1;
 
-	if (pid->co_1 > pid->oMax) {
-		pid->co_1 = pid->oMax;
-	}
-	else if (pid->co_1 < -pid->oMax) {
-		pid->co_1 = -pid->oMax;
-	}
+ if (pid->co_1 > pid->oMax) {
+  pid->co_1 = pid->oMax;
+ }
+ else if (pid->co_1 < -pid->oMax) {
+  pid->co_1 = -pid->oMax;
+ }
 
-	return pid->co_1;
+ return pid->co_1;
 }
 */
 
 void pidZeroIntegral(pidStruct_t *pid, float pv, float iState) {
     if (*pid->iGain != 0.0f)
-	pid->iState = iState / *pid->iGain;
+        pid->iState = iState / *pid->iGain;
     pid->dState = -pv;
     pid->sp_1 = pv;
     pid->co_1 = 0.0f;

@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #include "aq.h"
@@ -87,8 +87,7 @@ static void __canSend(uint32_t id, uint8_t tid, uint8_t seqId, uint8_t n, void *
 
     if ((id & CAN_LCC_MASK) < CAN_LCC_NORMAL) {
         canData.txHeadHi = (canData.txHeadHi + 1) % CAN_BUF_SIZE_HI;
-    }
-    else {
+    } else {
         uint8_t head = (canData.txHeadLo + 1) % CAN_BUF_SIZE_LO;
 
         if (head == canData.txTailLo)
@@ -157,8 +156,7 @@ static uint8_t *canSendWaitResponse(uint32_t extId, uint8_t tid, uint8_t n, uint
     if (timeout == 0) {
         canData.timeouts++;
         return 0;
-    }
-    else if (canData.responses[seqId] != (CAN_FID_NACK>>25)) {
+    } else if (canData.responses[seqId] != (CAN_FID_NACK>>25)) {
         return &canData.responseData[seqId*8];
     }
     // NACK
@@ -265,7 +263,7 @@ uint8_t *canCommandBeep(uint32_t tt, uint8_t tid, uint16_t freq, uint16_t dur) {
 }
 
 void canCommandArm(uint32_t tt, uint8_t tid) {
-   canSend(CAN_LCC_NORMAL | tt | CAN_FID_CMD | (CAN_CMD_ARM<<19), tid, 0, 0);
+    canSend(CAN_LCC_NORMAL | tt | CAN_FID_CMD | (CAN_CMD_ARM<<19), tid, 0, 0);
 }
 
 void canCommandDisarm(uint32_t tt, uint8_t tid) {
@@ -364,19 +362,19 @@ static void canGrantAddr(canBuf_t *rx) {
 
 static void canProcessCmd(canNodes_t *node, uint8_t doc, uint16_t seqId, uint32_t *data, uint8_t n) {
     switch (doc) {
-        case CAN_CMD_STREAM:
-            canUartRxChar(node->canId, n, (uint8_t *)data);
-            break;
+    case CAN_CMD_STREAM:
+        canUartRxChar(node->canId, n, (uint8_t *)data);
+        break;
 
-        case CAN_CMD_TELEM_VALUE:
-            if (node->type == CAN_TYPE_OSD)
-                canOSDRequestValue(node, seqId, (uint8_t *)data);
-            break;
+    case CAN_CMD_TELEM_VALUE:
+        if (node->type == CAN_TYPE_OSD)
+            canOSDRequestValue(node, seqId, (uint8_t *)data);
+        break;
 
-        case CAN_CMD_TELEM_RATE:
-            if (node->type == CAN_TYPE_OSD)
-                canOSDRequstRate(node, seqId, (uint8_t *)data);
-            break;
+    case CAN_CMD_TELEM_RATE:
+        if (node->type == CAN_TYPE_OSD)
+            canOSDRequstRate(node, seqId, (uint8_t *)data);
+        break;
     }
 }
 
@@ -391,28 +389,28 @@ static uint8_t canProcessMessage(canBuf_t *rx) {
     uint8_t ret = 0;
 
     switch (id & CAN_FID_MASK) {
-        case CAN_FID_REQ_ADDR:
-            canGrantAddr(rx);
-            ret = 1;
-            break;
+    case CAN_FID_REQ_ADDR:
+        canGrantAddr(rx);
+        ret = 1;
+        break;
 
-        // telemetry callbacks
-        case CAN_FID_TELEM:
-            if (canData.telemFuncs[canData.nodes[sid-1].type])
-                canData.telemFuncs[canData.nodes[sid-1].type](canData.nodes[sid-1].canId, doc, data);
-            break;
+    // telemetry callbacks
+    case CAN_FID_TELEM:
+        if (canData.telemFuncs[canData.nodes[sid-1].type])
+            canData.telemFuncs[canData.nodes[sid-1].type](canData.nodes[sid-1].canId, doc, data);
+        break;
 
-        case CAN_FID_CMD:
-            canProcessCmd(&canData.nodes[sid-1], doc, seqId, data, n);
-            break;
+    case CAN_FID_CMD:
+        canProcessCmd(&canData.nodes[sid-1], doc, seqId, data, n);
+        break;
 
-        case CAN_FID_ACK:
-        case CAN_FID_NACK:
-        case CAN_FID_REPLY:
-            canData.responses[seqId] = (id & CAN_FID_MASK)>>25;
-            *ptr++ = *data++;
-            *ptr = *data;
-            break;
+    case CAN_FID_ACK:
+    case CAN_FID_NACK:
+    case CAN_FID_REPLY:
+        canData.responses[seqId] = (id & CAN_FID_MASK)>>25;
+        *ptr++ = *data++;
+        *ptr = *data;
+        break;
     }
 
     return ret;

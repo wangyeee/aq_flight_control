@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #ifndef _futaba_h
@@ -21,15 +21,15 @@
 
 #include "radio.h"
 
-#define FUTABA_BAUD		100000
-#define FUTABA_RXBUF_SIZE	32
+#define FUTABA_BAUD  100000
+#define FUTABA_RXBUF_SIZE 32
 
-#define FUTABA_START_CHAR	0x0f
-#define FUTABA_END_CHAR		0b11000011
+#define FUTABA_START_CHAR 0x0f
+#define FUTABA_END_CHAR  0b11000011
 
-#define FUTABA_WAIT_SYNC	0x00
-#define FUTABA_WAIT_DATA	0x01
-#define FUTABA_WAIT_END		0x02
+#define FUTABA_WAIT_SYNC 0x00
+#define FUTABA_WAIT_DATA 0x01
+#define FUTABA_WAIT_END  0x02
 
 typedef struct {
     unsigned channel1  : 11;
@@ -57,8 +57,8 @@ typedef struct {
     uint32_t lastCharReceived;
 
     union {
-	uint8_t rawBuf[23];
-	futabaChannelStruct_t channels;
+        uint8_t rawBuf[23];
+        futabaChannelStruct_t channels;
     } u;
 } CC_ALIGNED futabaStruct_t;
 

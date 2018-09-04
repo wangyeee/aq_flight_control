@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #include "aq.h"
@@ -876,9 +876,8 @@ uint8_t configFlashWrite(void) {
 
         aqFree(recs, CONFIG_NUM_PARAMS, sizeof(configRec_t));
 
-	AQ_NOTICE("config: Parameters saved to flash memory.\n");
-    }
-    else {
+        AQ_NOTICE("config: Parameters saved to flash memory.\n");
+    } else {
         AQ_NOTICE("config: Error writing params to flash, cannot allocate memory.\n");
     }
 
@@ -893,30 +892,30 @@ void configInit(void) {
 
     // try to load any config params from uSD card
     if (configReadFile(0) < 0)
-	// clear config if read error
-	memset(p, 0, sizeof(p));
+// clear config if read error
+        memset(p, 0, sizeof(p));
     else
-	supervisorConfigRead();
+        supervisorConfigRead();
 
     // get flash version
     ver = *(float *)(flashStartAddr()+16);
     if (isnan(ver))
-	ver = 0.0f;
+        ver = 0.0f;
 
     // if compiled defaults are greater than flash version and loaded version
     if (DEFAULT_CONFIG_VERSION > ver && DEFAULT_CONFIG_VERSION > p[CONFIG_VERSION])
-	configLoadDefault();
+        configLoadDefault();
     // if flash version greater than or equal to currently loaded version
     else if (ver >= p[CONFIG_VERSION])
-	configFlashRead();
+        configFlashRead();
 
     // if loaded version greater than flash version
     if (p[CONFIG_VERSION] > ver)
-	configFlashWrite();
+        configFlashWrite();
 
 #ifdef HAS_QUATOS
     if (p[LIC_KEY1] == 0)
-	p[QUATOS_ENABLE] = 0;
+        p[QUATOS_ENABLE] = 0;
 #endif
 }
 
@@ -924,7 +923,7 @@ unsigned int configParameterRead(void *data) {
     paramStruct_t *par = (paramStruct_t *)data;
 
     if (par->paramId + par->num > CONFIG_NUM_PARAMS)
-	par->num = CONFIG_NUM_PARAMS - par->paramId;
+        par->num = CONFIG_NUM_PARAMS - par->paramId;
 
     memcpy((char *)par->values, (char *)&p[par->paramId], par->num * sizeof(float));
 
@@ -949,37 +948,36 @@ int configParseParams(char *fileBuf, int size, int p1) {
     int i, j;
 
     if (!(param = (char *)aqCalloc(17, sizeof(char))))
-	return -1;
+        return -1;
 
     p2 = 0;
     for (i = 0; i < size; i++) {
-	c = fileBuf[p2++];
-	if (c == '\n' || p1 == (CONFIG_LINE_BUF_SIZE-1)) {
-	    lineBuf[p1] = 0;
+        c = fileBuf[p2++];
+        if (c == '\n' || p1 == (CONFIG_LINE_BUF_SIZE-1)) {
+            lineBuf[p1] = 0;
 
-	    n = sscanf(lineBuf, "#define DEFAULT_%17s %f", param, &value);
-	    if (n != 2) {
-		n = sscanf(lineBuf, "%17s %f", param, &value);
-		if (n != 2) {
-		    n = sscanf(lineBuf, "#define %17s %f", param, &value);
-		}
-	    }
+            n = sscanf(lineBuf, "#define DEFAULT_%17s %f", param, &value);
+            if (n != 2) {
+                n = sscanf(lineBuf, "%17s %f", param, &value);
+                if (n != 2) {
+                    n = sscanf(lineBuf, "#define %17s %f", param, &value);
+                }
+            }
 
-	    if (n == 2) {
-		for (j = 0; j < CONFIG_NUM_PARAMS; j++) {
-		    if (!strncasecmp(param, configParameterStrings[j], sizeof(char)*17))
-			p[j] = value;
-		}
-	    }
-	    p1 = 0;
-	}
-	else {
-	    lineBuf[p1++] = c;
-	}
+            if (n == 2) {
+                for (j = 0; j < CONFIG_NUM_PARAMS; j++) {
+                    if (!strncasecmp(param, configParameterStrings[j], sizeof(char)*17))
+                        p[j] = value;
+                }
+            }
+            p1 = 0;
+        } else {
+            lineBuf[p1++] = c;
+        }
     }
 
     if (param)
-	aqFree(param, 17, sizeof(char));
+        aqFree(param, 17, sizeof(char));
 
     return p1;
 }
@@ -992,37 +990,37 @@ int8_t configReadFile(char *fname) {
     int p1;
 
     if (fname == 0)
-	fname = CONFIG_FILE_NAME;
+        fname = CONFIG_FILE_NAME;
 
     if ((fh = filerGetHandle(fname)) < 0) {
-	AQ_NOTICE("config: cannot get read file handle\n");
-	return -1;
+        AQ_NOTICE("config: cannot get read file handle\n");
+        return -1;
     }
 
     if (!(fileBuf = (char *)aqCalloc(CONFIG_FILE_BUF_SIZE, sizeof(char)))) {
-	AQ_NOTICE("config: Error reading from file, cannot allocate memory.\n");
-	filerClose(fh);
-	return -1;
+        AQ_NOTICE("config: Error reading from file, cannot allocate memory.\n");
+        filerClose(fh);
+        return -1;
     }
 
     p1 = 0;
     while ((ret = filerRead(fh, fileBuf, -1, CONFIG_FILE_BUF_SIZE)) > 0) {
-	p1 = configParseParams((char *)fileBuf, ret, p1);
-	if (p1 < 0) {
-	    ret = -1;
-	    break;
-	}
+        p1 = configParseParams((char *)fileBuf, ret, p1);
+        if (p1 < 0) {
+            ret = -1;
+            break;
+        }
     }
 
     filerClose(fh);
 
     if (fileBuf)
-	aqFree(fileBuf, CONFIG_FILE_BUF_SIZE, sizeof(char));
+        aqFree(fileBuf, CONFIG_FILE_BUF_SIZE, sizeof(char));
 
     if (ret > -1)
-	AQ_NOTICE("config: Parameters loaded from local storage file.\n");
+        AQ_NOTICE("config: Parameters loaded from local storage file.\n");
     else
-	AQ_NOTICE("config: Failed to read parameters from local file.");
+        AQ_NOTICE("config: Failed to read parameters from local file.");
 
     return ret;
 }
@@ -1040,39 +1038,39 @@ int8_t configWriteFile(char *fname) {
     int i;
 
     if (fname == 0)
-	fname = CONFIG_FILE_NAME;
+        fname = CONFIG_FILE_NAME;
 
     if ((fh = filerGetHandle(fname)) < 0) {
-	AQ_NOTICE("config: cannot get write file handle\n");
-	return -1;
+        AQ_NOTICE("config: cannot get write file handle\n");
+        return -1;
     }
 
     if (!(buf = (char *)aqCalloc(128, sizeof(char)))) {
-	AQ_NOTICE("config: Error writing to file, cannot allocate memory.\n");
-	filerClose(fh);
-	return -1;
+        AQ_NOTICE("config: Error writing to file, cannot allocate memory.\n");
+        filerClose(fh);
+        return -1;
     }
 
     for (i = 0; i < CONFIG_NUM_PARAMS; i++) {
-	n = configFormatParam(buf, i);
-	if (n)
-	    ret = filerWrite(fh, buf, -1, n);
+        n = configFormatParam(buf, i);
+        if (n)
+            ret = filerWrite(fh, buf, -1, n);
 
-	if (!n || ret < n) {
-	    ret = -1;
-	    break;
-	}
+        if (!n || ret < n) {
+            ret = -1;
+            break;
+        }
     }
 
     filerClose(fh);
 
     if (buf)
-	aqFree(buf, 128, sizeof(char));
+        aqFree(buf, 128, sizeof(char));
 
     if (ret > -1)
-	AQ_NOTICE("config: Parameters saved to local storage file.\n");
+        AQ_NOTICE("config: Parameters saved to local storage file.\n");
     else
-	AQ_NOTICE("config: Error writing parameters to file.\n");
+        AQ_NOTICE("config: Error writing parameters to file.\n");
 
     return ret;
 }
@@ -1085,11 +1083,11 @@ int configGetParamIdByName(char *name) {
     int i = -1;
 
     for (i = 0; i < CONFIG_NUM_PARAMS; i++)
-	if (!strncmp(name, configParameterStrings[i], 16))
-	    break;
+        if (!strncmp(name, configParameterStrings[i], 16))
+            break;
 
     if (i == -1)
-	AQ_PRINTF("config: cannot find parmeter '%s'\n", name);
+        AQ_PRINTF("config: cannot find parmeter '%s'\n", name);
 
     return i;
 }

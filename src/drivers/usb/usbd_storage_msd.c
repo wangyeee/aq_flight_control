@@ -36,8 +36,6 @@
 /** @addtogroup STM32_USB_OTG_DEVICE_LIBRARY
   * @{
   */
-
-
 /** @defgroup STORAGE
   * @brief media storage application module
   * @{
@@ -49,8 +47,6 @@
 /**
   * @}
   */
-
-
 /** @defgroup STORAGE_Private_Defines
   * @{
   */
@@ -58,64 +54,58 @@
 /**
   * @}
   */
-
-
 /** @defgroup STORAGE_Private_Macros
   * @{
   */
 /**
   * @}
   */
-
-
 /** @defgroup STORAGE_Private_Variables
   * @{
   */
 /* USB Mass storage Standard Inquiry Data */
 const int8_t  STORAGE_Inquirydata[] = {//36
 
-  /* LUN 0 */
-  0x00,
-  0x80,
-  0x02,
-  0x02,
-  (USBD_STD_INQUIRY_LENGTH - 5),
-  0x00,
-  0x00,
-  0x00,
-  'A', 'U', 'T', 'O', 'Q', 'U', 'A', 'D', /* Manufacturer : 8 bytes */
-  'm', 'i', 'c', 'r', 'o', 'S', 'D', ' ', /* Product      : 16 Bytes */
-  'F', 'l', 'a', 's', 'h', ' ', ' ', ' ',
-  '1', '.', '0' ,'0',                     /* Version      : 4 Bytes */
+    /* LUN 0 */
+    0x00,
+    0x80,
+    0x02,
+    0x02,
+    (USBD_STD_INQUIRY_LENGTH - 5),
+    0x00,
+    0x00,
+    0x00,
+    'A', 'U', 'T', 'O', 'Q', 'U', 'A', 'D', /* Manufacturer : 8 bytes */
+    'm', 'i', 'c', 'r', 'o', 'S', 'D', ' ', /* Product      : 16 Bytes */
+    'F', 'l', 'a', 's', 'h', ' ', ' ', ' ',
+    '1', '.', '0','0',                      /* Version      : 4 Bytes */
 };
 
 /**
   * @}
   */
-
-
 /** @defgroup STORAGE_Private_FunctionPrototypes
   * @{
   */
 int8_t STORAGE_Init (uint8_t lun);
 
 int8_t STORAGE_GetCapacity (uint8_t lun,
-                           uint32_t *block_num,
-                           uint32_t *block_size);
+                            uint32_t *block_num,
+                            uint32_t *block_size);
 
 int8_t  STORAGE_IsReady (uint8_t lun);
 
 int8_t  STORAGE_IsWriteProtected (uint8_t lun);
 
 int8_t STORAGE_Read (uint8_t lun,
-                        uint8_t *buf,
-                        uint32_t blk_addr,
-                        uint16_t blk_len);
+                     uint8_t *buf,
+                     uint32_t blk_addr,
+                     uint16_t blk_len);
 
 int8_t STORAGE_Write (uint8_t lun,
-                        uint8_t *buf,
-                        uint32_t blk_addr,
-                        uint16_t blk_len);
+                      uint8_t *buf,
+                      uint32_t blk_addr,
+                      uint16_t blk_len);
 
 int8_t STORAGE_Eject (uint8_t lun);
 
@@ -138,13 +128,9 @@ USBD_STORAGE_cb_TypeDef  *USBD_STORAGE_fops = &USBD_MICRO_SDIO_fops;
 /**
   * @}
   */
-
-
 /** @defgroup STORAGE_Private_Functions
   * @{
   */
-
-
 /**
   * @brief  Initialize the storage medium
   * @param  lun : logical unit number
@@ -153,11 +139,10 @@ USBD_STORAGE_cb_TypeDef  *USBD_STORAGE_fops = &USBD_MICRO_SDIO_fops;
 
 int8_t STORAGE_Init(uint8_t lun) {
     if (supervisorData.state == STATE_DISARMED) {
-	filerEnableMSC();
-	return (0);
-    }
-    else {
-	return (-1);
+        filerEnableMSC();
+        return (0);
+    } else {
+        return (-1);
     }
 }
 
@@ -170,13 +155,13 @@ int8_t STORAGE_Init(uint8_t lun) {
   */
 int8_t STORAGE_GetCapacity (uint8_t lun, uint32_t *block_num, uint32_t *block_size) {
     if (disk_ioctl(0, GET_SECTOR_COUNT, block_num) != 0) {
-	return (-1);
+        return (-1);
     }
     if (disk_ioctl(0, GET_SECTOR_SIZE, block_size) != 0) {
-	return (-1);
+        return (-1);
     }
 
-  return (0);
+    return (0);
 }
 
 /**
@@ -186,14 +171,12 @@ int8_t STORAGE_GetCapacity (uint8_t lun, uint32_t *block_num, uint32_t *block_si
   */
 int8_t STORAGE_IsReady (uint8_t lun) {
     if (filerGetMSCState() <= FILER_STATE_MSC_EJECT) {
-	STORAGE_Init(lun);
-	return -1;
-    }
-    else if (filerGetMSCState() != FILER_STATE_MSC_ACTIVE || !SD_Initialized() || !SD_TransferComplete()) {
-	return (-1);
-    }
-    else {
-	return (0);
+        STORAGE_Init(lun);
+        return -1;
+    } else if (filerGetMSCState() != FILER_STATE_MSC_ACTIVE || !SD_Initialized() || !SD_TransferComplete()) {
+        return (-1);
+    } else {
+        return (0);
     }
 }
 
@@ -217,12 +200,12 @@ int8_t STORAGE_IsWriteProtected (uint8_t lun) {
 
 int8_t STORAGE_Read(uint8_t lun, uint8_t *buf, uint32_t blk_addr, uint16_t blk_len) {
     if (filerGetMSCState() != FILER_STATE_MSC_ACTIVE || !SD_Initialized() || !SD_TransferComplete())
-	return (-1);
+        return (-1);
 
     sdioSetCallback(SCSI_ProcessReadComplete, blk_len * 512);
 
     while (SD_ReadMultiBlocks(buf, blk_addr, 512, blk_len) != SD_OK)
-	;
+        ;
 
     return 0;
 }
@@ -237,12 +220,12 @@ int8_t STORAGE_Read(uint8_t lun, uint8_t *buf, uint32_t blk_addr, uint16_t blk_l
   */
 int8_t STORAGE_Write(uint8_t lun, uint8_t *buf, uint32_t blk_addr, uint16_t blk_len) {
     if (filerGetMSCState() != FILER_STATE_MSC_ACTIVE || !SD_Initialized() || !SD_TransferComplete())
-	return (-1);
+        return (-1);
 
     sdioSetCallback(SCSI_ProcessWriteComplete, blk_len * 512);
 
     while (SD_WriteMultiBlocks(buf, blk_addr, 512, blk_len) != SD_OK)
-	;
+        ;
 
     return (0);
 }
@@ -265,13 +248,9 @@ int8_t STORAGE_Eject (uint8_t lun) {
 /**
   * @}
   */
-
-
 /**
   * @}
   */
-
-
 /**
   * @}
   */

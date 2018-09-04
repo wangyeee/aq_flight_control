@@ -13,21 +13,21 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #ifndef _rtc_h
 #define _rtc_h
 
 #ifndef RTC_INIT_MASK
-    #define RTC_INIT_MASK	   ((uint32_t)0xFFFFFFFF)
+#define RTC_INIT_MASK    ((uint32_t)0xFFFFFFFF)
 #endif
 
 #ifndef RTC_TR_RESERVED_MASK
-    #define RTC_TR_RESERVED_MASK    ((uint32_t)0x007F7F7F)
+#define RTC_TR_RESERVED_MASK    ((uint32_t)0x007F7F7F)
 #endif
 #ifndef RTC_DR_RESERVED_MASK
-    #define RTC_DR_RESERVED_MASK    ((uint32_t)0x00FFFF3F)
+#define RTC_DR_RESERVED_MASK    ((uint32_t)0x00FFFF3F)
 #endif
 
 typedef struct {

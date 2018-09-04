@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #include "aq.h"
@@ -42,14 +42,14 @@
 #include "can.h"
 #include "analog.h"
 #ifdef HAS_AQ_TELEMETRY
-    #include "telemetry.h"
-    #include "command.h"
+#include "telemetry.h"
+#include "command.h"
 #endif
 #ifdef CAN_CALIB
-    #include "canCalib.h"
+#include "canCalib.h"
 #endif
 #ifdef USE_SIGNALING
-   #include "signaling.h"
+#include "signaling.h"
 #endif
 #include <CoOS.h>
 
@@ -65,7 +65,7 @@ void aqInit(void *pdata) {
 #ifdef DAC_TP_PORT
     tp = digitalInit(DAC_TP_PORT, DAC_TP_PIN, 0);
 #endif
-    rtcInit();	    // have to do this first as it requires our microsecond timer to calibrate
+    rtcInit();     // have to do this first as it requires our microsecond timer to calibrate
     timerInit();    // now setup the microsecond timer before everything else
     commNoticesInit();  // set up notice queue
     sdioLowLevelInit();
@@ -114,7 +114,7 @@ void aqInit(void *pdata) {
 
     // startup complete, reduce comm task priority
     if (commData.commTask)
-	CoSetPriority(commData.commTask, COMM_PRIORITY);
+        CoSetPriority(commData.commTask, COMM_PRIORITY);
 
 #ifdef HAS_AQ_TELEMETRY
     // start telemetry

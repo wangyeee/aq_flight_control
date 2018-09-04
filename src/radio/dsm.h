@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2014  Bill Nesbitt
+    Copyright (c) 2014  Bill Nesbitt
 
     Portions borrowed from the superbitrf project
     Copyright (C) 2013 Freek van Tienen <freek.v.tienen@gmail.com>
@@ -25,10 +25,10 @@
 #define DSM_BIND_RECV_TIME              10000       // Time before timeout when receiving bind packets
 #define DSM_SYNC_RECV_TIME              20000       // Time before timeout when trying to sync
 #define DSM_SYNC_FRECV_TIME             65000       // Time before timeout when trying to sync first packet of DSMX (bigger then bind sending)
-#define DSM_TIMEOUT						500			// grace period before timeout
+#define DSM_TIMEOUT      500   // grace period before timeout
 
-#define DSM_CHA_TIME					7000
-#define DSM_CHB_TIME					4000
+#define DSM_CHA_TIME     7000
+#define DSM_CHB_TIME     4000
 #define DSM_BIND_SEND_TIME              10000       // Time between sending bind packets
 #define DSM_SEND_TIME                   22000       // Time between sending both Channel A and Channel B
 
@@ -39,8 +39,8 @@
 #define DSM_MAX_MISSED_PACKETS          100         // after this, the sync is considered lost
 #define DSM_BIND_ACK_NUM                200         // number of bin ACK packets to send
 
-#define IS_DSM2(x)			(x == DSM_DSM2_1 || x == DSM_DSM2_2 || x == DSM_DSM2_JR)
-#define IS_DSMX(x)			(!IS_DSM2(x))
+#define IS_DSM2(x)   (x == DSM_DSM2_1 || x == DSM_DSM2_2 || x == DSM_DSM2_JR)
+#define IS_DSMX(x)   (!IS_DSM2(x))
 #define CHECK_MFG_ID(protocol, packet, id) ((IS_DSM2(protocol) && packet[0] == (~id[2]&0xFF) && packet[1] == (~id[3]&0xFF)) || \
             (IS_DSMX(protocol) && packet[0] == id[2] && packet[1] == id[3]))
 
@@ -56,11 +56,11 @@ enum dsm_protocol {
 };
 
 enum dsm_receiver_state {
-    DSM_RECEIVER_STOP					= 0x0,      // The receiver is stopped
-    DSM_RECEIVER_BIND					= 0x1,      // The receiver is binding
-    DSM_RECEIVER_SYNC_A					= 0x2,      // The receiver is syncing channel A
-    DSM_RECEIVER_SYNC_B					= 0x3,      // The receiver is syncing channel B
-    DSM_RECEIVER_RECV					= 0x4,      // The receiver is receiving
+    DSM_RECEIVER_STOP     = 0x0,      // The receiver is stopped
+    DSM_RECEIVER_BIND     = 0x1,      // The receiver is binding
+    DSM_RECEIVER_SYNC_A     = 0x2,      // The receiver is syncing channel A
+    DSM_RECEIVER_SYNC_B     = 0x3,      // The receiver is syncing channel B
+    DSM_RECEIVER_RECV     = 0x4,      // The receiver is receiving
 };
 
 typedef struct {
@@ -75,7 +75,7 @@ typedef struct {
     uint8_t rfChannel;
     uint8_t dsmNumChannels;
     uint8_t dsmProtocol;
-	uint8_t isDsm2;
+    uint8_t isDsm2;
     uint8_t bound;
     uint8_t newBind;
     uint8_t rfChannels[23];

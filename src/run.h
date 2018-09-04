@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #ifndef _run_h
@@ -21,10 +21,10 @@
 
 #include <CoOS.h>
 
-#define RUN_TASK_SIZE		256
-#define RUN_PRIORITY		30
+#define RUN_TASK_SIZE  256
+#define RUN_PRIORITY  30
 
-#define RUN_SENSOR_HIST		10				// number of timesteps to average observation sensors' data
+#define RUN_SENSOR_HIST  10    // number of timesteps to average observation sensors' data
 
 #define ALTITUDE                 (*runData.altPos)
 #define VELOCITYD                (*runData.altVel)

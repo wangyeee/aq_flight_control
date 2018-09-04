@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #ifndef _ms5611_h
@@ -21,11 +21,9 @@
 
 #include "spi.h"
 #include "util.h"
+#define MS5611_SPI_BAUD      SPI_BaudRatePrescaler_4 // 10.5Mhz
 
-
-#define MS5611_SPI_BAUD		    SPI_BaudRatePrescaler_4	// 10.5Mhz
-
-#define MS5611_SLOTS		    8				// ~13 Hz
+#define MS5611_SLOTS      8    // ~13 Hz
 #define MS5611_RETRIES              5
 
 typedef struct {

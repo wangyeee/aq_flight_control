@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #include "aq.h"
@@ -38,8 +38,8 @@ void timerInit(void) {
 
     TIMER_EN;
 
-	// stop timer when core halted (debug)
-	DBGMCU_APB1PeriphConfig(TIMER_CORE_HALT, ENABLE);
+// stop timer when core halted (debug)
+    DBGMCU_APB1PeriphConfig(TIMER_CORE_HALT, ENABLE);
 
     /* Time base configuration for 1MHz (us)*/
     TIM_TimeBaseStructure.TIM_Period = 0xFFFFFFFF;
@@ -179,46 +179,43 @@ void timerSetAbsoluteAlarm4(int32_t us, timerCallback_t *callback, int parameter
 }
 
 void TIMER_ISR(void) {
-	uint16_t itEnable = TIMER_TIM->DIER;
+    uint16_t itEnable = TIMER_TIM->DIER;
     uint16_t itStatus = TIMER_TIM->SR;
 
     if ((itEnable & TIM_IT_CC1) != RESET && (itStatus & TIM_IT_CC1) != RESET) {
-		TIMER_TIM->SR = (uint16_t)~TIM_IT_CC1;
+        TIMER_TIM->SR = (uint16_t)~TIM_IT_CC1;
 
-		// Disable the Interrupt
-		TIMER_TIM->DIER &= (uint16_t)~TIM_IT_CC1;
+        // Disable the Interrupt
+        TIMER_TIM->DIER &= (uint16_t)~TIM_IT_CC1;
 
-		timerData.alarm1Callback(timerData.alarm1Parameter);
+        timerData.alarm1Callback(timerData.alarm1Parameter);
+    } else if ((itEnable & TIM_IT_CC2) != RESET && (itStatus & TIM_IT_CC2) != RESET) {
+        TIMER_TIM->SR = (uint16_t)~TIM_IT_CC2;
+
+        // Disable the Interrupt
+        TIMER_TIM->DIER &= (uint16_t)~TIM_IT_CC2;
+
+        timerData.alarm2Callback(timerData.alarm2Parameter);
+    } else if ((itEnable & TIM_IT_CC3) != RESET && (itStatus & TIM_IT_CC3) != RESET) {
+        TIMER_TIM->SR = (uint16_t)~TIM_IT_CC3;
+
+        // Disable the Interrupt
+        TIMER_TIM->DIER &= (uint16_t)~TIM_IT_CC3;
+
+        timerData.alarm3Callback(timerData.alarm3Parameter);
     }
-    else if ((itEnable & TIM_IT_CC2) != RESET && (itStatus & TIM_IT_CC2) != RESET) {
-		TIMER_TIM->SR = (uint16_t)~TIM_IT_CC2;
-
-		// Disable the Interrupt
-		TIMER_TIM->DIER &= (uint16_t)~TIM_IT_CC2;
-
-		timerData.alarm2Callback(timerData.alarm2Parameter);
-    }
-    else if ((itEnable & TIM_IT_CC3) != RESET && (itStatus & TIM_IT_CC3) != RESET) {
-		TIMER_TIM->SR = (uint16_t)~TIM_IT_CC3;
-
-		// Disable the Interrupt
-		TIMER_TIM->DIER &= (uint16_t)~TIM_IT_CC3;
-
-		timerData.alarm3Callback(timerData.alarm3Parameter);
-	}
     // CC4 is used for RTC calibration at startup
     else if ((itEnable & TIM_IT_CC4) != RESET && (itStatus & TIM_IT_CC4) != RESET) {
-		TIMER_TIM->SR = (uint16_t)~TIM_IT_CC4;
+        TIMER_TIM->SR = (uint16_t)~TIM_IT_CC4;
 
         if (timerData.alarm4Callback) {
-			// Disable the Interrupt
-			TIMER_TIM->DIER &= (uint16_t)~TIM_IT_CC4;
+            // Disable the Interrupt
+            TIMER_TIM->DIER &= (uint16_t)~TIM_IT_CC4;
 
-			timerData.alarm4Callback(timerData.alarm4Parameter);
-		}
-        else {
+            timerData.alarm4Callback(timerData.alarm4Parameter);
+        } else {
             // Get the Input Capture value
             rtcData.captureLSI[rtcData.captureNumber++] = TIM_GetCapture4(TIMER_TIM);
-		}
+        }
     }
 }

@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
     Copyright 2013-2016 Maxim Paperno
 */
 
@@ -38,7 +38,7 @@
 #include "supervisor.h"
 #include "aq_mavlink.h"
 #ifdef USE_SIGNALING
-   #include "signaling.h"
+#include "signaling.h"
 #endif
 #include <CoOS.h>
 #include <string.h>
@@ -98,7 +98,7 @@ void navSetHomeCurrent(void) {
 
 void navRecallHome(void) {
     if (navData.homeLeg.targetLat == (double)0.0 || navData.homeLeg.targetLon == (double)0.0)
-	return;
+        return;
     navUkfSetGlobalPositionTarget(navData.homeLeg.targetLat, navData.homeLeg.targetLon);
     navSetHoldAlt(navData.homeLeg.targetAlt, navData.homeLeg.relativeAlt);
     navData.holdMaxHorizSpeed = navData.homeLeg.maxHorizSpeed;
@@ -134,7 +134,8 @@ void navSetHfReference(uint8_t refType) {
 void navSetHeadFreeMode(void) {
     // HF switch to set/dynamic position
     // when disarmed one can also set the orientation heading in this position (for 2-pos control)
-    if (rcIsSwitchActive(NAV_CTRL_HF_SET) || (!(supervisorData.state & STATE_ARMED) && navData.headFreeMode != NAV_HEADFREE_LOCKED && rcIsSwitchActive(NAV_CTRL_HF_LOCK))) {
+    if (rcIsSwitchActive(NAV_CTRL_HF_SET) || (!(supervisorData.state & STATE_ARMED) && navData.headFreeMode != NAV_HEADFREE_LOCKED
+            && rcIsSwitchActive(NAV_CTRL_HF_LOCK))) {
         if (navData.headFreeMode != NAV_HEADFREE_DYNAMIC) {
             if (navData.headFreeMode != NAV_HEADFREE_SETTING && navData.headFreeMode != NAV_HEADFREE_DYN_DELAY) {
                 navData.headFreeMode = NAV_HEADFREE_SETTING;
@@ -143,12 +144,10 @@ void navSetHeadFreeMode(void) {
 #ifdef USE_SIGNALING
                 signalingOnetimeEvent(SIG_EVENT_OT_HF_SET);
 #endif
-            }
-            else if ((supervisorData.state & STATE_ARMED) && timerMicros() - navData.hfDynamicModeTimer > NAV_HF_DYNAMIC_DELAY) {
+            } else if ((supervisorData.state & STATE_ARMED) && timerMicros() - navData.hfDynamicModeTimer > NAV_HF_DYNAMIC_DELAY) {
                 navData.headFreeMode = NAV_HEADFREE_DYNAMIC;
                 AQ_NOTICE("Now in dynamic Heading-Free DVH mode\n");
-            }
-            else if (navData.headFreeMode == NAV_HEADFREE_SETTING)
+            } else if (navData.headFreeMode == NAV_HEADFREE_SETTING)
                 navData.headFreeMode = NAV_HEADFREE_DYN_DELAY;
         }
     }
@@ -192,19 +191,16 @@ navMission_t *navLoadLeg(uint8_t leg) {
         navData.targetHeading = navData.homeLeg.poiHeading;
         navData.holdMaxHorizSpeed = navData.homeLeg.maxHorizSpeed;
         navData.holdMaxVertSpeed = navData.homeLeg.maxVertSpeed;
-    }
-    else if (curLeg->type == NAV_LEG_GOTO) {
+    } else if (curLeg->type == NAV_LEG_GOTO) {
         if (curLeg->targetLat != (double)0.0 && curLeg->targetLon != (double)0.0)
             navUkfSetGlobalPositionTarget(curLeg->targetLat, curLeg->targetLon);
         navData.targetHeading = curLeg->poiHeading;
-    }
-    else if (curLeg->type == NAV_LEG_ORBIT) {
+    } else if (curLeg->type == NAV_LEG_ORBIT) {
         if (curLeg->targetLat != (double)0.0 && curLeg->targetLon != (double)0.0)
             navUkfSetGlobalPositionTarget(curLeg->targetLat, curLeg->targetLon);
         navData.targetHeading = curLeg->poiHeading;
         navData.holdMaxHorizSpeed = NAV_DFLT_HOR_SPEED;
-    }
-    else if (curLeg->type == NAV_LEG_TAKEOFF) {
+    } else if (curLeg->type == NAV_LEG_TAKEOFF) {
         // store this position as the takeoff position
         navUkfSetHereAsPositionTarget();
         navData.targetHeading = AQ_YAW;
@@ -214,8 +210,7 @@ navMission_t *navLoadLeg(uint8_t leg) {
         navSetHomeCurrent();
         navData.homeLeg.targetAlt = navData.holdAlt;
         navData.homeLeg.poiHeading = -0.0f;                // relative
-    }
-    else if (curLeg->type == NAV_LEG_LAND) {
+    } else if (curLeg->type == NAV_LEG_LAND) {
         navUkfSetHereAsPositionTarget();  // hold current position
         navData.targetHeading = fabsf(curLeg->poiHeading);  // always fixed
         navData.holdMaxVertSpeed = curLeg->maxVertSpeed;
@@ -253,11 +248,11 @@ void navSetFixType(void) {
         navData.fixType = 0;
 
     if (navData.fixType == 3) {
-	if (!(supervisorData.state & STATE_CALIBRATION))
-	    digitalHi(supervisorData.gpsLed);
+        if (!(supervisorData.state & STATE_CALIBRATION))
+            digitalHi(supervisorData.gpsLed);
     } else {
-	if (!(supervisorData.state & STATE_CALIBRATION))
-	    digitalLo(supervisorData.gpsLed);
+        if (!(supervisorData.state & STATE_CALIBRATION))
+            digitalLo(supervisorData.gpsLed);
     }
 }
 
@@ -265,70 +260,70 @@ void navDoUserCommands(unsigned char *leg, navMission_t *curLeg) {
 
     // home set
     if (rcIsSwitchActive(NAV_CTRL_HOM_SET)) {
-	if (!navData.homeActionFlag && (supervisorData.state & STATE_ARMED) && navData.navCapable)
-	    navSetHomeCurrent();
-	navData.homeActionFlag = 1;
+        if (!navData.homeActionFlag && (supervisorData.state & STATE_ARMED) && navData.navCapable)
+            navSetHomeCurrent();
+        navData.homeActionFlag = 1;
     }
     // recall home
     else if (rcIsSwitchActive(NAV_CTRL_HOM_GO)) {
-	if (!navData.homeActionFlag && (supervisorData.state & STATE_ARMED) && navData.navCapable) {
-	    navRecallHome();
-	    AQ_NOTICE("Returning to home position\n");
-	}
-	navData.homeActionFlag = 1;
+        if (!navData.homeActionFlag && (supervisorData.state & STATE_ARMED) && navData.navCapable) {
+            navRecallHome();
+            AQ_NOTICE("Returning to home position\n");
+        }
+        navData.homeActionFlag = 1;
     }
     // switch to middle, clear action flag
     else {
-	navData.homeActionFlag = 0;
+        navData.homeActionFlag = 0;
     }
 
     // heading-free mode
     if (rcIsControlConfigured(NAV_CTRL_HF_SET) || rcIsControlConfigured(NAV_CTRL_HF_LOCK)) {
 
-	navSetHeadFreeMode();
+        navSetHeadFreeMode();
 
-	// set/maintain headfree frame reference
-	if (!navData.homeActionFlag && ( navData.headFreeMode == NAV_HEADFREE_SETTING ||
-		(navData.headFreeMode == NAV_HEADFREE_DYNAMIC && navData.mode == NAV_STATUS_DVH) )) {
-	    uint8_t dfRefTyp = 0;
-	    unsigned long currentTime = IMU_LASTUPD;
-	    if ((supervisorData.state & STATE_FLYING) && navData.homeLeg.targetLat != (double)0.0f && navData.homeLeg.targetLon != (double)0.0f) {
-		if (NAV_HF_HOME_DIST_D_MIN && NAV_HF_HOME_DIST_FREQ && navData.navCapable && (currentTime - navData.homeDistanceLastUpdate) > (AQ_US_PER_SEC / NAV_HF_HOME_DIST_FREQ)) {
-		    navData.distanceToHome = navCalcDistance(gpsData.lat, gpsData.lon, navData.homeLeg.targetLat, navData.homeLeg.targetLon);
-		    navData.homeDistanceLastUpdate = currentTime;
-		}
-		if (!NAV_HF_HOME_DIST_D_MIN || navData.distanceToHome > NAV_HF_HOME_DIST_D_MIN)
-		    dfRefTyp = 1;
-	    }
-	    navSetHfReference(dfRefTyp);
-	}
+// set/maintain headfree frame reference
+        if (!navData.homeActionFlag && ( navData.headFreeMode == NAV_HEADFREE_SETTING ||
+                                         (navData.headFreeMode == NAV_HEADFREE_DYNAMIC && navData.mode == NAV_STATUS_DVH) )) {
+            uint8_t dfRefTyp = 0;
+            unsigned long currentTime = IMU_LASTUPD;
+            if ((supervisorData.state & STATE_FLYING) && navData.homeLeg.targetLat != (double)0.0f && navData.homeLeg.targetLon != (double)0.0f) {
+                if (NAV_HF_HOME_DIST_D_MIN && NAV_HF_HOME_DIST_FREQ && navData.navCapable
+                        && (currentTime - navData.homeDistanceLastUpdate) > (AQ_US_PER_SEC / NAV_HF_HOME_DIST_FREQ)) {
+                    navData.distanceToHome = navCalcDistance(gpsData.lat, gpsData.lon, navData.homeLeg.targetLat, navData.homeLeg.targetLon);
+                    navData.homeDistanceLastUpdate = currentTime;
+                }
+                if (!NAV_HF_HOME_DIST_D_MIN || navData.distanceToHome > NAV_HF_HOME_DIST_D_MIN)
+                    dfRefTyp = 1;
+            }
+            navSetHfReference(dfRefTyp);
+        }
     }
 
     // waypoint recording/skip: switch active for 1s = record waypoint or skip to next wpt if already in mission mode
     if (rcIsControlConfigured(NAV_CTRL_WP_REC)) {
-	if (rcIsSwitchActive(NAV_CTRL_WP_REC)) {
-	    if (!navData.wpActionFlag) {
-		if (!navData.wpRecTimer) {
-		    navData.wpRecTimer = timerMicros();
-		}
-		else if (timerMicros() - navData.wpRecTimer > 1e6) {
-		    if (rcIsSwitchActive(NAV_CTRL_MISN)) {
-			if (*leg + 1 < navGetWaypointCount())
-			    ++*leg;
-			else
-			    *leg = 0;
-			curLeg = navLoadLeg(*leg);
-		    } else if (RADIO_ROLL < 500 && RADIO_PITCH < 500)
-			navRecordWaypoint();
+        if (rcIsSwitchActive(NAV_CTRL_WP_REC)) {
+            if (!navData.wpActionFlag) {
+                if (!navData.wpRecTimer) {
+                    navData.wpRecTimer = timerMicros();
+                } else if (timerMicros() - navData.wpRecTimer > 1e6) {
+                    if (rcIsSwitchActive(NAV_CTRL_MISN)) {
+                        if (*leg + 1 < navGetWaypointCount())
+                            ++*leg;
+                        else
+                            *leg = 0;
+                        curLeg = navLoadLeg(*leg);
+                    } else if (RADIO_ROLL < 500 && RADIO_PITCH < 500)
+                        navRecordWaypoint();
 
-		    navData.wpRecTimer = 0;
-		    navData.wpActionFlag = 1;
-		}
-	    }
-	} else {
-	    navData.wpRecTimer = 0;
-	    navData.wpActionFlag = 0;
-	}
+                    navData.wpRecTimer = 0;
+                    navData.wpActionFlag = 1;
+                }
+            }
+        } else {
+            navData.wpRecTimer = 0;
+            navData.wpActionFlag = 0;
+        }
     }
 }
 
@@ -348,24 +343,24 @@ void navNavigate(void) {
     else if (navData.mode < NAV_STATUS_POSHOLD)
         navData.navCapable = 0;
 
-    bool hasViableMission = (navData.navCapable && ((navData.mode != NAV_STATUS_MISSION && leg < NAV_MAX_MISSION_LEGS && curLeg->type) || (navData.mode == NAV_STATUS_MISSION && navData.hasMissionLeg)));
+    bool hasViableMission = (navData.navCapable && ((navData.mode != NAV_STATUS_MISSION && leg < NAV_MAX_MISSION_LEGS && curLeg->type)
+                             || (navData.mode == NAV_STATUS_MISSION && navData.hasMissionLeg)));
 
     // this defines the hierarchy of available flight modes in case of failsafe override or conflicting controls being active
     if (navData.spvrModeOverride)
-	reqFlightMode = navData.spvrModeOverride;
+        reqFlightMode = navData.spvrModeOverride;
     else if (rcIsSwitchActive(NAV_CTRL_MISN))
-	if (hasViableMission)
-	    reqFlightMode = NAV_STATUS_MISSION;
-	else
-	    reqFlightMode = NAV_STATUS_POSHOLD;
+        if (hasViableMission)
+            reqFlightMode = NAV_STATUS_MISSION;
+        else
+            reqFlightMode = NAV_STATUS_POSHOLD;
     else if (rcIsSwitchActive(NAV_CTRL_PH)) {
-	reqFlightMode = NAV_STATUS_POSHOLD;
-    }
-    else if (rcIsSwitchActive(NAV_CTRL_AH))
-	reqFlightMode = NAV_STATUS_ALTHOLD;
+        reqFlightMode = NAV_STATUS_POSHOLD;
+    } else if (rcIsSwitchActive(NAV_CTRL_AH))
+        reqFlightMode = NAV_STATUS_ALTHOLD;
     // always default to manual
     else
-	reqFlightMode = NAV_STATUS_MANUAL;
+        reqFlightMode = NAV_STATUS_MANUAL;
 
     // Can we navigate && do we want to be in mission mode?
     if ((supervisorData.state & STATE_ARMED) && reqFlightMode == NAV_STATUS_MISSION && hasViableMission) {
@@ -379,9 +374,10 @@ void navNavigate(void) {
     // do we want to be in position hold mode?
     else if ((supervisorData.state & STATE_ARMED) && reqFlightMode > NAV_STATUS_MANUAL) {
 
-	// check for DVH
-	if (reqFlightMode == NAV_STATUS_POSHOLD && (RADIO_PITCH > p[CTRL_DEAD_BAND] || RADIO_PITCH < -p[CTRL_DEAD_BAND] || RADIO_ROLL > p[CTRL_DEAD_BAND] || RADIO_ROLL < -p[CTRL_DEAD_BAND]))
-	    reqFlightMode = NAV_STATUS_DVH;
+// check for DVH
+        if (reqFlightMode == NAV_STATUS_POSHOLD && (RADIO_PITCH > p[CTRL_DEAD_BAND] || RADIO_PITCH < -p[CTRL_DEAD_BAND] || RADIO_ROLL > p[CTRL_DEAD_BAND]
+                || RADIO_ROLL < -p[CTRL_DEAD_BAND]))
+            reqFlightMode = NAV_STATUS_DVH;
 
         // allow alt hold regardless of GPS or flow quality
         if (navData.mode < NAV_STATUS_ALTHOLD || (navData.mode != NAV_STATUS_ALTHOLD && reqFlightMode == NAV_STATUS_ALTHOLD)) {
@@ -401,7 +397,8 @@ void navNavigate(void) {
         }
 
         // are we not in position hold mode now?
-        if ((navData.navCapable || navUkfData.flowQuality > 0.0f) && reqFlightMode > NAV_STATUS_ALTHOLD && navData.mode != NAV_STATUS_POSHOLD && navData.mode != NAV_STATUS_DVH) {
+        if ((navData.navCapable || navUkfData.flowQuality > 0.0f) && reqFlightMode > NAV_STATUS_ALTHOLD && navData.mode != NAV_STATUS_POSHOLD
+                && navData.mode != NAV_STATUS_DVH) {
             // only zero bias if coming from lower mode
             if (navData.mode < NAV_STATUS_POSHOLD) {
                 navData.holdTiltN = 0.0f;
@@ -454,7 +451,7 @@ void navNavigate(void) {
     }
     // default to manual mode
     else {
-	if (navData.mode != NAV_STATUS_MANUAL)
+        if (navData.mode != NAV_STATUS_MANUAL)
             AQ_NOTICE("Manual mode active.\n");
 
         navData.mode = NAV_STATUS_MANUAL;
@@ -477,8 +474,7 @@ void navNavigate(void) {
             if (!navData.setCeilingReached)
                 AQ_NOTICE("Warning: Altitude ceiling reached.");
             navData.setCeilingReached = 1;
-        }
-        else if ((navData.setCeilingFlag || navData.setCeilingReached) && ALTITUDE <= navData.ceilingAlt) {
+        } else if ((navData.setCeilingFlag || navData.setCeilingReached) && ALTITUDE <= navData.ceilingAlt) {
             if (navData.setCeilingReached)
                 AQ_NOTICE("Notice: Altitude returned to within ceiling.");
             navData.setCeilingFlag = 0;
@@ -487,13 +483,12 @@ void navNavigate(void) {
     }
 
     if (!(supervisorData.state & STATE_RADIO_LOSS1))
-	navDoUserCommands(&leg, curLeg);
+        navDoUserCommands(&leg, curLeg);
 
     if (UKF_POSN != 0.0f || UKF_POSE != 0.0f) {
         navData.holdCourse = compassNormalize(atan2f(-UKF_POSE, -UKF_POSN) * RAD_TO_DEG);
         navData.holdDistance = __sqrtf(UKF_POSN*UKF_POSN + UKF_POSE*UKF_POSE);
-    }
-    else {
+    } else {
         navData.holdCourse = 0.0f;
         navData.holdDistance = 0.0f;
     }
@@ -504,30 +499,30 @@ void navNavigate(void) {
             // are we close enough (distance and altitude)?
             // goto/home test
             if (((curLeg->type == NAV_LEG_GOTO || curLeg->type == NAV_LEG_HOME) &&
-                navData.holdDistance < curLeg->targetRadius &&
-                fabsf(navData.holdAlt - ALTITUDE) < curLeg->targetRadius) ||
-            // orbit test
-                (curLeg->type == NAV_LEG_ORBIT &&
-                fabsf(navData.holdDistance - curLeg->targetRadius) +
-                fabsf(navData.holdAlt - ALTITUDE) < 2.0f)  ||
-            // takeoff test
-                (curLeg->type == NAV_LEG_TAKEOFF &&
-                navData.holdDistance < curLeg->targetRadius &&
-                fabsf(navData.holdAlt - ALTITUDE) < curLeg->targetRadius)
-                ) {
-                    // freeze heading unless orbiting
-                    if (curLeg->type != NAV_LEG_ORBIT)
-                        navSetHoldHeading(AQ_YAW);
+                    navData.holdDistance < curLeg->targetRadius &&
+                    fabsf(navData.holdAlt - ALTITUDE) < curLeg->targetRadius) ||
+                    // orbit test
+                    (curLeg->type == NAV_LEG_ORBIT &&
+                     fabsf(navData.holdDistance - curLeg->targetRadius) +
+                     fabsf(navData.holdAlt - ALTITUDE) < 2.0f)  ||
+                    // takeoff test
+                    (curLeg->type == NAV_LEG_TAKEOFF &&
+                     navData.holdDistance < curLeg->targetRadius &&
+                     fabsf(navData.holdAlt - ALTITUDE) < curLeg->targetRadius)
+               ) {
+                // freeze heading unless orbiting
+                if (curLeg->type != NAV_LEG_ORBIT)
+                    navSetHoldHeading(AQ_YAW);
 
-                    // start the loiter clock
-                    navData.loiterCompleteTime = currentTime + curLeg->loiterTime;
-                    AQ_PRINTF("NAV: Reached waypoint %d.\n", leg);
+                // start the loiter clock
+                navData.loiterCompleteTime = currentTime + curLeg->loiterTime;
+                AQ_PRINTF("NAV: Reached waypoint %d.\n", leg);
 #ifdef USE_SIGNALING
-                    signalingOnetimeEvent(SIG_EVENT_OT_WP_REACHED);
+                signalingOnetimeEvent(SIG_EVENT_OT_WP_REACHED);
 #endif
 #ifdef USE_MAVLINK
-                    // notify ground
-                    mavlinkWpReached(leg);
+                // notify ground
+                mavlinkWpReached(leg);
 #endif
             }
         }
@@ -562,14 +557,12 @@ void navNavigate(void) {
                 // rotate to stored frame
                 navData.holdSpeedN = x * navData.hfReferenceCos - y * navData.hfReferenceSin;
                 navData.holdSpeedE = y * navData.hfReferenceCos + x * navData.hfReferenceSin;
-            }
-            else {
+            } else {
                 // don't rotate to any frame (pitch/roll move to N/S/E/W)
                 navData.holdSpeedN = x;
                 navData.holdSpeedE = y;
             }
-        }
-        else {
+        } else {
             // rotate to earth frame
             navData.holdSpeedN = x * navUkfData.yawCos - y * navUkfData.yawSin;
             navData.holdSpeedE = y * navUkfData.yawCos + x * navUkfData.yawSin;
@@ -588,8 +581,7 @@ void navNavigate(void) {
         // rotate to earth frame
         navData.holdSpeedN = velX * navUkfData.yawCos - velY * navUkfData.yawSin;
         navData.holdSpeedE = velY * navUkfData.yawCos + velX * navUkfData.yawSin;
-    }
-    else {
+    } else {
         // distance => velocity
         navData.holdSpeedN = pidUpdate(navData.distanceNPID, 0.0f, UKF_POSN);
         navData.holdSpeedE = pidUpdate(navData.distanceEPID, 0.0f, UKF_POSE);
@@ -645,8 +637,7 @@ void navNavigate(void) {
 
         // smooth vertical velocity changes
         navData.holdSpeedAlt += (navData.targetHoldSpeedAlt - navData.holdSpeedAlt) * 0.05f;
-    }
-    else {
+    } else {
         navData.verticalOverride = 0;
     }
 
@@ -659,8 +650,7 @@ void navNavigate(void) {
         c = __sqrtf(a*a + b*b);
 
         navData.poiAngle = asinf(a/c) * RAD_TO_DEG - 90.0f;
-    }
-    else {
+    } else {
         navData.poiAngle = 0.0f;
     }
 
@@ -707,7 +697,8 @@ void navInit(void) {
     navData.speedEPID = pidInit(&p[NAV_SPEED_P], &p[NAV_SPEED_I], 0, 0, &p[NAV_SPEED_PM], &p[NAV_SPEED_IM], 0, &p[NAV_SPEED_OM], 0, 0, 0, 0);
     navData.distanceNPID = pidInit(&p[NAV_DIST_P], &p[NAV_DIST_I], 0, 0, &p[NAV_DIST_PM], &p[NAV_DIST_IM], 0, &p[NAV_DIST_OM], 0, 0, 0, 0);
     navData.distanceEPID = pidInit(&p[NAV_DIST_P], &p[NAV_DIST_I], 0, 0, &p[NAV_DIST_PM], &p[NAV_DIST_IM], 0, &p[NAV_DIST_OM], 0, 0, 0, 0);
-    navData.altSpeedPID = pidInit(&p[NAV_ALT_SPED_P], &p[NAV_ALT_SPED_I], 0, 0, &p[NAV_ALT_SPED_PM], &p[NAV_ALT_SPED_IM], 0, &p[NAV_ALT_SPED_OM], 0, 0, 0, 0);
+    navData.altSpeedPID = pidInit(&p[NAV_ALT_SPED_P], &p[NAV_ALT_SPED_I], 0, 0, &p[NAV_ALT_SPED_PM], &p[NAV_ALT_SPED_IM], 0, &p[NAV_ALT_SPED_OM], 0, 0, 0,
+                                  0);
     navData.altPosPID = pidInit(&p[NAV_ALT_POS_P], &p[NAV_ALT_POS_I], 0, 0, &p[NAV_ALT_POS_PM], &p[NAV_ALT_POS_IM], 0, &p[NAV_ALT_POS_OM], 0, 0, 0, 0);
 
     navData.mode = NAV_STATUS_MANUAL;
@@ -731,10 +722,10 @@ unsigned int navGetWaypointCount(void) {
 
 unsigned char navClearWaypoints(void) {
     if (navData.mode >= NAV_STATUS_MISSION)
-	return 0;
+        return 0;
 
     for (int i = 0; i < NAV_MAX_MISSION_LEGS; i++)
-	navData.missionLegs[i].type = 0;
+        navData.missionLegs[i].type = 0;
 
     navData.tempMissionLoaded = 0;
 
@@ -759,16 +750,16 @@ navMission_t *navGetHomeWaypoint(void) {
 
 uint8_t navRecordWaypoint(void) {
     if (!navData.navCapable || navData.mode >= NAV_STATUS_MISSION)
-	return 0;
+        return 0;
 
     uint8_t idx = 0;
     if (navData.tempMissionLoaded)
-	navClearWaypoints();
+        navClearWaypoints();
     else
-    	idx = navGetWaypointCount();
+        idx = navGetWaypointCount();
 
     if (idx >= NAV_MAX_MISSION_LEGS)
-	return 0;
+        return 0;
 
     navData.missionLegs[idx].type = NAV_LEG_GOTO;
     navData.missionLegs[idx].targetAlt = gpsData.height;

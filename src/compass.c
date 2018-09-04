@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #include "aq.h"
@@ -21,9 +21,9 @@
 
 float compassNormalize(float heading) {
     while (heading < 0.0f)
-	heading += 360.0f;
+        heading += 360.0f;
     while (heading >= 360.0f)
-	heading -= 360.0f;
+        heading -= 360.0f;
 
     return heading;
 }
@@ -33,9 +33,9 @@ float compassDifference(float a, float b) {
     float diff = b - a;
 
     while (diff > 180.0f)
-	diff -= 360.0f;
+        diff -= 360.0f;
     while (diff <= -180.0f)
-	diff += 360.0f;
+        diff += 360.0f;
 
     return diff;
 }

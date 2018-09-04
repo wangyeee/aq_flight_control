@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #ifndef _ext_irq_h
@@ -27,6 +27,7 @@ typedef struct {
     extCallback_t *callbacks[EXT_NUM_EXTI];
 } extStruct_t;
 
-extern int extRegisterCallback(GPIO_TypeDef *port, uint16_t pin, EXTITrigger_TypeDef polarity, uint8_t priority, GPIOPuPd_TypeDef pull, extCallback_t *callback);
+extern int extRegisterCallback(GPIO_TypeDef *port, uint16_t pin, EXTITrigger_TypeDef polarity, uint8_t priority, GPIOPuPd_TypeDef pull,
+                               extCallback_t *callback);
 
 #endif

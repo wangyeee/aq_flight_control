@@ -13,55 +13,53 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #ifndef ublox_h
 #define ublox_h
 
-#define UBLOX_SYNC1	    0xB5
-#define UBLOX_SYNC2	    0x62
+#define UBLOX_SYNC1     0xB5
+#define UBLOX_SYNC2     0x62
 
-#define UBLOX_NAV_CLASS	    0x01
-#define UBLOX_RXM_CLASS	    0x02
-#define UBLOX_CFG_CLASS	    0x06
-#define UBLOX_MON_CLASS	    0x0a
-#define UBLOX_AID_CLASS	    0x0b
-#define UBLOX_TIM_CLASS	    0x0d
-
-
+#define UBLOX_NAV_CLASS     0x01
+#define UBLOX_RXM_CLASS     0x02
+#define UBLOX_CFG_CLASS     0x06
+#define UBLOX_MON_CLASS     0x0a
+#define UBLOX_AID_CLASS     0x0b
+#define UBLOX_TIM_CLASS     0x0d
 #define UBLOX_NAV_POSLLH    0x02
-#define UBLOX_NAV_DOP	    0x04
+#define UBLOX_NAV_DOP     0x04
 #define UBLOX_NAV_VALNED    0x12
 #define UBLOX_NAV_TIMEUTC   0x21
-#define UBLOX_NAV_SBAS	    0x32
+#define UBLOX_NAV_SBAS     0x32
 #define UBLOX_NAV_SVINFO    0x30
 
-#define UBLOX_AID_REQ	    0x00
+#define UBLOX_AID_REQ     0x00
 
-#define UBLOX_RXM_RAW	    0x10
-#define UBLOX_RXM_SFRB	    0x11
+#define UBLOX_RXM_RAW     0x10
+#define UBLOX_RXM_SFRB     0x11
 
-#define UBLOX_MON_VER	    0x04
-#define UBLOX_MON_HW	    0x09
+#define UBLOX_MON_VER     0x04
+#define UBLOX_MON_HW     0x09
 
-#define UBLOX_TIM_TP	    0x01
+#define UBLOX_TIM_TP     0x01
 
 #define UBLOX_CFG_PRT       0x00
-#define UBLOX_CFG_MSG	    0x01
-#define UBLOX_CFG_TP	    0x07
-#define UBLOX_CFG_RTATE	    0x08
-#define UBLOX_CFG_SBAS	    0x16
-#define UBLOX_CFG_NAV5	    0x24
+#define UBLOX_CFG_MSG     0x01
+#define UBLOX_CFG_TP     0x07
+#define UBLOX_CFG_RTATE     0x08
+#define UBLOX_CFG_SBAS     0x16
+#define UBLOX_CFG_NAV5     0x24
 
-#define UBLOX_SBAS_AUTO	    0x00000000
-#define UBLOX_SBAS_WAAS	    0x0004E004
+#define UBLOX_SBAS_AUTO     0x00000000
+#define UBLOX_SBAS_WAAS     0x0004E004
 #define UBLOX_SBAS_EGNOS    0x00000851
-#define UBLOX_SBAS_MSAS	    0x00020200
+#define UBLOX_SBAS_MSAS     0x00020200
 #define UBLOX_SBAS_GAGAN    0x00000108
 
 #define UBLOX_MAX_PAYLOAD   512
-#define UBLOX_WAIT_MS	    20
+#define UBLOX_WAIT_MS     20
 
 enum ubloxStates {
     UBLOX_WAIT_SYNC1 = 0,
@@ -77,18 +75,18 @@ enum ubloxStates {
 
 // Geodetic Position Solution
 typedef struct {
-    unsigned long iTOW;	    // GPS Millisecond Time of Week (ms)
-    signed long lon;	    // Longitude (deg * 1e-7)
-    signed long lat;	    // Latitude (deg * 1e-7)
-    signed long height;	    // Height above Ellipsoid (mm)
-    signed long hMSL;	    // Height above mean sea level (mm)
-    unsigned long hAcc;	    // Horizontal Accuracy Estimate (mm)
-    unsigned long vAcc;	    // Vertical Accuracy Estimate (mm)
+    unsigned long iTOW;     // GPS Millisecond Time of Week (ms)
+    signed long lon;     // Longitude (deg * 1e-7)
+    signed long lat;     // Latitude (deg * 1e-7)
+    signed long height;     // Height above Ellipsoid (mm)
+    signed long hMSL;     // Height above mean sea level (mm)
+    unsigned long hAcc;     // Horizontal Accuracy Estimate (mm)
+    unsigned long vAcc;     // Vertical Accuracy Estimate (mm)
 } __attribute__((packed)) ubloxStructPOSLLH_t;
 
 // Dilution of precision
 typedef struct {
-    unsigned long iTOW;	    // ms GPS Millisecond Time of Week
+    unsigned long iTOW;     // ms GPS Millisecond Time of Week
     unsigned short gDOP;    // Geometric DOP
     unsigned short pDOP;    // Position DOP
     unsigned short tDOP;    // Time DOP
@@ -100,15 +98,15 @@ typedef struct {
 
 // Velocity Solution in NED
 typedef struct {
-    unsigned long iTOW;	    // GPS Millisecond Time of Week (ms)
-    signed long velN;	    // NED north velocity (cm/s)
-    signed long velE;	    // NED east velocity (cm/s)
-    signed long velD;	    // NED down velocity (cm/s)
+    unsigned long iTOW;     // GPS Millisecond Time of Week (ms)
+    signed long velN;     // NED north velocity (cm/s)
+    signed long velE;     // NED east velocity (cm/s)
+    signed long velD;     // NED down velocity (cm/s)
     unsigned long speed;    // Speed (3-D) (cm/s)
     unsigned long gSpeed;   // Ground Speed (2-D) (cm/s)
     signed long heading;    // Heading 2-D (deg * 1e-5)
-    unsigned long sAcc;	    // Speed Accuracy Estimate (cm/s)
-    unsigned long cAcc;	    // Course / Heading Accuracy Estimate (deg * 1e-5)
+    unsigned long sAcc;     // Speed Accuracy Estimate (cm/s)
+    unsigned long cAcc;     // Course / Heading Accuracy Estimate (deg * 1e-5)
 } __attribute__((packed)) ubloxStructVALNED_t;
 
 // Timepulse Timedata
@@ -123,15 +121,15 @@ typedef struct {
 
 // UTC Time Solution
 typedef struct {
-    unsigned long iTOW;	    // GPS Millisecond Time of Week (ms)
-    unsigned long tAcc;	    // Time Accuracy Estimate
-    long nano;		    // Nanosecond of second (UTC)
+    unsigned long iTOW;     // GPS Millisecond Time of Week (ms)
+    unsigned long tAcc;     // Time Accuracy Estimate
+    long nano;      // Nanosecond of second (UTC)
     unsigned short year;    // Year, range 1999..2099 (UTC)
     unsigned char month;    // Month, range 1..12 (UTC)
-    unsigned char day;	    // Day of Month, range 1..31 (UTC)
-    unsigned char hour;	    // Hour of Day, range 0..23 (UTC)
-    unsigned char min;	    // Minute of Hour, range 0..59 (UTC)
-    unsigned char sec;	    // Second of Minute, range 0..59 (UTC)
+    unsigned char day;     // Day of Month, range 1..31 (UTC)
+    unsigned char hour;     // Hour of Day, range 0..23 (UTC)
+    unsigned char min;     // Minute of Hour, range 0..59 (UTC)
+    unsigned char sec;     // Second of Minute, range 0..59 (UTC)
     unsigned char valid;    // Validity Flags
 } __attribute__((packed)) ubloxStructTIMEUTC_t;
 
@@ -181,14 +179,14 @@ typedef struct {
 
     signed long lastLat, lastLon;
     union {
-	ubloxStructPOSLLH_t posllh;
-	ubloxStructVALNED_t valned;
-	ubloxStructDOP_t dop;
-	ubloxStructTP_t tp;
-	ubloxStructTIMEUTC_t timeutc;
-	ubloxStructVER_t ver;
-	ubloxStructPVT_t pvt;
-	char other[UBLOX_MAX_PAYLOAD];
+        ubloxStructPOSLLH_t posllh;
+        ubloxStructVALNED_t valned;
+        ubloxStructDOP_t dop;
+        ubloxStructTP_t tp;
+        ubloxStructTIMEUTC_t timeutc;
+        ubloxStructVER_t ver;
+        ubloxStructPVT_t pvt;
+        char other[UBLOX_MAX_PAYLOAD];
     } payload;
 
     unsigned char state;

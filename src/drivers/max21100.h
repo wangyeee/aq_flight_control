@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #ifndef _max21100_h
@@ -22,7 +22,7 @@
 #include "spi.h"
 #include "util.h"
 
-#define MAX21100_SPI_BAUD           SPI_BaudRatePrescaler_4	// 10.5 MHz
+#define MAX21100_SPI_BAUD           SPI_BaudRatePrescaler_4 // 10.5 MHz
 
 #define MAX21100_READ_BIT           (0x01<<7)
 #define MAX21100_WRITE_BIT          (0x00<<7)
@@ -32,14 +32,14 @@
 #define MAX21100_BYTES              21
 #define MAX21100_SLOT_SIZE          ((MAX21100_BYTES+sizeof(int)-1) / sizeof(int) * sizeof(int))
 
-#define MAX21100_SLOTS          	80						    // 100Hz bandwidth
-#define MAX21100_DRATE_SLOTS_QUATOS	(MAX21100_SLOTS * 100.0f * DIMU_INNER_DT * 2.0f) // variable
-#define MAX21100_DRATE_SLOTS_PID	40  // 200Hz
+#define MAX21100_SLOTS           80          // 100Hz bandwidth
+#define MAX21100_DRATE_SLOTS_QUATOS (MAX21100_SLOTS * 100.0f * DIMU_INNER_DT * 2.0f) // variable
+#define MAX21100_DRATE_SLOTS_PID 40  // 200Hz
 
 #ifdef HAS_QUATOS
-    #define MAX21100_DRATE_SLOTS	((int)p[QUATOS_ENABLE] ? MAX21100_DRATE_SLOTS_QUATOS : MAX21100_DRATE_SLOTS_PID)
+#define MAX21100_DRATE_SLOTS ((int)p[QUATOS_ENABLE] ? MAX21100_DRATE_SLOTS_QUATOS : MAX21100_DRATE_SLOTS_PID)
 #else
-    #define MAX21100_DRATE_SLOTS	MAX21100_DRATE_SLOTS_PID
+#define MAX21100_DRATE_SLOTS MAX21100_DRATE_SLOTS_PID
 #endif
 
 typedef struct {

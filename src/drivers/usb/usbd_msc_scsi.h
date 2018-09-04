@@ -93,8 +93,6 @@
 #define ABORTED_COMMAND                            11
 #define VOLUME_OVERFLOW                            13
 #define MISCOMPARE                                 14
-
-
 #define INVALID_CDB                                 0x20
 #define INVALID_FIELED_IN_COMMAND                   0x24
 #define PARAMETER_LIST_LENGTH_ERROR                 0x1A
@@ -103,8 +101,8 @@
 #define MEDIUM_NOT_PRESENT                          0x3A
 #define MEDIUM_HAVE_CHANGED                         0x28
 #define WRITE_PROTECTED                             0x27
-#define UNRECOVERED_READ_ERROR			    0x11
-#define WRITE_FAULT				    0x03
+#define UNRECOVERED_READ_ERROR       0x11
+#define WRITE_FAULT        0x03
 
 #define READ_FORMAT_CAPACITY_DATA_LEN               0x0C
 #define READ_CAPACITY10_DATA_LEN                    0x08
@@ -125,22 +123,20 @@ extern  uint8_t ReadFormatCapacity_Data [];
 /**
   * @}
   */
-
-
 /** @defgroup USBD_SCSI_Exported_TypesDefinitions
   * @{
   */
 
 typedef struct _SENSE_ITEM {
-  char Skey;
-  union {
-    struct _ASCs {
-      char ASC;
-      char ASCQ;
-    }b;
-    unsigned int	ASC;
-    char *pData;
-  } w;
+    char Skey;
+    union {
+        struct _ASCs {
+            char ASC;
+            char ASCQ;
+        } b;
+        unsigned int ASC;
+        char *pData;
+    } w;
 } SCSI_Sense_TypeDef;
 /**
   * @}
@@ -168,12 +164,12 @@ extern uint8_t   SCSI_Sense_Tail;
   * @{
   */
 int8_t SCSI_ProcessCmd(USB_OTG_CORE_HANDLE  *pdev,
-                           uint8_t lun,
-                           uint8_t *cmd);
+                       uint8_t lun,
+                       uint8_t *cmd);
 
 void   SCSI_SenseCode(uint8_t lun,
-                    uint8_t sKey,
-                    uint8_t ASC);
+                      uint8_t sKey,
+                      uint8_t ASC);
 
 // NEZ
 extern void SCSI_ProcessReadComplete(uint32_t len);

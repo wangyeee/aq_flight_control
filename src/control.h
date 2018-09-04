@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #ifndef _control_h
@@ -23,10 +23,10 @@
 #include "util.h"
 #include <CoOS.h>
 
-#define CONTROL_STACK_SIZE	    200     // must be evenly divisible by 8
-#define CONTROL_PRIORITY	    5
+#define CONTROL_STACK_SIZE     200     // must be evenly divisible by 8
+#define CONTROL_PRIORITY     5
 
-#define CONTROL_MIN_YAW_OVERRIDE    300	    // in cycles (0.75 s)
+#define CONTROL_MIN_YAW_OVERRIDE    300     // in cycles (0.75 s)
 
 typedef struct {
     OS_TID controlTask;
@@ -39,8 +39,8 @@ typedef struct {
     float navPitchTarget;   // smoothed nav pitch
     float navRollTarget;    // smoothed nav roll
 
-    float pitch;	    // final requested pitch
-    float roll;		    // final requested roll
+    float pitch;     // final requested pitch
+    float roll;      // final requested roll
     float yaw;
 
     utilFilter_t userPitchFilter[3];
@@ -57,7 +57,7 @@ typedef struct {
     pidStruct_t *pitchAnglePID;
     pidStruct_t *yawAnglePID;
 
-    unsigned long lastUpdate;		// time of raw data that this structure is based on
+    unsigned long lastUpdate;  // time of raw data that this structure is based on
 } CC_ALIGNED controlStruct_t;
 
 extern controlStruct_t controlData;

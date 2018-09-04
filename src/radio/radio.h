@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #ifndef _radio_h
@@ -28,18 +28,18 @@
 
 #define RADIO_NUM               3       // max number of RC radios
 #define RADIO_MAX_CHANNELS      18
-#define RADIO_UPDATE_TIMEOUT    50000	// maximum time in micros between valid radio updates before signal is considered unstable;
+#define RADIO_UPDATE_TIMEOUT    50000 // maximum time in micros between valid radio updates before signal is considered unstable;
 #define RADIO_LAST_UPDATE       (*radioData.lastUpdate)
 #define RADIO_BINDING           (*radioData.binding)
 #define RADIO_INITIALIZED       (radioData.lastUpdate)
 #define RADIO_VALID             ((timerMicros() - RADIO_LAST_UPDATE) < RADIO_UPDATE_TIMEOUT)
 
-#define RADIO_THROT		radioData.channels[(int)p[RADIO_THRO_CH]]
-#define RADIO_ROLL		radioData.channels[(int)p[RADIO_ROLL_CH]]
-#define RADIO_PITCH		radioData.channels[(int)p[RADIO_PITC_CH]]
-#define RADIO_RUDD		radioData.channels[(int)p[RADIO_RUDD_CH]]
+#define RADIO_THROT  radioData.channels[(int)p[RADIO_THRO_CH]]
+#define RADIO_ROLL  radioData.channels[(int)p[RADIO_ROLL_CH]]
+#define RADIO_PITCH  radioData.channels[(int)p[RADIO_PITC_CH]]
+#define RADIO_RUDD  radioData.channels[(int)p[RADIO_RUDD_CH]]
 
-#define RADIO_MID_THROTTLE	700
+#define RADIO_MID_THROTTLE 700
 
 #define RADIO_ERROR_COUNT       (*radioData.errorCount)
 #define RADIO_QUALITY           (*radioData.quality)
@@ -77,7 +77,7 @@ typedef struct {
 
     digitalPin *select[2];
     radioInstance_t radioInstances[RADIO_NUM];
-    int16_t allChannels[RADIO_MAX_CHANNELS*RADIO_NUM];	// holds channel values received from radio handlers
+    int16_t allChannels[RADIO_MAX_CHANNELS*RADIO_NUM]; // holds channel values received from radio handlers
 
     int16_t *channels;
     float *quality;

@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #ifndef _logger_h
@@ -22,7 +22,7 @@
 #include "ff.h"
 #include <CoOS.h>
 
-#define LOGGER_FNAME			"AQL"
+#define LOGGER_FNAME   "AQL"
 
 enum {
     LOG_LASTUPDATE = 0,

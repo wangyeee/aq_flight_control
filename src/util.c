@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #include "aq.h"
@@ -104,8 +104,7 @@ void *aqDataCalloc(uint16_t count, uint16_t size) {
 
     if ((dataSramUsed + words) > UTIL_CCM_HEAP_SIZE) {
         AQ_NOTICE("Out of data SRAM!\n");
-    }
-    else {
+    } else {
         dataSramUsed += words;
     }
 
@@ -150,7 +149,8 @@ void utilSerialNoString(void) {
 }
 
 void utilVersionString(void) {
-    AQ_PRINTF("AQ FW ver: %d.%d.%d-%s, HW ver: %d.%d\n", FIMRWARE_VER_MAJ, FIMRWARE_VER_MIN, FIMRWARE_VER_BLD, FIMRWARE_VER_STR, BOARD_VERSION, BOARD_REVISION);
+    AQ_PRINTF("AQ FW ver: %d.%d.%d-%s, HW ver: %d.%d\n", FIMRWARE_VER_MAJ, FIMRWARE_VER_MIN, FIMRWARE_VER_BLD, FIMRWARE_VER_STR, BOARD_VERSION,
+              BOARD_REVISION);
 }
 
 void info(void) {
@@ -248,19 +248,19 @@ int ftoa(char *buf, float f, unsigned int digits) {
     }
     else {
 
-	frac = modff(f, &whole);
-	//index = sprintf(buf, "%ld", (long)whole);
-	bl = strlen(ltoa((long)whole, buf, 10));
+ frac = modff(f, &whole);
+ //index = sprintf(buf, "%ld", (long)whole);
+ bl = strlen(ltoa((long)whole, buf, 10));
 
-	if (digits && frac) {
-	    frac *= powf(10.0f, digits + 1);
-	    llfrac = (long long)fabs(frac);
-	    if (llfrac % 10 > 4)
-		llfrac += 10;
-	    bl += sprintf(&buf[bl], ".%0*lld", digits, llfrac / 10);
-	}
+ if (digits && frac) {
+     frac *= powf(10.0f, digits + 1);
+     llfrac = (long long)fabs(frac);
+     if (llfrac % 10 > 4)
+  llfrac += 10;
+     bl += sprintf(&buf[bl], ".%0*lld", digits, llfrac / 10);
+ }
 
-	return bl;
+ return bl;
     }
 }
 */

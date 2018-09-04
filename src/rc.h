@@ -24,8 +24,6 @@
 #include <stdint.h>
 
 #define RC_MIN_RADIO_QUALITY_ARM          40          // minimum RADIO_QUALITY needed to consider input as valid
-
-
 /* Return the configured channel number from a control param ID. */
 #define rcGetControlChannel(Pid_p)        ((uint32_t)p[Pid_p] & 0xFF)
 
@@ -47,8 +45,6 @@
 /* Sets a controller channel value to reflect the active state of a given switch-type control.
  * This would be overwritten if an active radio is controlling the same channel. */
 #define rcSetSwitchActive(Pid_p)          { if (rcIsControlConfigured(Pid_p)) rcSetControlValue(Pid_p, rcGetSwitchTargetValue(Pid_p)); }
-
-
 enum rcErrorCodes {
     RC_ERROR_NONE = 0,
     RC_ERROR_LOW_RADIO_QUAL    = 0x01,

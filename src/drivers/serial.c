@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #include "serial.h"
@@ -44,20 +44,19 @@ serialPort_t *serialSTDIO;
 
 int _serialStartTxDMA(serialPort_t *s, void *buf, int size, serialTxDMACallback_t *txDMACallback, void *txDMACallbackParam) {
     if (!s->txDmaRunning) {
-	s->txDmaRunning = 1;
+        s->txDmaRunning = 1;
 
-	s->txDMACallback = txDMACallback;
-	s->txDMACallbackParam = txDMACallbackParam;
+        s->txDMACallback = txDMACallback;
+        s->txDMACallbackParam = txDMACallbackParam;
 
-	s->txDMAStream->M0AR = (uint32_t)buf;
-	s->txDMAStream->NDTR = size;
+        s->txDMAStream->M0AR = (uint32_t)buf;
+        s->txDMAStream->NDTR = size;
 
-	DMA_Cmd(s->txDMAStream, ENABLE);
+        DMA_Cmd(s->txDMAStream, ENABLE);
 
-	return 1;
-    }
-    else {
-	return 0;
+        return 1;
+    } else {
+        return 0;
     }
 }
 
@@ -67,16 +66,15 @@ void serialStartTxDMA(void *param) {
     int size;
 
     if (!s->txDmaRunning && s->txHead != tail) {
-	if (s->txHead > tail) {
-	    size = s->txHead - tail;
-	    s->txTail = s->txHead;
-	}
-	else {
-	    size = s->txBufSize - tail;
-	    s->txTail = 0;
-	}
+        if (s->txHead > tail) {
+            size = s->txHead - tail;
+            s->txTail = s->txHead;
+        } else {
+            size = s->txBufSize - tail;
+            s->txTail = 0;
+        }
 
-	_serialStartTxDMA(s, (void *)&s->txBuf[tail], size, serialStartTxDMA, s);
+        _serialStartTxDMA(s, (void *)&s->txBuf[tail], size, serialStartTxDMA, s);
     }
 }
 
@@ -137,8 +135,8 @@ serialPort_t *serialUSART1(unsigned int flowControl, unsigned int rxBufSize, uns
     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
-#endif	// SERIAL_UART1_RX_DMA_ST
-#endif	// SERIAL_UART1_RX_PIN
+#endif // SERIAL_UART1_RX_DMA_ST
+#endif // SERIAL_UART1_RX_PIN
 
 #ifdef SERIAL_UART1_TX_PIN
     s->txBufSize = txBufSize;
@@ -167,19 +165,19 @@ serialPort_t *serialUSART1(unsigned int flowControl, unsigned int rxBufSize, uns
     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
-#endif	// SERIAL_UART1_TX_DMA_ST
-#endif	// SERIAL_UART1_TX_PIN
+#endif // SERIAL_UART1_TX_DMA_ST
+#endif // SERIAL_UART1_TX_PIN
 
 #ifdef SERIAL_UART1_CTS_PIN
     if (flowControl == USART_HardwareFlowControl_RTS_CTS) {
-	GPIO_PinAFConfig(SERIAL_UART1_PORT, SERIAL_UART1_RTS_SOURCE, GPIO_AF_USART1);
-	GPIO_PinAFConfig(SERIAL_UART1_PORT, SERIAL_UART1_CTS_SOURCE, GPIO_AF_USART1);
+        GPIO_PinAFConfig(SERIAL_UART1_PORT, SERIAL_UART1_RTS_SOURCE, GPIO_AF_USART1);
+        GPIO_PinAFConfig(SERIAL_UART1_PORT, SERIAL_UART1_CTS_SOURCE, GPIO_AF_USART1);
 
-	GPIO_InitStructure.GPIO_Pin = SERIAL_UART1_CTS_PIN | SERIAL_UART1_RTS_PIN;
-	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_DOWN;
-	GPIO_Init(SERIAL_UART1_PORT, &GPIO_InitStructure);
+        GPIO_InitStructure.GPIO_Pin = SERIAL_UART1_CTS_PIN | SERIAL_UART1_RTS_PIN;
+        GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_DOWN;
+        GPIO_Init(SERIAL_UART1_PORT, &GPIO_InitStructure);
     }
-#endif	// SERIAL_UART1_CTS_PIN
+#endif // SERIAL_UART1_CTS_PIN
 
     return s;
 }
@@ -224,8 +222,8 @@ serialPort_t *serialUSART2(unsigned int flowControl, unsigned int rxBufSize, uns
     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
-#endif	// SERIAL_UART2_RX_DMA_ST
-#endif	// SERIAL_UART2_RX_PIN
+#endif // SERIAL_UART2_RX_DMA_ST
+#endif // SERIAL_UART2_RX_PIN
 
 #ifdef SERIAL_UART2_TX_PIN
     s->txBufSize = txBufSize;
@@ -254,19 +252,19 @@ serialPort_t *serialUSART2(unsigned int flowControl, unsigned int rxBufSize, uns
     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
-#endif	// SERIAL_UART2_TX_DMA_ST
-#endif	// SERIAL_UART2_TX_PIN
+#endif // SERIAL_UART2_TX_DMA_ST
+#endif // SERIAL_UART2_TX_PIN
 
 #ifdef SERIAL_UART2_CTS_PIN
     if (flowControl == USART_HardwareFlowControl_RTS_CTS) {
-	GPIO_PinAFConfig(SERIAL_UART2_PORT, SERIAL_UART2_RTS_SOURCE, GPIO_AF_USART2);
-	GPIO_PinAFConfig(SERIAL_UART2_PORT, SERIAL_UART2_CTS_SOURCE, GPIO_AF_USART2);
+        GPIO_PinAFConfig(SERIAL_UART2_PORT, SERIAL_UART2_RTS_SOURCE, GPIO_AF_USART2);
+        GPIO_PinAFConfig(SERIAL_UART2_PORT, SERIAL_UART2_CTS_SOURCE, GPIO_AF_USART2);
 
-	GPIO_InitStructure.GPIO_Pin = SERIAL_UART2_CTS_PIN | SERIAL_UART2_RTS_PIN;
-	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_DOWN;
-	GPIO_Init(SERIAL_UART2_PORT, &GPIO_InitStructure);
+        GPIO_InitStructure.GPIO_Pin = SERIAL_UART2_CTS_PIN | SERIAL_UART2_RTS_PIN;
+        GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_DOWN;
+        GPIO_Init(SERIAL_UART2_PORT, &GPIO_InitStructure);
     }
-#endif	// SERIAL_UART2_CTS_PIN
+#endif // SERIAL_UART2_CTS_PIN
 
     return s;
 }
@@ -311,8 +309,8 @@ serialPort_t *serialUSART3(unsigned int flowControl, unsigned int rxBufSize, uns
     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
-#endif	// SERIAL_UART3_RX_DMA_ST
-#endif	// SERIAL_UART3_RX_PIN
+#endif // SERIAL_UART3_RX_DMA_ST
+#endif // SERIAL_UART3_RX_PIN
 
 #ifdef SERIAL_UART3_TX_PIN
     s->txBufSize = txBufSize;
@@ -341,19 +339,19 @@ serialPort_t *serialUSART3(unsigned int flowControl, unsigned int rxBufSize, uns
     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
-#endif	// SERIAL_UART3_TX_DMA_ST
-#endif	// SERIAL_UART3_TX_PIN
+#endif // SERIAL_UART3_TX_DMA_ST
+#endif // SERIAL_UART3_TX_PIN
 
 #ifdef SERIAL_UART3_CTS_PIN
     if (flowControl == USART_HardwareFlowControl_RTS_CTS) {
-	GPIO_PinAFConfig(SERIAL_UART3_PORT, SERIAL_UART3_RTS_SOURCE, GPIO_AF_USART3);
-	GPIO_PinAFConfig(SERIAL_UART3_PORT, SERIAL_UART3_CTS_SOURCE, GPIO_AF_USART3);
+        GPIO_PinAFConfig(SERIAL_UART3_PORT, SERIAL_UART3_RTS_SOURCE, GPIO_AF_USART3);
+        GPIO_PinAFConfig(SERIAL_UART3_PORT, SERIAL_UART3_CTS_SOURCE, GPIO_AF_USART3);
 
-	GPIO_InitStructure.GPIO_Pin = SERIAL_UART3_CTS_PIN | SERIAL_UART3_RTS_PIN;
-	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_DOWN;
-	GPIO_Init(SERIAL_UART3_PORT, &GPIO_InitStructure);
+        GPIO_InitStructure.GPIO_Pin = SERIAL_UART3_CTS_PIN | SERIAL_UART3_RTS_PIN;
+        GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_DOWN;
+        GPIO_Init(SERIAL_UART3_PORT, &GPIO_InitStructure);
     }
-#endif	// SERIAL_UART3_CTS_PIN
+#endif // SERIAL_UART3_CTS_PIN
 
     return s;
 }
@@ -398,8 +396,8 @@ serialPort_t *serialUSART4(unsigned int flowControl, unsigned int rxBufSize, uns
     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
-#endif	// SERIAL_UART4_RX_DMA_ST
-#endif	// SERIAL_UART4_RX_PIN
+#endif // SERIAL_UART4_RX_DMA_ST
+#endif // SERIAL_UART4_RX_PIN
 
 #ifdef SERIAL_UART4_TX_PIN
     s->txBufSize = txBufSize;
@@ -428,8 +426,8 @@ serialPort_t *serialUSART4(unsigned int flowControl, unsigned int rxBufSize, uns
     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
-#endif	// SERIAL_UART4_TX_DMA_ST
-#endif	// SERIAL_UART4_TX_PIN
+#endif // SERIAL_UART4_TX_DMA_ST
+#endif // SERIAL_UART4_TX_PIN
 
     return s;
 }
@@ -474,8 +472,8 @@ serialPort_t *serialUSART5(unsigned int flowControl, unsigned int rxBufSize, uns
     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
-#endif	// SERIAL_UART5_RX_DMA_ST
-#endif	// SERIAL_UART5_RX_PIN
+#endif // SERIAL_UART5_RX_DMA_ST
+#endif // SERIAL_UART5_RX_PIN
 
 #ifdef SERIAL_UART5_TX_PIN
     s->txBufSize = (txBufSize) ? txBufSize : SERIAL_DEFAULT_BUFSIZE;
@@ -504,8 +502,8 @@ serialPort_t *serialUSART5(unsigned int flowControl, unsigned int rxBufSize, uns
     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
-#endif	// SERIAL_UART5_TX_DMA_ST
-#endif	// SERIAL_UART5_TX_PIN
+#endif // SERIAL_UART5_TX_DMA_ST
+#endif // SERIAL_UART5_TX_PIN
 
     return s;
 }
@@ -548,8 +546,8 @@ serialPort_t *serialUSART6(unsigned int flowControl, unsigned int rxBufSize, uns
     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
-#endif	// SERIAL_UART6_RX_DMA_ST
-#endif	// SERIAL_UART6_RX_PIN
+#endif // SERIAL_UART6_RX_DMA_ST
+#endif // SERIAL_UART6_RX_PIN
 
 #ifdef SERIAL_UART6_TX_PIN
     s->txBufSize = txBufSize;
@@ -578,19 +576,19 @@ serialPort_t *serialUSART6(unsigned int flowControl, unsigned int rxBufSize, uns
     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
-#endif	// SERIAL_UART6_TX_DMA_ST
-#endif	// SERIAL_UART6_TX_PIN
+#endif // SERIAL_UART6_TX_DMA_ST
+#endif // SERIAL_UART6_TX_PIN
 
 #ifdef SERIAL_UART6_CTS_PIN
     if (flowControl == USART_HardwareFlowControl_RTS_CTS) {
-	GPIO_PinAFConfig(SERIAL_UART6_PORT, SERIAL_UART6_RTS_SOURCE, GPIO_AF_USART6);
-	GPIO_PinAFConfig(SERIAL_UART6_PORT, SERIAL_UART6_CTS_SOURCE, GPIO_AF_USART6);
+        GPIO_PinAFConfig(SERIAL_UART6_PORT, SERIAL_UART6_RTS_SOURCE, GPIO_AF_USART6);
+        GPIO_PinAFConfig(SERIAL_UART6_PORT, SERIAL_UART6_CTS_SOURCE, GPIO_AF_USART6);
 
-	GPIO_InitStructure.GPIO_Pin = SERIAL_UART6_CTS_PIN | SERIAL_UART6_RTS_PIN;
-	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_DOWN;
-	GPIO_Init(SERIAL_UART6_PORT, &GPIO_InitStructure);
+        GPIO_InitStructure.GPIO_Pin = SERIAL_UART6_CTS_PIN | SERIAL_UART6_RTS_PIN;
+        GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_DOWN;
+        GPIO_Init(SERIAL_UART6_PORT, &GPIO_InitStructure);
     }
-#endif	// SERIAL_UART6_CTS_PIN
+#endif // SERIAL_UART6_CTS_PIN
 
     return s;
 }
@@ -603,41 +601,41 @@ serialPort_t *serialOpen(USART_TypeDef *USARTx, unsigned int baud, uint16_t flow
     // Enable USART clocks/ports
 #ifdef SERIAL_UART1_PORT
     if (USARTx == USART1) {
-	s = serialUSART1(flowControl, rxBufSize, txBufSize);
+        s = serialUSART1(flowControl, rxBufSize, txBufSize);
     }
 #endif
 
 #ifdef SERIAL_UART2_PORT
     if (USARTx == USART2) {
-	s = serialUSART2(flowControl, rxBufSize, txBufSize);
+        s = serialUSART2(flowControl, rxBufSize, txBufSize);
     }
 #endif
 
 #ifdef SERIAL_UART3_PORT
     if (USARTx == USART3) {
-	s = serialUSART3(flowControl, rxBufSize, txBufSize);
+        s = serialUSART3(flowControl, rxBufSize, txBufSize);
     }
 #endif
 
 #ifdef SERIAL_UART4_PORT
     if (USARTx == UART4) {
-	s = serialUSART4(flowControl, rxBufSize, txBufSize);
+        s = serialUSART4(flowControl, rxBufSize, txBufSize);
     }
 #endif
 
 #ifdef SERIAL_UART5_PORT
     if (USARTx == UART5) {
-	s = serialUSART5(flowControl, rxBufSize, txBufSize);
+        s = serialUSART5(flowControl, rxBufSize, txBufSize);
     }
 #endif
 
 #ifdef SERIAL_UART6_PORT
     if (USARTx == USART6) {
-	s = serialUSART6(flowControl, rxBufSize, txBufSize);
+        s = serialUSART6(flowControl, rxBufSize, txBufSize);
     }
 #endif
 
-    s->waitFlag = CoCreateFlag(0, 0);	// manual reset
+    s->waitFlag = CoCreateFlag(0, 0); // manual reset
     s->USARTx = USARTx;
     s->rxHead = s->rxTail = 0;
     s->txHead = s->txTail = 0;
@@ -659,54 +657,54 @@ serialPort_t *serialOpen(USART_TypeDef *USARTx, unsigned int baud, uint16_t flow
 
     // Configure DMA for rx
     if (s->rxDMAStream) {
-	DMA_DeInit(s->rxDMAStream);
-	DMA_InitStructure.DMA_Channel = s->rxDMAChannel;
-	DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t)s->rxBuf;
-	DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralToMemory;
-	DMA_InitStructure.DMA_BufferSize = s->rxBufSize;
-	DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;
-	DMA_InitStructure.DMA_FIFOMode = DMA_FIFOMode_Disable;
-	DMA_InitStructure.DMA_MemoryBurst = DMA_MemoryBurst_Single;
-	DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
-	DMA_Init(s->rxDMAStream, &DMA_InitStructure);
+        DMA_DeInit(s->rxDMAStream);
+        DMA_InitStructure.DMA_Channel = s->rxDMAChannel;
+        DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t)s->rxBuf;
+        DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralToMemory;
+        DMA_InitStructure.DMA_BufferSize = s->rxBufSize;
+        DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;
+        DMA_InitStructure.DMA_FIFOMode = DMA_FIFOMode_Disable;
+        DMA_InitStructure.DMA_MemoryBurst = DMA_MemoryBurst_Single;
+        DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
+        DMA_Init(s->rxDMAStream, &DMA_InitStructure);
 
-	DMA_ClearFlag(s->rxDMAStream, s->rxDmaFlags);
+        DMA_ClearFlag(s->rxDMAStream, s->rxDmaFlags);
 
-	DMA_Cmd(s->rxDMAStream, ENABLE);
+        DMA_Cmd(s->rxDMAStream, ENABLE);
 
-	USART_DMACmd(USARTx, USART_DMAReq_Rx, ENABLE);
-	s->rxPos = DMA_GetCurrDataCounter(s->rxDMAStream);
+        USART_DMACmd(USARTx, USART_DMAReq_Rx, ENABLE);
+        s->rxPos = DMA_GetCurrDataCounter(s->rxDMAStream);
     }
     // otherwise use ISR
     else {
-	USART_ITConfig(USARTx, USART_IT_RXNE, ENABLE);
+        USART_ITConfig(USARTx, USART_IT_RXNE, ENABLE);
     }
 
     // Configure DMA for tx
     if (s->txDMAStream) {
-	DMA_DeInit(s->txDMAStream);
-	DMA_InitStructure.DMA_Channel = s->txDMAChannel;
-	DMA_InitStructure.DMA_DIR = DMA_DIR_MemoryToPeripheral;
-	DMA_InitStructure.DMA_BufferSize = (s->txBufSize != 0) ? s->txBufSize : 16;
-	DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;
-	DMA_InitStructure.DMA_FIFOMode = DMA_FIFOMode_Enable;
-	DMA_InitStructure.DMA_MemoryBurst = DMA_MemoryBurst_INC4;
-	DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
-	DMA_Init(s->txDMAStream, &DMA_InitStructure);
+        DMA_DeInit(s->txDMAStream);
+        DMA_InitStructure.DMA_Channel = s->txDMAChannel;
+        DMA_InitStructure.DMA_DIR = DMA_DIR_MemoryToPeripheral;
+        DMA_InitStructure.DMA_BufferSize = (s->txBufSize != 0) ? s->txBufSize : 16;
+        DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;
+        DMA_InitStructure.DMA_FIFOMode = DMA_FIFOMode_Enable;
+        DMA_InitStructure.DMA_MemoryBurst = DMA_MemoryBurst_INC4;
+        DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
+        DMA_Init(s->txDMAStream, &DMA_InitStructure);
 
-	DMA_SetCurrDataCounter(s->txDMAStream, 0);
-	DMA_ITConfig(s->txDMAStream, DMA_IT_TC, ENABLE);
+        DMA_SetCurrDataCounter(s->txDMAStream, 0);
+        DMA_ITConfig(s->txDMAStream, DMA_IT_TC, ENABLE);
 
-	USART_DMACmd(USARTx, USART_DMAReq_Tx, ENABLE);
+        USART_DMACmd(USARTx, USART_DMAReq_Tx, ENABLE);
     }
     // otherwise use ISR
     else {
-	USART_ITConfig(USARTx, USART_IT_TXE, ENABLE);
+        USART_ITConfig(USARTx, USART_IT_TXE, ENABLE);
     }
 
     // use this port for STDIO if not already defined
     if (serialSTDIO == 0)
-	serialSTDIO = s;
+        serialSTDIO = s;
 
     return s;
 }
@@ -716,29 +714,28 @@ void serialWrite(serialPort_t *s, unsigned char ch) {
     s->txHead = (s->txHead + 1) % s->txBufSize;
 
     if (s->txDMAStream)
-	serialStartTxDMA(s);
+        serialStartTxDMA(s);
     else
-	USART_ITConfig(s->USARTx, USART_IT_TXE, ENABLE);
+        USART_ITConfig(s->USARTx, USART_IT_TXE, ENABLE);
 }
 
 unsigned char serialAvailable(serialPort_t *s) {
     if (s->rxDMAStream)
-	return (s->rxDMAStream->NDTR != s->rxPos);
+        return (s->rxDMAStream->NDTR != s->rxPos);
     else
-	return (s->rxTail != s->rxHead);
+        return (s->rxTail != s->rxHead);
 }
 
 int serialRead(serialPort_t *s) {
     int ch;
 
     if (s->rxDMAStream) {
-	ch = s->rxBuf[s->rxBufSize - s->rxPos];
-	if (--s->rxPos == 0)
-	    s->rxPos = s->rxBufSize;
-    }
-    else {
-	ch = s->rxBuf[s->rxTail];
-	s->rxTail = (s->rxTail + 1) % s->rxBufSize;
+        ch = s->rxBuf[s->rxBufSize - s->rxPos];
+        if (--s->rxPos == 0)
+            s->rxPos = s->rxBufSize;
+    } else {
+        ch = s->rxBuf[s->rxTail];
+        s->rxTail = (s->rxTail + 1) % s->rxBufSize;
     }
 
     return ch;
@@ -746,14 +743,14 @@ int serialRead(serialPort_t *s) {
 
 int serialReadBlock(serialPort_t *s) {
     while (!serialAvailable(s))
-	yield(1);
+        yield(1);
 
     return serialRead(s);
 }
 
 void serialPrint(serialPort_t *s, const char *str) {
     while (*str)
-	serialWrite(s, *(str++));
+        serialWrite(s, *(str++));
 }
 
 void serialChangeBaud(serialPort_t *s, unsigned int baud) {
@@ -774,27 +771,27 @@ void serialChangeStopBits(serialPort_t *s, uint16_t stopBits) {
 void serialWatch(void) {
 #ifdef SERIAL_UART1_PORT
     if (serialPort1 && serialAvailable(serialPort1))
-	CoSetFlag(serialPort1->waitFlag);
+        CoSetFlag(serialPort1->waitFlag);
 #endif
 #ifdef SERIAL_UART2_PORT
     if (serialPort2 && serialAvailable(serialPort2))
-	CoSetFlag(serialPort2->waitFlag);
+        CoSetFlag(serialPort2->waitFlag);
 #endif
 #ifdef SERIAL_UART3_PORT
     if (serialPort3 && serialAvailable(serialPort3))
-	CoSetFlag(serialPort3->waitFlag);
+        CoSetFlag(serialPort3->waitFlag);
 #endif
 #ifdef SERIAL_UART4_PORT
     if (serialPort4 && serialAvailable(serialPort4))
-	CoSetFlag(serialPort4->waitFlag);
+        CoSetFlag(serialPort4->waitFlag);
 #endif
 #ifdef SERIAL_UART5_PORT
     if (serialPort5 && serialAvailable(serialPort5))
-	CoSetFlag(serialPort5->waitFlag);
+        CoSetFlag(serialPort5->waitFlag);
 #endif
 #ifdef SERIAL_UART6_PORT
     if (serialPort6 && serialAvailable(serialPort6))
-	CoSetFlag(serialPort6->waitFlag);
+        CoSetFlag(serialPort6->waitFlag);
 #endif
 }
 
@@ -804,7 +801,7 @@ void serialSetSTDIO(serialPort_t *s) {
 
 int __putchar(int ch) {
     if (serialSTDIO)
-	serialWrite(serialSTDIO, ch);
+        serialWrite(serialSTDIO, ch);
 
     return ch;
 }
@@ -813,7 +810,7 @@ int __getchar(void) {
     int ch = 0;
 
     if (serialSTDIO)
-	ch = serialRead(serialSTDIO);
+        ch = serialRead(serialSTDIO);
 
     return ch;
 }
@@ -842,22 +839,22 @@ void USART1_IRQHandler(void) {
     uint16_t SR = s->USARTx->SR;
 
     if (SR & USART_FLAG_RXNE) {
-	s->rxBuf[s->rxHead] = s->USARTx->DR;
-	s->rxHead = (s->rxHead + 1) % s->rxBufSize;
+        s->rxBuf[s->rxHead] = s->USARTx->DR;
+        s->rxHead = (s->rxHead + 1) % s->rxBufSize;
     }
 
     if (SR & USART_FLAG_TXE) {
-	if (s->txTail != s->txHead) {
-	    s->USARTx->DR = s->txBuf[s->txTail];
-	    s->txTail = (s->txTail + 1) % s->txBufSize;
-	}
-	// EOT
-	else {
-	    USART_ITConfig(s->USARTx, USART_IT_TXE, DISABLE);
-	}
+        if (s->txTail != s->txHead) {
+            s->USARTx->DR = s->txBuf[s->txTail];
+            s->txTail = (s->txTail + 1) % s->txBufSize;
+        }
+// EOT
+        else {
+            USART_ITConfig(s->USARTx, USART_IT_TXE, DISABLE);
+        }
     }
 }
-#endif	// SERIAL_UART1_PORT
+#endif // SERIAL_UART1_PORT
 
 // UART2 TX DMA
 #ifdef SERIAL_UART2_PORT
@@ -879,22 +876,22 @@ void USART2_IRQHandler(void) {
     uint16_t SR = s->USARTx->SR;
 
     if (SR & USART_FLAG_RXNE) {
-	s->rxBuf[s->rxHead] = s->USARTx->DR;
-	s->rxHead = (s->rxHead + 1) % s->rxBufSize;
+        s->rxBuf[s->rxHead] = s->USARTx->DR;
+        s->rxHead = (s->rxHead + 1) % s->rxBufSize;
     }
 
     if (SR & USART_FLAG_TXE) {
-	if (s->txTail != s->txHead) {
-	    s->USARTx->DR = s->txBuf[s->txTail];
-	    s->txTail = (s->txTail + 1) % s->txBufSize;
-	}
-	// EOT
-	else {
-	    USART_ITConfig(s->USARTx, USART_IT_TXE, DISABLE);
-	}
+        if (s->txTail != s->txHead) {
+            s->USARTx->DR = s->txBuf[s->txTail];
+            s->txTail = (s->txTail + 1) % s->txBufSize;
+        }
+// EOT
+        else {
+            USART_ITConfig(s->USARTx, USART_IT_TXE, DISABLE);
+        }
     }
 }
-#endif	// SERIAL_UART2_PORT
+#endif // SERIAL_UART2_PORT
 
 // UART3 TX DMA
 #ifdef SERIAL_UART3_PORT
@@ -916,22 +913,22 @@ void USART3_IRQHandler(void) {
     uint16_t SR = s->USARTx->SR;
 
     if (SR & USART_FLAG_RXNE) {
-	s->rxBuf[s->rxHead] = s->USARTx->DR;
-	s->rxHead = (s->rxHead + 1) % s->rxBufSize;
+        s->rxBuf[s->rxHead] = s->USARTx->DR;
+        s->rxHead = (s->rxHead + 1) % s->rxBufSize;
     }
 
     if (SR & USART_FLAG_TXE) {
-	if (s->txTail != s->txHead) {
-	    s->USARTx->DR = s->txBuf[s->txTail];
-	    s->txTail = (s->txTail + 1) % s->txBufSize;
-	}
-	// EOT
-	else {
-	    USART_ITConfig(s->USARTx, USART_IT_TXE, DISABLE);
-	}
+        if (s->txTail != s->txHead) {
+            s->USARTx->DR = s->txBuf[s->txTail];
+            s->txTail = (s->txTail + 1) % s->txBufSize;
+        }
+// EOT
+        else {
+            USART_ITConfig(s->USARTx, USART_IT_TXE, DISABLE);
+        }
     }
 }
-#endif	// SERIAL_UART3_PORT
+#endif // SERIAL_UART3_PORT
 
 // UART4 TX DMA
 #ifdef SERIAL_UART4_PORT
@@ -953,22 +950,22 @@ void UART4_IRQHandler(void) {
     uint16_t SR = s->USARTx->SR;
 
     if (SR & USART_FLAG_RXNE) {
-	s->rxBuf[s->rxHead] = s->USARTx->DR;
-	s->rxHead = (s->rxHead + 1) % s->rxBufSize;
+        s->rxBuf[s->rxHead] = s->USARTx->DR;
+        s->rxHead = (s->rxHead + 1) % s->rxBufSize;
     }
 
     if (SR & USART_FLAG_TXE) {
-	if (s->txTail != s->txHead) {
-	    s->USARTx->DR = s->txBuf[s->txTail];
-	    s->txTail = (s->txTail + 1) % s->txBufSize;
-	}
-	// EOT
-	else {
-	    USART_ITConfig(s->USARTx, USART_IT_TXE, DISABLE);
-	}
+        if (s->txTail != s->txHead) {
+            s->USARTx->DR = s->txBuf[s->txTail];
+            s->txTail = (s->txTail + 1) % s->txBufSize;
+        }
+// EOT
+        else {
+            USART_ITConfig(s->USARTx, USART_IT_TXE, DISABLE);
+        }
     }
 }
-#endif	// SERIAL_UART4_PORT
+#endif // SERIAL_UART4_PORT
 
 // UART5 TX DMA
 #ifdef SERIAL_UART5_PORT
@@ -990,22 +987,22 @@ void UART5_IRQHandler(void) {
     uint16_t SR = s->USARTx->SR;
 
     if (SR & USART_FLAG_RXNE) {
-	s->rxBuf[s->rxHead] = s->USARTx->DR;
-	s->rxHead = (s->rxHead + 1) % s->rxBufSize;
+        s->rxBuf[s->rxHead] = s->USARTx->DR;
+        s->rxHead = (s->rxHead + 1) % s->rxBufSize;
     }
 
     if (SR & USART_FLAG_TXE) {
-	if (s->txTail != s->txHead) {
-	    s->USARTx->DR = s->txBuf[s->txTail];
-	    s->txTail = (s->txTail + 1) % s->txBufSize;
-	}
-	// EOT
-	else {
-	    USART_ITConfig(s->USARTx, USART_IT_TXE, DISABLE);
-	}
+        if (s->txTail != s->txHead) {
+            s->USARTx->DR = s->txBuf[s->txTail];
+            s->txTail = (s->txTail + 1) % s->txBufSize;
+        }
+// EOT
+        else {
+            USART_ITConfig(s->USARTx, USART_IT_TXE, DISABLE);
+        }
     }
 }
-#endif	// SERIAL_UART5_PORT
+#endif // SERIAL_UART5_PORT
 
 // UART6 TX DMA
 #ifdef SERIAL_UART6_PORT
@@ -1027,19 +1024,19 @@ void USART6_IRQHandler(void) {
     uint16_t SR = s->USARTx->SR;
 
     if (SR & USART_FLAG_RXNE) {
-	s->rxBuf[s->rxHead] = s->USARTx->DR;
-	s->rxHead = (s->rxHead + 1) % s->rxBufSize;
+        s->rxBuf[s->rxHead] = s->USARTx->DR;
+        s->rxHead = (s->rxHead + 1) % s->rxBufSize;
     }
 
     if (SR & USART_FLAG_TXE) {
-	if (s->txTail != s->txHead) {
-	    s->USARTx->DR = s->txBuf[s->txTail];
-	    s->txTail = (s->txTail + 1) % s->txBufSize;
-	}
-	// EOT
-	else {
-	    USART_ITConfig(s->USARTx, USART_IT_TXE, DISABLE);
-	}
+        if (s->txTail != s->txHead) {
+            s->USARTx->DR = s->txBuf[s->txTail];
+            s->txTail = (s->txTail + 1) % s->txBufSize;
+        }
+// EOT
+        else {
+            USART_ITConfig(s->USARTx, USART_IT_TXE, DISABLE);
+        }
     }
 }
-#endif	// SERIAL_UART6_PORT
+#endif // SERIAL_UART6_PORT

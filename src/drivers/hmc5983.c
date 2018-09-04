@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #include "config.h"
@@ -84,10 +84,9 @@ void hmc5983Decode(void) {
             int j = i*HMC5983_SLOT_SIZE;
 
             // check if we are in the middle of a transaction for this slot
-            if (i == hmc5983Data.slot && hmc5983Data.spiFlag == 0)	{
+            if (i == hmc5983Data.slot && hmc5983Data.spiFlag == 0) {
                 divisor -= 1.0f;
-            }
-            else {
+            } else {
                 mag[1] += (int16_t)__rev16(*(uint16_t *)&d[j+1]);
                 mag[2] += (int16_t)__rev16(*(uint16_t *)&d[j+3]);
                 mag[0] += (int16_t)__rev16(*(uint16_t *)&d[j+5]);
@@ -151,7 +150,7 @@ void hmc5983IntHandler(void) {
 inline void hmc5983Enable(void) {
     if (hmc5983Data.initialized)
         hmc5983Data.enabled = 1;
-    }
+}
 
 inline void hmc5983Disable(void) {
     hmc5983Data.enabled = 0;
@@ -165,24 +164,24 @@ uint8_t hmc5983Init(void) {
     int i = HMC5983_RETRIES;
 
     switch ((int)p[IMU_FLIP]) {
-        case 1:
-            hmc5983Data.magSign[0] =  1.0f;
-            hmc5983Data.magSign[1] = -1.0f;
-            hmc5983Data.magSign[2] = -1.0f;
-            break;
+    case 1:
+        hmc5983Data.magSign[0] =  1.0f;
+        hmc5983Data.magSign[1] = -1.0f;
+        hmc5983Data.magSign[2] = -1.0f;
+        break;
 
-        case 2:
-            hmc5983Data.magSign[0] = -1.0f;
-            hmc5983Data.magSign[1] =  1.0f;
-            hmc5983Data.magSign[2] = -1.0f;
-            break;
+    case 2:
+        hmc5983Data.magSign[0] = -1.0f;
+        hmc5983Data.magSign[1] =  1.0f;
+        hmc5983Data.magSign[2] = -1.0f;
+        break;
 
-        case 0:
-        default:
-            hmc5983Data.magSign[0] = 1.0f;
-            hmc5983Data.magSign[1] = 1.0f;
-            hmc5983Data.magSign[2] = 1.0f;
-            break;
+    case 0:
+    default:
+        hmc5983Data.magSign[0] = 1.0f;
+        hmc5983Data.magSign[1] = 1.0f;
+        hmc5983Data.magSign[2] = 1.0f;
+        break;
     }
 
     // wait for a valid response
@@ -211,8 +210,7 @@ uint8_t hmc5983Init(void) {
         extRegisterCallback(DIMU_HMC5983_INT_PORT, DIMU_HMC5983_INT_PIN, EXTI_Trigger_Rising, 1, GPIO_PuPd_NOPULL, hmc5983IntHandler);
 
         hmc5983Data.initialized = 1;
-    }
-    else {
+    } else {
         hmc5983Data.initialized = 0;
     }
 

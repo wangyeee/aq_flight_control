@@ -23,12 +23,11 @@
 __attribute__((always_inline))
 inline int16_t rcGetChannelValue(int chan) {
     if (chan >= 0) {
-	if (radioData.mode == RADIO_MODE_SPLIT) {
-	    if (chan < RADIO_MAX_CHANNELS * RADIO_NUM)
-		return radioData.allChannels[chan];
-	}
-	else if (chan < RADIO_MAX_CHANNELS)
-	    return radioData.channels[chan];
+        if (radioData.mode == RADIO_MODE_SPLIT) {
+            if (chan < RADIO_MAX_CHANNELS * RADIO_NUM)
+                return radioData.allChannels[chan];
+        } else if (chan < RADIO_MAX_CHANNELS)
+            return radioData.channels[chan];
     }
     return 0;
 }
@@ -38,23 +37,21 @@ inline int16_t rcGetChannelValue(int chan) {
 __attribute__((always_inline))
 inline void rcSetChannelValue(int chan, int val) {
     if (chan >= 0) {
-	if (radioData.mode == RADIO_MODE_SPLIT) {
-	    if (chan < RADIO_MAX_CHANNELS * RADIO_NUM)
-		radioData.allChannels[chan] = val;
-	} else if (chan < RADIO_MAX_CHANNELS)
-	    radioData.channels[chan] = val;
+        if (radioData.mode == RADIO_MODE_SPLIT) {
+            if (chan < RADIO_MAX_CHANNELS * RADIO_NUM)
+                radioData.allChannels[chan] = val;
+        } else if (chan < RADIO_MAX_CHANNELS)
+            radioData.channels[chan] = val;
     }
 }
-
-
 /* Returns true if current RC controller value (eg. radio channel) matches configured value (channel and position) for a given control parameter. */
 __attribute__((always_inline))
 inline uint8_t rcIsSwitchActive(int paramId) {
     if (rcIsControlConfigured(paramId)) {
-	int16_t chanVal = rcGetControlValue(paramId);
-	int16_t targetVal = rcGetSwitchTargetValue(paramId);
+        int16_t chanVal = rcGetControlValue(paramId);
+        int16_t targetVal = rcGetSwitchTargetValue(paramId);
 
-	return (chanVal >= targetVal - rcGetSwitchDeadband() && chanVal <= targetVal + rcGetSwitchDeadband());
+        return (chanVal >= targetVal - rcGetSwitchDeadband() && chanVal <= targetVal + rcGetSwitchDeadband());
     }
     return 0;
 }
@@ -64,17 +61,17 @@ static uint8_t rcCheckSwitchRangeOverlap(int *swarry, uint8_t alen) {
     int i, j;
 
     for (i=0; i < alen; ++i) {
-	if (!rcIsControlConfigured(swarry[i]))
-	    continue;
+        if (!rcIsControlConfigured(swarry[i]))
+            continue;
 
-	for (j=0; j < alen; ++j) {
-	    if (swarry[j] == swarry[i] || !rcIsControlConfigured(swarry[j]) || rcGetControlChannel(swarry[i]) != rcGetControlChannel(swarry[j]))
-		continue;
+        for (j=0; j < alen; ++j) {
+            if (swarry[j] == swarry[i] || !rcIsControlConfigured(swarry[j]) || rcGetControlChannel(swarry[i]) != rcGetControlChannel(swarry[j]))
+                continue;
 
-	    if (rcGetSwitchTargetValue(swarry[i]) - rcGetSwitchDeadband() <= rcGetSwitchTargetValue(swarry[j]) + rcGetSwitchDeadband() &&
-		    rcGetSwitchTargetValue(swarry[j]) - rcGetSwitchDeadband() <= rcGetSwitchTargetValue(swarry[i]) + rcGetSwitchDeadband())
-		return 1;
-	}
+            if (rcGetSwitchTargetValue(swarry[i]) - rcGetSwitchDeadband() <= rcGetSwitchTargetValue(swarry[j]) + rcGetSwitchDeadband() &&
+                    rcGetSwitchTargetValue(swarry[j]) - rcGetSwitchDeadband() <= rcGetSwitchTargetValue(swarry[i]) + rcGetSwitchDeadband())
+                return 1;
+        }
     }
 
     return 0;
@@ -86,12 +83,12 @@ static uint8_t rcCheckControlsOverlap() {
     int switches[] = { NAV_CTRL_AH, NAV_CTRL_PH, NAV_CTRL_MISN };
 
     if (rcCheckSwitchRangeOverlap(switches, 3))
-	ret |= RC_ERROR_CTRL_OVERLP_MODE;
+        ret |= RC_ERROR_CTRL_OVERLP_MODE;
 
     switches[0] = NAV_CTRL_HOM_SET;
     switches[1] = NAV_CTRL_HOM_GO;
     if (rcCheckSwitchRangeOverlap(switches, 2))
-	ret |= RC_ERROR_CTRL_OVERLP_HOME;
+        ret |= RC_ERROR_CTRL_OVERLP_HOME;
 
     return ret;
 }
@@ -100,7 +97,7 @@ static uint8_t rcCheckControlsOverlap() {
 uint8_t rcCheckValidController(void) {
     uint8_t ret = RC_ERROR_NONE;
     if (RADIO_QUALITY < RC_MIN_RADIO_QUALITY_ARM)
-	ret |= RC_ERROR_LOW_RADIO_QUAL;
+        ret |= RC_ERROR_LOW_RADIO_QUAL;
 
     ret |= rcCheckControlsOverlap();
 
@@ -109,21 +106,21 @@ uint8_t rcCheckValidController(void) {
 
 static const char *rcGetErrorString(uint8_t ec) {
     switch (ec) {
-	case RC_ERROR_LOW_RADIO_QUAL :
-	    return (const char *)"Radio Quality too low";
-	case RC_ERROR_CTRL_OVERLP_MODE :
-	    return (const char *)"Mode controls overlap";
-	case RC_ERROR_CTRL_OVERLP_HOME :
-	    return (const char *)"Home controls overlap";
-	default :
-	    return (const char *)"no error";
+    case RC_ERROR_LOW_RADIO_QUAL :
+        return (const char *)"Radio Quality too low";
+    case RC_ERROR_CTRL_OVERLP_MODE :
+        return (const char *)"Mode controls overlap";
+    case RC_ERROR_CTRL_OVERLP_HOME :
+        return (const char *)"Home controls overlap";
+    default :
+        return (const char *)"no error";
     }
 }
 
 /* Prints all errors contained in errs bitfield, if any. */
 void rcReportAllErrors(uint8_t errs) {
     for (int i=0; i < 8; ++i) {
-	if (errs & (1 << i))
-	    AQ_NOTICE(rcGetErrorString(1<<i));
+        if (errs & (1 << i))
+            AQ_NOTICE(rcGetErrorString(1<<i));
     }
 }

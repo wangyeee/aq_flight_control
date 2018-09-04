@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2014  Bill Nesbitt
+    Copyright (c) 2014  Bill Nesbitt
 */
 
 #ifndef _cyrf_h
@@ -44,7 +44,7 @@ typedef struct {
 } cyrfStack_t;
 
 typedef struct {
-	uint32_t irqTime;
+    uint32_t irqTime;
     cyrfCallback_t *isrCallback, *timeoutCallback;
     uint8_t isrCallbackParam, timeoutCallbackParam;
     digitalPin *rst;

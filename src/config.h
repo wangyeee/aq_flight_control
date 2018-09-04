@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #ifndef _config_h
@@ -22,34 +22,34 @@
 #include "aq.h"
 
 #if BOARD_VERSION == 6 && defined DIMU_VERSION && DIMU_VERSION > 0
-    #if DIMU_VERSION == 10
-        #include "board_dimu_v1.h"
-    #elif DIMU_VERSION == 11
-        #include "board_dimu_v1_1.h"
-    #elif DIMU_VERSION == 20
-        #include "board_dimu_v2.h"
-    #else
-        #error "Unknown DIMU_VERSION for BOARD_VERSION == 6"
-    #endif
+#if DIMU_VERSION == 10
+#include "board_dimu_v1.h"
+#elif DIMU_VERSION == 11
+#include "board_dimu_v1_1.h"
+#elif DIMU_VERSION == 20
+#include "board_dimu_v2.h"
+#else
+#error "Unknown DIMU_VERSION for BOARD_VERSION == 6"
+#endif
 #endif
 
 #ifndef CONFIG_DEFAULTS_FILE
-    #if BOARD_VERSION == 8
-	#define CONFIG_DEFAULTS_FILE    "config_default_m4.h"
-    #else
-	#define CONFIG_DEFAULTS_FILE    "config_default.h"
-    #endif
+#if BOARD_VERSION == 8
+#define CONFIG_DEFAULTS_FILE    "config_default_m4.h"
+#else
+#define CONFIG_DEFAULTS_FILE    "config_default.h"
+#endif
 #endif
 
 #include CONFIG_DEFAULTS_FILE
 
 #ifndef DEFAULT_CONFIG_VERSION
-    #error "Configuration defaults not properly defined."
+#error "Configuration defaults not properly defined."
 #endif
 
-#define CONFIG_FILE_NAME	    "params.txt"
-#define CONFIG_FILE_BUF_SIZE	    512
-#define CONFIG_LINE_BUF_SIZE	    128
+#define CONFIG_FILE_NAME     "params.txt"
+#define CONFIG_FILE_BUF_SIZE     512
+#define CONFIG_LINE_BUF_SIZE     128
 
 // param names must be kept <= 16 chars for mavlink
 enum configParameters {

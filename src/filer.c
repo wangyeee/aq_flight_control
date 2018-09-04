@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #include "aq.h"
@@ -38,25 +38,25 @@ static int32_t filerProcessWrite(filerFileStruct_t *f) {
     UINT bytes;
 
     if (!f->open) {
-	res = f_open(&f->fp, f->fileName, FA_CREATE_ALWAYS | FA_WRITE);
-	if (res != FR_OK)
-	    return FILER_STATUS_ERR_OPEN;
+        res = f_open(&f->fp, f->fileName, FA_CREATE_ALWAYS | FA_WRITE);
+        if (res != FR_OK)
+            return FILER_STATUS_ERR_OPEN;
 
-	f->open = 1;
+        f->open = 1;
     }
 
     if (f->seek >= 0) {
-	res = f_lseek(&f->fp, f->seek);
-	if (res != FR_OK) {
-	    f->open = 0;
-	    return FILER_STATUS_ERR_SEEK;
-	}
+        res = f_lseek(&f->fp, f->seek);
+        if (res != FR_OK) {
+            f->open = 0;
+            return FILER_STATUS_ERR_SEEK;
+        }
     }
 
     res = f_write(&f->fp, f->buf, f->length, &bytes);
     if (res != FR_OK) {
-	f->open = 0;
-	return FILER_STATUS_ERR_WRITE;
+        f->open = 0;
+        return FILER_STATUS_ERR_WRITE;
     }
 
     return bytes;
@@ -67,29 +67,29 @@ static int32_t filerProcessRead(filerFileStruct_t *f) {
     UINT bytes;
 
     if (!f->open) {
-	res = f_open(&f->fp, f->fileName, FA_OPEN_EXISTING | FA_READ);
-	if (res != FR_OK) {
-	    if (res == FR_NO_FILE || res == FR_NO_PATH)
-		return FILER_STATUS_ERR_FNF;
-	    else
-		return FILER_STATUS_ERR_OPEN;
-	}
+        res = f_open(&f->fp, f->fileName, FA_OPEN_EXISTING | FA_READ);
+        if (res != FR_OK) {
+            if (res == FR_NO_FILE || res == FR_NO_PATH)
+                return FILER_STATUS_ERR_FNF;
+            else
+                return FILER_STATUS_ERR_OPEN;
+        }
 
-	f->open = 1;
+        f->open = 1;
     }
 
     if (f->seek >= 0) {
-	res = f_lseek(&f->fp, f->seek);
-	if (res != FR_OK) {
-	    f->open = 0;
-	    return FILER_STATUS_ERR_SEEK;
-	}
+        res = f_lseek(&f->fp, f->seek);
+        if (res != FR_OK) {
+            f->open = 0;
+            return FILER_STATUS_ERR_SEEK;
+        }
     }
 
     res = f_read(&f->fp, f->buf, f->length, &bytes);
     if (res != FR_OK) {
-	f->open = 0;
-	return FILER_STATUS_ERR_READ;
+        f->open = 0;
+        return FILER_STATUS_ERR_READ;
     }
 
     return bytes;
@@ -99,13 +99,13 @@ static int32_t filerProcessSync(filerFileStruct_t *f) {
     uint32_t res;
 
     if (!f->open) {
-	return FILER_STATUS_ERR_OPEN;
+        return FILER_STATUS_ERR_OPEN;
     }
 
     res = f_sync(&f->fp);
     if (res != FR_OK) {
-	f->open = 0;
-	return FILER_STATUS_ERR_SYNC;
+        f->open = 0;
+        return FILER_STATUS_ERR_SYNC;
     }
 
     return 0;
@@ -117,26 +117,26 @@ static int32_t filerProcessStream(filerFileStruct_t *f, uint8_t final) {
     uint32_t size;
 
     if (!f->open) {
-	sprintf(filerData.buf, "%03d-%s.LOG", filerData.session, f->fileName);
-	res = f_open(&f->fp, filerData.buf, FA_CREATE_ALWAYS | FA_WRITE);
-	if (res != FR_OK)
-	    return FILER_STATUS_ERR_OPEN;
+        sprintf(filerData.buf, "%03d-%s.LOG", filerData.session, f->fileName);
+        res = f_open(&f->fp, filerData.buf, FA_CREATE_ALWAYS | FA_WRITE);
+        if (res != FR_OK)
+            return FILER_STATUS_ERR_OPEN;
 
-	f->open = 1;
+        f->open = 1;
     }
 
     // enough new to write?
     while (f->tail > f->head || (f->head - f->tail) >= f->length/FILER_FLUSH_THRESHOLD || ((f->length <= 512 || final) && f->head != f->tail)) {
-	if (f->head > f->tail)
-	    size = f->head - f->tail;
-	else
-	    size = f->length - f->tail;
+        if (f->head > f->tail)
+            size = f->head - f->tail;
+        else
+            size = f->length - f->tail;
 
-	res = f_write(&f->fp, f->buf + f->tail, size, &bytes);
-	f->tail = (f->tail + bytes) % f->length;
+        res = f_write(&f->fp, f->buf + f->tail, size, &bytes);
+        f->tail = (f->tail + bytes) % f->length;
 
-	if (res != FR_OK)
-	    return FILER_STATUS_ERR_WRITE;
+        if (res != FR_OK)
+            return FILER_STATUS_ERR_WRITE;
     }
 
     return bytes;
@@ -146,31 +146,31 @@ static int32_t filerProcessClose(filerFileStruct_t *f) {
     uint32_t res = 0;;
 
     if (f->open) {
-	res = f_close(&f->fp);
-	f->open = 0;
+        res = f_close(&f->fp);
+        f->open = 0;
     }
 
     if (res != FR_OK)
-	return FILER_STATUS_ERR_CLOSE;
+        return FILER_STATUS_ERR_CLOSE;
     else
-	return FILER_STATUS_OK;
+        return FILER_STATUS_OK;
 }
 
 static void filerProcessRequest(filerFileStruct_t *f) {
     if (f->function == FILER_FUNC_STREAM)
-	f->status = filerProcessStream(f, 0);
+        f->status = filerProcessStream(f, 0);
     else if (f->function == FILER_FUNC_READ)
-	f->status = filerProcessRead(f);
+        f->status = filerProcessRead(f);
     else if (f->function == FILER_FUNC_WRITE)
-	f->status = filerProcessWrite(f);
+        f->status = filerProcessWrite(f);
     else if (f->function == FILER_FUNC_SYNC)
-	f->status = filerProcessSync(f);
+        f->status = filerProcessSync(f);
     else if (f->function == FILER_FUNC_CLOSE)
-	f->status = filerProcessClose(f);
+        f->status = filerProcessClose(f);
 
     if (f->function != FILER_FUNC_STREAM) {
-	f->function = FILER_FUNC_NONE;
-	CoSetFlag(f->completeFlag);
+        f->function = FILER_FUNC_NONE;
+        CoSetFlag(f->completeFlag);
     }
 }
 
@@ -185,34 +185,34 @@ int32_t filerInitFS(void) {
 
     res = f_opendir(&filerData.dir, "/");
     if (res == FR_NOT_READY || res == FR_DISK_ERR)
-	return -1;
+        return -1;
 
     if (res != RES_OK) {
-	filerDebug("cannot open root dir, formatting card", res);
-	if ((res=f_mkfs(0, 0, 0)) != FR_OK) {
-	    filerDebug("cannot create filesystem", res);
-	    return -1;
-	}
-	filerData.session = 0;
+        filerDebug("cannot open root dir, formatting card", res);
+        if ((res=f_mkfs(0, 0, 0)) != FR_OK) {
+            filerDebug("cannot create filesystem", res);
+            return -1;
+        }
+        filerData.session = 0;
     }
 
     res = f_open(&filerData.sess, FILER_SESS_FNAME, FA_OPEN_EXISTING | FA_READ);
     if (res == FR_OK) {
-	f_read(&filerData.sess, filerData.buf, sizeof(filerData.buf), &bytes);
-	if (bytes > 1) {
-	    if (sscanf(filerData.buf, "%d\n", &filerData.session) < 1)
-		filerData.session = 0;
-	}
-	f_close(&filerData.sess);
+        f_read(&filerData.sess, filerData.buf, sizeof(filerData.buf), &bytes);
+        if (bytes > 1) {
+            if (sscanf(filerData.buf, "%d\n", &filerData.session) < 1)
+                filerData.session = 0;
+        }
+        f_close(&filerData.sess);
     }
 
     if (++filerData.session > 999)
-	filerData.session = 0;
+        filerData.session = 0;
 
     res = f_open(&filerData.sess, FILER_SESS_FNAME, FA_CREATE_ALWAYS | FA_WRITE);
     if (res != FR_OK) {
-	filerDebug("cannot create config file", res);
-	return -1;
+        filerDebug("cannot create config file", res);
+        return -1;
     }
     sprintf(filerData.buf, "%d\n", filerData.session);
     res = f_write(&filerData.sess, filerData.buf, strlen(filerData.buf), &bytes);
@@ -220,12 +220,11 @@ int32_t filerInitFS(void) {
     f_close(&filerData.sess);
 
     if (res != FR_OK) {
-	return -1;
-    }
-    else {
-	filerDebug("created new session", filerData.session);
+        return -1;
+    } else {
+        filerDebug("created new session", filerData.session);
 
-	return 0;
+        return 0;
     }
 }
 
@@ -235,28 +234,27 @@ void filerTaskCode(void *p) {
 
     AQ_NOTICE("Filer task started\n");
 
-    filerRestart:
+filerRestart:
 
 #ifdef HAS_USB
     // does USB MSC want or have the uSD card?
     if (filerData.mscState >= FILER_STATE_MSC_REQUEST) {
-	if (filerData.mscState == FILER_STATE_MSC_REQUEST) {
-	    if (disk_status(0) != SD_OK) {
-		if (disk_initialize(0) == SD_OK)
-		    filerData.mscState = FILER_STATE_MSC_ACTIVE;
-	    }
-	    else {
-		filerData.mscState = FILER_STATE_MSC_ACTIVE;
-	    }
-	}
+        if (filerData.mscState == FILER_STATE_MSC_REQUEST) {
+            if (disk_status(0) != SD_OK) {
+                if (disk_initialize(0) == SD_OK)
+                    filerData.mscState = FILER_STATE_MSC_ACTIVE;
+            } else {
+                filerData.mscState = FILER_STATE_MSC_ACTIVE;
+            }
+        }
 
-	// check for USB suspend - TODO: clean this up
-	if (usbIsSuspend())
-	    // reset MSC state
-	    filerData.mscState = FILER_STATE_MSC_DISABLE;
+// check for USB suspend - TODO: clean this up
+        if (usbIsSuspend())
+            // reset MSC state
+            filerData.mscState = FILER_STATE_MSC_DISABLE;
 
-	yield(1000);
-	goto filerRestart;
+        yield(1000);
+        goto filerRestart;
     }
 #endif
 
@@ -269,80 +267,78 @@ void filerTaskCode(void *p) {
     // setup fatfs
     f_mount(0, 0);
     if ((res = f_mount(0, &filerData.fs)) != RES_OK) {
-	filerDebug("cannot register work area, aborting", res);
-	CoExitTask();
-	return;
+        filerDebug("cannot register work area, aborting", res);
+        CoExitTask();
+        return;
     }
 
     // reset file table
     for (i = 0; i < FILER_MAX_FILES; i++) {
-	if (filerData.files[i].allocated) {
-	    memset(&filerData.files[i].fp, 0, sizeof(FIL));
-	    filerData.files[i].open = 0;
-	    CoSetFlag(filerData.files[i].completeFlag);
-	}
+        if (filerData.files[i].allocated) {
+            memset(&filerData.files[i].fp, 0, sizeof(FIL));
+            filerData.files[i].open = 0;
+            CoSetFlag(filerData.files[i].completeFlag);
+        }
     }
 
     while (1) {
 #ifdef HAS_USB
-	// have we been disabled for USB MSC?
-	if (filerData.mscState == FILER_STATE_MSC_REQUEST) {
-	    if (filerData.initialized) {
-		AQ_NOTICE("USB MSC detected - closing all files\n");
+// have we been disabled for USB MSC?
+        if (filerData.mscState == FILER_STATE_MSC_REQUEST) {
+            if (filerData.initialized) {
+                AQ_NOTICE("USB MSC detected - closing all files\n");
 
-		// sync & close all open files
-		for (i = 0; i < FILER_MAX_FILES; i++) {
-		    if (filerData.files[i].function == FILER_FUNC_STREAM)
-			filerData.files[i].status = filerProcessStream(&filerData.files[i], 1);
-		    filerProcessClose(&filerData.files[i]);
-		    filerData.files[i].head = 0;
-		    filerData.files[i].tail = 0;
-		}
+                // sync & close all open files
+                for (i = 0; i < FILER_MAX_FILES; i++) {
+                    if (filerData.files[i].function == FILER_FUNC_STREAM)
+                        filerData.files[i].status = filerProcessStream(&filerData.files[i], 1);
+                    filerProcessClose(&filerData.files[i]);
+                    filerData.files[i].head = 0;
+                    filerData.files[i].tail = 0;
+                }
 
-		supervisorDiskWait(0);
-		filerData.initialized = 0;
-	    }
+                supervisorDiskWait(0);
+                filerData.initialized = 0;
+            }
 
-	    goto filerRestart;
-	}
+            goto filerRestart;
+        }
 #endif
 
-	if (!filerData.initialized) {
-	    if (filerInitFS() < 0) {
+        if (!filerData.initialized) {
+            if (filerInitFS() < 0) {
 #ifdef HAS_USB
-		// probably no card, reset MSC state
-		filerData.mscState = FILER_STATE_MSC_DISABLE;
+                // probably no card, reset MSC state
+                filerData.mscState = FILER_STATE_MSC_DISABLE;
 #endif
-		yield(1000);
-		goto filerRestart;
-	    }
-	    else {
-		filerData.initialized = 1;
-	    }
-	}
+                yield(1000);
+                goto filerRestart;
+            } else {
+                filerData.initialized = 1;
+            }
+        }
 
         supervisorDiskWait(1);
 
-	filerData.loops++;
+        filerData.loops++;
 
-	for (i = 0; i < FILER_MAX_FILES; i++) {
-	    if (filerData.files[i].function > FILER_FUNC_NONE) {
-		filerProcessRequest(&filerData.files[i]);
+        for (i = 0; i < FILER_MAX_FILES; i++) {
+            if (filerData.files[i].function > FILER_FUNC_NONE) {
+                filerProcessRequest(&filerData.files[i]);
 
-		if (filerData.files[i].function == FILER_FUNC_STREAM) {
-		    if (filerData.files[i].status < 0) {
-			filerDebug("session write error, aborting", filerData.files[i].status);
-			goto filerRestart;
-		    }
-		    else if (!((filerData.loops+i) % FILER_STREAM_SYNC)) {
-			filerProcessSync(&filerData.files[i]);
-		    }
-		}
-	    }
-	}
+                if (filerData.files[i].function == FILER_FUNC_STREAM) {
+                    if (filerData.files[i].status < 0) {
+                        filerDebug("session write error, aborting", filerData.files[i].status);
+                        goto filerRestart;
+                    } else if (!((filerData.loops+i) % FILER_STREAM_SYNC)) {
+                        filerProcessSync(&filerData.files[i]);
+                    }
+                }
+            }
+        }
 
-	CoClearFlag(filerData.filerFlag);
-	CoWaitForSingleFlag(filerData.filerFlag, 5);	// run at least every 5ms if possible
+        CoClearFlag(filerData.filerFlag);
+        CoWaitForSingleFlag(filerData.filerFlag, 5); // run at least every 5ms if possible
     }
 }
 
@@ -363,13 +359,13 @@ int8_t filerGetHandle(char *fileName) {
     int i;
 
     for (i = 0; i < FILER_MAX_FILES; i++) {
-	if (!filerData.files[i].allocated || !(strcmp(filerData.files[i].fileName, fileName))) {
-	    filerData.files[i].allocated = 1;
-	    strcpy(filerData.files[i].fileName, fileName);
-	    filerData.files[i].completeFlag = CoCreateFlag(0, 0);
+        if (!filerData.files[i].allocated || !(strcmp(filerData.files[i].fileName, fileName))) {
+            filerData.files[i].allocated = 1;
+            strcpy(filerData.files[i].fileName, fileName);
+            filerData.files[i].completeFlag = CoCreateFlag(0, 0);
 
-	    return i;
-	}
+            return i;
+        }
     }
 
     // too many files open
@@ -379,7 +375,7 @@ int8_t filerGetHandle(char *fileName) {
 int32_t filerReadWrite(filerFileStruct_t *f, void *buf, int32_t seek, uint32_t length, uint8_t function) {
     // handle allocated yet?
     if (!f->allocated || !filerData.initialized)
-	return FILER_STATUS_ERR_INIT;
+        return FILER_STATUS_ERR_INIT;
 
     f->buf = buf;
     f->function = function;
@@ -408,14 +404,14 @@ int32_t filerSync(int8_t handle) {
 
     // handle allocated yet?
     if (!f->allocated)
-	return FILER_STATUS_ERR_INIT;
+        return FILER_STATUS_ERR_INIT;
 
     if (f->open) {
-	f->function = FILER_FUNC_SYNC;
+        f->function = FILER_FUNC_SYNC;
 
-	CoSetFlag(filerData.filerFlag);
-	CoClearFlag(f->completeFlag);
-	CoWaitForSingleFlag(f->completeFlag, 0);
+        CoSetFlag(filerData.filerFlag);
+        CoClearFlag(f->completeFlag);
+        CoWaitForSingleFlag(f->completeFlag, 0);
     }
 
     return f->status;
@@ -426,14 +422,14 @@ int32_t filerClose(int8_t handle) {
 
     // handle allocated yet?
     if (!f->allocated)
-	return FILER_STATUS_ERR_INIT;
+        return FILER_STATUS_ERR_INIT;
 
     if (f->open) {
-	f->function = FILER_FUNC_CLOSE;
+        f->function = FILER_FUNC_CLOSE;
 
-	CoSetFlag(filerData.filerFlag);
-	CoClearFlag(f->completeFlag);
-	CoWaitForSingleFlag(f->completeFlag, 0);
+        CoSetFlag(filerData.filerFlag);
+        CoClearFlag(f->completeFlag);
+        CoWaitForSingleFlag(f->completeFlag, 0);
     }
 
     f->allocated = 0;
@@ -454,7 +450,7 @@ int32_t filerStream(int8_t handle, void *buf, uint32_t length) {
 
     // handle allocated yet?
     if (!f->allocated)
-	return FILER_STATUS_ERR_INIT;
+        return FILER_STATUS_ERR_INIT;
 
     f->function = FILER_FUNC_STREAM;
     f->buf = buf;

@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #ifndef _usb_h
@@ -22,11 +22,11 @@
 #include "aq.h"
 #include <stdint.h>
 
-#define USB_RX_BUFSIZE		512
+#define USB_RX_BUFSIZE  512
 
-#define USB_STREAM_TELEMETRY	300
-#define USB_STREAM_MAVLINK	600
-#define USB_STREAM_GPS		1200
+#define USB_STREAM_TELEMETRY 300
+#define USB_STREAM_MAVLINK 600
+#define USB_STREAM_GPS  1200
 
 typedef struct {
     uint32_t bitrate;

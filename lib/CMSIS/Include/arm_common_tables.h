@@ -68,8 +68,6 @@ extern const float32_t twiddleCoef_rfft_512[512];
 extern const float32_t twiddleCoef_rfft_1024[1024];
 extern const float32_t twiddleCoef_rfft_2048[2048];
 extern const float32_t twiddleCoef_rfft_4096[4096];
-
-
 #define ARMBITREVINDEXTABLE__16_TABLE_LENGTH ((uint16_t)20  )
 #define ARMBITREVINDEXTABLE__32_TABLE_LENGTH ((uint16_t)48  )
 #define ARMBITREVINDEXTABLE__64_TABLE_LENGTH ((uint16_t)56  )

@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #ifndef _serial_h
@@ -22,7 +22,7 @@
 #include "stm32f4xx.h"
 #include <CoOS.h>
 
-#define SERIAL_DEFAULT_RX_BUFSIZE	128
+#define SERIAL_DEFAULT_RX_BUFSIZE 128
 
 typedef void serialTxDMACallback_t(void *s);
 

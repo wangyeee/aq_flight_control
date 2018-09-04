@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #ifndef _spektrum_h
@@ -21,8 +21,8 @@
 
 #include "radio.h"
 
-#define SPEKTRUM_BAUD		115200
-#define SPEKTRUM_RXBUF_SIZE	64
+#define SPEKTRUM_BAUD  115200
+#define SPEKTRUM_RXBUF_SIZE 64
 
 typedef struct {
     uint32_t lastCharReceived;

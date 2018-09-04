@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #ifndef _util_h
@@ -23,14 +23,14 @@
 #include "CoOS.h"
 #include <stdlib.h>
 
-#define	UTIL_STACK_CHECK	    CFG_MAX_USER_TASKS		// uncomment to allow system to self check for stack overflows
+#define UTIL_STACK_CHECK     CFG_MAX_USER_TASKS  // uncomment to allow system to self check for stack overflows
 
-#define UTIL_CCM_HEAP_SIZE	    (0x2800)	// 40KB
+#define UTIL_CCM_HEAP_SIZE     (0x2800) // 40KB
 
-#define UTIL_ISR_DISABLE	    __asm volatile ( "CPSID   F\n")
-#define UTIL_ISR_ENABLE		    __asm volatile ( "CPSIE   F\n")
+#define UTIL_ISR_DISABLE     __asm volatile ( "CPSID   F\n")
+#define UTIL_ISR_ENABLE      __asm volatile ( "CPSIE   F\n")
 
-#define yield(n)		    CoTickDelay(n)
+#define yield(n)      CoTickDelay(n)
 
 #define constrainT(t, v, lo, hi)    ({ t __v = (t)(v), __l = (t)(lo), __h = (t)(hi); (__v < __l) ? __l : ((__v > __h) ? __h : __v); })
 #define constrainInt(v, lo, hi)     constrainT(int, v, lo, hi)

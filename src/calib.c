@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #include "calib.h"
@@ -56,22 +56,19 @@ int calibOctant(float32_t *vec) {
                 return 0;
             else
                 return 1;
-        }
-        else {
+        } else {
             if (z > 0)
                 return 2;
             else
                 return 3;
         }
-    }
-    else {
+    } else {
         if (y > 0) {
             if (z > 0)
                 return 4;
             else
                 return 5;
-        }
-        else {
+        } else {
             if (z > 0)
                 return 6;
             else
@@ -167,7 +164,7 @@ void calibInit(void) {
 
 void calibFree(void) {
     if (calibData.calibSamples) {
-	aqFree(calibData.calibSamples, CALIB_SAMPLES*8*3, sizeof(float32_t));
+        aqFree(calibData.calibSamples, CALIB_SAMPLES*8*3, sizeof(float32_t));
         calibData.calibSamples = 0;
     }
 }
@@ -185,25 +182,25 @@ void calibCalculate(void) {
 
     t = (float32_t *)aqCalloc(10*8*CALIB_SAMPLES, sizeof(float32_t));
     if (t == 0) {
-	AQ_NOTICE("CALIB: Out of memory\n");
-	goto calibFree;
+        AQ_NOTICE("CALIB: Out of memory\n");
+        goto calibFree;
     }
 
     arm_mat_init_f32(&D, 10, 8*CALIB_SAMPLES, t);
 
     t = calibData.calibSamples;
     for (i = 0; i < 8*CALIB_SAMPLES; i++) {
-	D.pData[0*8*CALIB_SAMPLES + i] = t[0]*t[0];
-	D.pData[1*8*CALIB_SAMPLES + i] = t[1]*t[1];
-	D.pData[2*8*CALIB_SAMPLES + i] = t[2]*t[2];
-	D.pData[3*8*CALIB_SAMPLES + i] = t[0]*t[1];
-	D.pData[4*8*CALIB_SAMPLES + i] = t[0]*t[2];
-	D.pData[5*8*CALIB_SAMPLES + i] = t[1]*t[2];
-	D.pData[6*8*CALIB_SAMPLES + i] = t[0];
-	D.pData[7*8*CALIB_SAMPLES + i] = t[1];
-	D.pData[8*8*CALIB_SAMPLES + i] = t[2];
-	D.pData[9*8*CALIB_SAMPLES + i] = 1.0f;
-	t += 3;
+        D.pData[0*8*CALIB_SAMPLES + i] = t[0]*t[0];
+        D.pData[1*8*CALIB_SAMPLES + i] = t[1]*t[1];
+        D.pData[2*8*CALIB_SAMPLES + i] = t[2]*t[2];
+        D.pData[3*8*CALIB_SAMPLES + i] = t[0]*t[1];
+        D.pData[4*8*CALIB_SAMPLES + i] = t[0]*t[2];
+        D.pData[5*8*CALIB_SAMPLES + i] = t[1]*t[2];
+        D.pData[6*8*CALIB_SAMPLES + i] = t[0];
+        D.pData[7*8*CALIB_SAMPLES + i] = t[1];
+        D.pData[8*8*CALIB_SAMPLES + i] = t[2];
+        D.pData[9*8*CALIB_SAMPLES + i] = 1.0f;
+        t += 3;
     }
 
     // free raw data
@@ -211,16 +208,16 @@ void calibCalculate(void) {
 
     t = (float32_t *)aqCalloc(20*10, sizeof(float32_t));
     if (t == 0) {
-	AQ_NOTICE("CALIB: Out of memory\n");
-	goto calibFree;
+        AQ_NOTICE("CALIB: Out of memory\n");
+        goto calibFree;
     }
 
     arm_mat_init_f32(&R, 20, 10, t);
     arm_fill_f32(0, t, 20*10);
 
     if (qrDecompositionT_f32(&D, 0, &R) == 0) {
-	AQ_NOTICE("CALIB: rank deficient - abort\n");
-	goto calibFree;
+        AQ_NOTICE("CALIB: rank deficient - abort\n");
+        goto calibFree;
     }
 
     svd(R.pData, calibData.U, 10);
@@ -244,8 +241,8 @@ void calibCalculate(void) {
     d = sign * R.pData[(10+9)*10 + 9];
 
     if (cholF(calibData.U) == 0) {
-	AQ_NOTICE("CALIB: poor data - abort\n");
-	goto calibFree;
+        AQ_NOTICE("CALIB: poor data - abort\n");
+        goto calibFree;
     }
 
     solveUT(calibData.U, calibData.bias, v);
@@ -255,7 +252,7 @@ void calibCalculate(void) {
     solveU(calibData.U, v, calibData.bias);
 
     for (i = 0; i < 9; i++)
-	calibData.U[i] *= s;
+        calibData.U[i] *= s;
 
     calibData.bias[0] = -calibData.bias[0];
     calibData.bias[1] = -calibData.bias[1];
@@ -297,12 +294,12 @@ void calibCalculate(void) {
     p[IMU_MAG_ALGN_ZX] = calibData.U[6];
     p[IMU_MAG_ALGN_ZY] = calibData.U[7];
 
-    calibFree:
+calibFree:
 
     if (D.pData)
-	aqFree(D.pData, 10*8*CALIB_SAMPLES, sizeof(float32_t));
+        aqFree(D.pData, 10*8*CALIB_SAMPLES, sizeof(float32_t));
     if (R.pData)
-	aqFree(R.pData, 20*10, sizeof(float32_t));
+        aqFree(R.pData, 20*10, sizeof(float32_t));
 }
 
 void calibFinished(void) {
@@ -319,13 +316,13 @@ void calibrate(void) {
         return;
 
 #ifdef USE_DIGITAL_IMU
-		vec[0] = hmc5983Data.rawMag[0];
-		vec[1] = hmc5983Data.rawMag[1];
-		vec[2] = hmc5983Data.rawMag[2];
+    vec[0] = hmc5983Data.rawMag[0];
+    vec[1] = hmc5983Data.rawMag[1];
+    vec[2] = hmc5983Data.rawMag[2];
 #else
-		vec[0] = adcData.voltages[3];
-		vec[1] = adcData.voltages[4];
-		vec[2] = adcData.voltages[5];
+    vec[0] = adcData.voltages[3];
+    vec[1] = adcData.voltages[4];
+    vec[2] = adcData.voltages[5];
 #endif
 
     for (i = 0; i < 3; i++) {
@@ -343,19 +340,18 @@ void calibrate(void) {
         calibData.lastVec[0] = vec[0];
         calibData.lastVec[1] = vec[1];
         calibData.lastVec[2] = vec[2];
-    }
-    else if (calibAngle(calibData.lastVec, vec) * RAD_TO_DEG > CALIB_MIN_ANGLE) {
-	if (fabsf(calibData.min[0] - calibData.max[0]) > 1.0f &&
-	    fabsf(calibData.min[1] - calibData.max[1]) > 1.0f &&
-	    fabsf(calibData.min[2] - calibData.max[2]) > 1.0f) {
-		calibInsert(vec);
+    } else if (calibAngle(calibData.lastVec, vec) * RAD_TO_DEG > CALIB_MIN_ANGLE) {
+        if (fabsf(calibData.min[0] - calibData.max[0]) > 1.0f &&
+                fabsf(calibData.min[1] - calibData.max[1]) > 1.0f &&
+                fabsf(calibData.min[2] - calibData.max[2]) > 1.0f) {
+            calibInsert(vec);
 
-		if (calibCount() == 8 * CALIB_SAMPLES)
-		    calibFinished();
+            if (calibCount() == 8 * CALIB_SAMPLES)
+                calibFinished();
 
-		calibData.lastVec[0] = vec[0];
-		calibData.lastVec[1] = vec[1];
-		calibData.lastVec[2] = vec[2];
-	}
+            calibData.lastVec[0] = vec[0];
+            calibData.lastVec[1] = vec[1];
+            calibData.lastVec[2] = vec[2];
+        }
     }
 }

@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #include "analog.h"
@@ -29,14 +29,14 @@ void analogDecode(void) {
     int i, j;
 
     for (i = 0; i < ANALOG_CHANNELS; i++)
-	analogData.rawChannels[i] = 0;
+        analogData.rawChannels[i] = 0;
 
     for (i = 0; i < ANALOG_SAMPLES; i++)
-	for (j = 0; j < ANALOG_CHANNELS; j++)
-	    analogData.rawChannels[j] += analogData.rawSamples[i * ANALOG_CHANNELS + j];
+        for (j = 0; j < ANALOG_CHANNELS; j++)
+            analogData.rawChannels[j] += analogData.rawSamples[i * ANALOG_CHANNELS + j];
 
     for (i = 0; i < ANALOG_CHANNELS; i++)
-	analogData.voltages[i] = analogData.rawChannels[i] * ANALOG_DIVISOR;
+        analogData.voltages[i] = analogData.rawChannels[i] * ANALOG_DIVISOR;
 
     analogData.vIn = analogData.voltages[analogData.vInSourceIndex] * analogData.vInSlope;
 #ifdef ANALOG_EXT_VOLT_SLOPE
@@ -56,8 +56,8 @@ void analogInit(void) {
     analogData.vInSlope = ANALOG_VIN_SLOPE;
 #ifdef ANALOG_EXT_VOLT_SLOPE
     if ((int)p[SPVR_VIN_SOURCE] == 1) {
-	analogData.vInSourceIndex = ANALOG_VOLTS_EXT_VOLT;
-	analogData.vInSlope = ANALOG_EXT_VOLT_SLOPE;
+        analogData.vInSourceIndex = ANALOG_VOLTS_EXT_VOLT;
+        analogData.vInSlope = ANALOG_EXT_VOLT_SLOPE;
     }
 #endif
 
@@ -124,17 +124,17 @@ void analogInit(void) {
 
     // determine LiPo battery cell count
     if (analogData.vIn < 5.0f)
-	analogData.batCellCount = 1;
+        analogData.batCellCount = 1;
     else if (analogData.vIn < 8.5f)
-	analogData.batCellCount = 2;
+        analogData.batCellCount = 2;
     else if (analogData.vIn < 12.8f)
-	analogData.batCellCount = 3;
+        analogData.batCellCount = 3;
     else if (analogData.vIn < 17.0f)
-	analogData.batCellCount = 4;
+        analogData.batCellCount = 4;
     else if (analogData.vIn < 21.3f)
-	analogData.batCellCount = 5;
+        analogData.batCellCount = 5;
     else if (analogData.vIn < 25.8f)
-	analogData.batCellCount = 6;
+        analogData.batCellCount = 6;
 
     AQ_PRINTF("Battery cells: %d\n", analogData.batCellCount);
 }

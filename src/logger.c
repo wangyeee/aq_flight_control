@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #include "aq.h"
@@ -192,7 +192,7 @@ void loggerDoHeader(void) {
 
     // make sure we can proceed
     if (!filerAvailable())
-	return;
+        return;
 
     head = filerGetHead(loggerData.logHandle);
     buf = loggerData.loggerBuf + head;
@@ -212,8 +212,8 @@ void loggerDoHeader(void) {
     ckA = ckB = 0;
     buf = loggerData.loggerBuf + head + 3;
     for (i = 0; i < (1 + sizeof(loggerFields)); i++) {
-	ckA += buf[i];
-	ckB += ckA;
+        ckA += buf[i];
+        ckB += ckA;
     }
     buf[i++] = ckA;
     buf[i++] = ckB;
@@ -230,7 +230,7 @@ void loggerDo(void) {
 
     // make sure we can proceed
     if (!filerAvailable())
-	return;
+        return;
 
     head = filerGetHead(loggerData.logHandle);
     buf = loggerData.loggerBuf + head;
@@ -242,13 +242,13 @@ void loggerDo(void) {
 
     // number of fields
     for (i = 0; i < loggerData.numFields; i++)
-	buf += loggerData.fp[i].copyFunc(buf, loggerData.fp[i].fieldPointer);
+        buf += loggerData.fp[i].copyFunc(buf, loggerData.fp[i].fieldPointer);
 
     ckA = ckB = 0;
     buf = loggerData.loggerBuf + head;
     for (i = 3; i < loggerData.packetSize - 2; i++) {
-	ckA += buf[i];
-	ckB += ckA;
+        ckA += buf[i];
+        ckB += ckA;
     }
     buf[i++] = ckA;
     buf[i++] = ckB;
@@ -265,361 +265,361 @@ void loggerSetup(void) {
     loggerData.fp = (fieldData_t *)aqDataCalloc(loggerData.numFields, sizeof(fieldData_t));
 
     for (i = 0; i < loggerData.numFields; i++) {
-	switch (loggerFields[i].fieldId) {
-	    case LOG_LASTUPDATE:
-		loggerData.fp[i].fieldPointer = (void *)&IMU_LASTUPD;
-		break;
-	    case LOG_VOLTAGE0:
-		loggerData.fp[i].fieldPointer = (void *)&IMU_RAW_RATEX;
-		break;
-	    case LOG_VOLTAGE1:
-		loggerData.fp[i].fieldPointer = (void *)&IMU_RAW_RATEY;
-		break;
-	    case LOG_VOLTAGE2:
-		loggerData.fp[i].fieldPointer = (void *)&IMU_RAW_RATEZ;
-		break;
-	    case LOG_VOLTAGE3:
-		loggerData.fp[i].fieldPointer = (void *)&IMU_RAW_MAGX;
-		break;
-	    case LOG_VOLTAGE4:
-		loggerData.fp[i].fieldPointer = (void *)&IMU_RAW_MAGY;
-		break;
-	    case LOG_VOLTAGE5:
-		loggerData.fp[i].fieldPointer = (void *)&IMU_RAW_MAGZ;
-		break;
-	    case LOG_VOLTAGE6:
+        switch (loggerFields[i].fieldId) {
+        case LOG_LASTUPDATE:
+            loggerData.fp[i].fieldPointer = (void *)&IMU_LASTUPD;
+            break;
+        case LOG_VOLTAGE0:
+            loggerData.fp[i].fieldPointer = (void *)&IMU_RAW_RATEX;
+            break;
+        case LOG_VOLTAGE1:
+            loggerData.fp[i].fieldPointer = (void *)&IMU_RAW_RATEY;
+            break;
+        case LOG_VOLTAGE2:
+            loggerData.fp[i].fieldPointer = (void *)&IMU_RAW_RATEZ;
+            break;
+        case LOG_VOLTAGE3:
+            loggerData.fp[i].fieldPointer = (void *)&IMU_RAW_MAGX;
+            break;
+        case LOG_VOLTAGE4:
+            loggerData.fp[i].fieldPointer = (void *)&IMU_RAW_MAGY;
+            break;
+        case LOG_VOLTAGE5:
+            loggerData.fp[i].fieldPointer = (void *)&IMU_RAW_MAGZ;
+            break;
+        case LOG_VOLTAGE6:
 #ifdef HAS_AIMU
-		loggerData.fp[i].fieldPointer = (void *)&adcData.voltages[6];
+            loggerData.fp[i].fieldPointer = (void *)&adcData.voltages[6];
 #endif
-		break;
-	    case LOG_VOLTAGE7:
+            break;
+        case LOG_VOLTAGE7:
 #ifdef HAS_AIMU
-		loggerData.fp[i].fieldPointer = (void *)&adcData.voltages[7];
+            loggerData.fp[i].fieldPointer = (void *)&adcData.voltages[7];
 #else
-		loggerData.fp[i].fieldPointer = (void *)&analogData.voltages[ANALOG_VOLTS_VIN];
+            loggerData.fp[i].fieldPointer = (void *)&analogData.voltages[ANALOG_VOLTS_VIN];
 #endif
-		break;
-	    case LOG_VOLTAGE8:
-		loggerData.fp[i].fieldPointer = (void *)&IMU_RAW_ACCX;
-		break;
-	    case LOG_VOLTAGE9:
-		loggerData.fp[i].fieldPointer = (void *)&IMU_RAW_ACCY;
-		break;
-	    case LOG_VOLTAGE10:
-		loggerData.fp[i].fieldPointer = (void *)&IMU_RAW_ACCZ;
-		break;
+            break;
+        case LOG_VOLTAGE8:
+            loggerData.fp[i].fieldPointer = (void *)&IMU_RAW_ACCX;
+            break;
+        case LOG_VOLTAGE9:
+            loggerData.fp[i].fieldPointer = (void *)&IMU_RAW_ACCY;
+            break;
+        case LOG_VOLTAGE10:
+            loggerData.fp[i].fieldPointer = (void *)&IMU_RAW_ACCZ;
+            break;
 #ifdef HAS_AIMU
-	    case LOG_VOLTAGE11:
-		loggerData.fp[i].fieldPointer = (void *)&adcData.voltages[11];
-		break;
-	    case LOG_VOLTAGE12:
-		loggerData.fp[i].fieldPointer = (void *)&adcData.voltages[12];
-		break;
-	    case LOG_VOLTAGE13:
-		loggerData.fp[i].fieldPointer = (void *)&adcData.voltages[13];
-		break;
-	    case LOG_VOLTAGE14:
-		loggerData.fp[i].fieldPointer = (void *)&adcData.voltages[14];
-		break;
+        case LOG_VOLTAGE11:
+            loggerData.fp[i].fieldPointer = (void *)&adcData.voltages[11];
+            break;
+        case LOG_VOLTAGE12:
+            loggerData.fp[i].fieldPointer = (void *)&adcData.voltages[12];
+            break;
+        case LOG_VOLTAGE13:
+            loggerData.fp[i].fieldPointer = (void *)&adcData.voltages[13];
+            break;
+        case LOG_VOLTAGE14:
+            loggerData.fp[i].fieldPointer = (void *)&adcData.voltages[14];
+            break;
 #endif
-	    case LOG_IMU_RATEX:
-		loggerData.fp[i].fieldPointer = (void *)&IMU_RATEX;
-		break;
-	    case LOG_IMU_RATEY:
-		loggerData.fp[i].fieldPointer = (void *)&IMU_RATEY;
-		break;
-	    case LOG_IMU_RATEZ:
-		loggerData.fp[i].fieldPointer = (void *)&IMU_RATEZ;
-		break;
-	    case LOG_IMU_ACCX:
-		loggerData.fp[i].fieldPointer = (void *)&IMU_ACCX;
-		break;
-	    case LOG_IMU_ACCY:
-		loggerData.fp[i].fieldPointer = (void *)&IMU_ACCY;
-		break;
-	    case LOG_IMU_ACCZ:
-		loggerData.fp[i].fieldPointer = (void *)&IMU_ACCZ;
-		break;
-	    case LOG_IMU_MAGX:
-		loggerData.fp[i].fieldPointer = (void *)&IMU_MAGX;
-		break;
-	    case LOG_IMU_MAGY:
-		loggerData.fp[i].fieldPointer = (void *)&IMU_MAGY;
-		break;
-	    case LOG_IMU_MAGZ:
-		loggerData.fp[i].fieldPointer = (void *)&IMU_MAGZ;
-		break;
-	    case LOG_GPS_PDOP:
-		loggerData.fp[i].fieldPointer = (void *)&gpsData.pDOP;
-		break;
-	    case LOG_GPS_HDOP:
-		loggerData.fp[i].fieldPointer = (void *)&gpsData.hDOP;
-		break;
-	    case LOG_GPS_VDOP:
-		loggerData.fp[i].fieldPointer = (void *)&gpsData.vDOP;
-		break;
-	    case LOG_GPS_TDOP:
-		loggerData.fp[i].fieldPointer = (void *)&gpsData.tDOP;
-		break;
-	    case LOG_GPS_NDOP:
-		loggerData.fp[i].fieldPointer = (void *)&gpsData.nDOP;
-		break;
-	    case LOG_GPS_EDOP:
-		loggerData.fp[i].fieldPointer = (void *)&gpsData.eDOP;
-		break;
-	    case LOG_GPS_ITOW:
-		loggerData.fp[i].fieldPointer = (void *)&gpsData.iTOW;
-		break;
-	    case LOG_GPS_POS_UPDATE:
-		loggerData.fp[i].fieldPointer = (void *)&gpsData.lastPosUpdate;
-		break;
-	    case LOG_GPS_LAT:
-		loggerData.fp[i].fieldPointer = (void *)&gpsData.lat;
-		break;
-	    case LOG_GPS_LON:
-		loggerData.fp[i].fieldPointer = (void *)&gpsData.lon;
-		break;
-	    case LOG_GPS_HEIGHT:
-		loggerData.fp[i].fieldPointer = (void *)&gpsData.height;
-		break;
-	    case LOG_GPS_HACC:
-		loggerData.fp[i].fieldPointer = (void *)&gpsData.hAcc;
-		break;
-	    case LOG_GPS_VACC:
-		loggerData.fp[i].fieldPointer = (void *)&gpsData.vAcc;
-		break;
-	    case LOG_GPS_VEL_UPDATE:
-		loggerData.fp[i].fieldPointer = (void *)&gpsData.lastVelUpdate;
-		break;
-	    case LOG_GPS_VELN:
-		loggerData.fp[i].fieldPointer = (void *)&gpsData.velN;
-		break;
-	    case LOG_GPS_VELE:
-		loggerData.fp[i].fieldPointer = (void *)&gpsData.velE;
-		break;
-	    case LOG_GPS_VELD:
-		loggerData.fp[i].fieldPointer = (void *)&gpsData.velD;
-		break;
-	    case LOG_GPS_SACC:
-		loggerData.fp[i].fieldPointer = (void *)&gpsData.sAcc;
-		break;
-	    case LOG_ADC_PRESSURE1:
-		loggerData.fp[i].fieldPointer = (void *)&AQ_PRESSURE;
-		break;
+        case LOG_IMU_RATEX:
+            loggerData.fp[i].fieldPointer = (void *)&IMU_RATEX;
+            break;
+        case LOG_IMU_RATEY:
+            loggerData.fp[i].fieldPointer = (void *)&IMU_RATEY;
+            break;
+        case LOG_IMU_RATEZ:
+            loggerData.fp[i].fieldPointer = (void *)&IMU_RATEZ;
+            break;
+        case LOG_IMU_ACCX:
+            loggerData.fp[i].fieldPointer = (void *)&IMU_ACCX;
+            break;
+        case LOG_IMU_ACCY:
+            loggerData.fp[i].fieldPointer = (void *)&IMU_ACCY;
+            break;
+        case LOG_IMU_ACCZ:
+            loggerData.fp[i].fieldPointer = (void *)&IMU_ACCZ;
+            break;
+        case LOG_IMU_MAGX:
+            loggerData.fp[i].fieldPointer = (void *)&IMU_MAGX;
+            break;
+        case LOG_IMU_MAGY:
+            loggerData.fp[i].fieldPointer = (void *)&IMU_MAGY;
+            break;
+        case LOG_IMU_MAGZ:
+            loggerData.fp[i].fieldPointer = (void *)&IMU_MAGZ;
+            break;
+        case LOG_GPS_PDOP:
+            loggerData.fp[i].fieldPointer = (void *)&gpsData.pDOP;
+            break;
+        case LOG_GPS_HDOP:
+            loggerData.fp[i].fieldPointer = (void *)&gpsData.hDOP;
+            break;
+        case LOG_GPS_VDOP:
+            loggerData.fp[i].fieldPointer = (void *)&gpsData.vDOP;
+            break;
+        case LOG_GPS_TDOP:
+            loggerData.fp[i].fieldPointer = (void *)&gpsData.tDOP;
+            break;
+        case LOG_GPS_NDOP:
+            loggerData.fp[i].fieldPointer = (void *)&gpsData.nDOP;
+            break;
+        case LOG_GPS_EDOP:
+            loggerData.fp[i].fieldPointer = (void *)&gpsData.eDOP;
+            break;
+        case LOG_GPS_ITOW:
+            loggerData.fp[i].fieldPointer = (void *)&gpsData.iTOW;
+            break;
+        case LOG_GPS_POS_UPDATE:
+            loggerData.fp[i].fieldPointer = (void *)&gpsData.lastPosUpdate;
+            break;
+        case LOG_GPS_LAT:
+            loggerData.fp[i].fieldPointer = (void *)&gpsData.lat;
+            break;
+        case LOG_GPS_LON:
+            loggerData.fp[i].fieldPointer = (void *)&gpsData.lon;
+            break;
+        case LOG_GPS_HEIGHT:
+            loggerData.fp[i].fieldPointer = (void *)&gpsData.height;
+            break;
+        case LOG_GPS_HACC:
+            loggerData.fp[i].fieldPointer = (void *)&gpsData.hAcc;
+            break;
+        case LOG_GPS_VACC:
+            loggerData.fp[i].fieldPointer = (void *)&gpsData.vAcc;
+            break;
+        case LOG_GPS_VEL_UPDATE:
+            loggerData.fp[i].fieldPointer = (void *)&gpsData.lastVelUpdate;
+            break;
+        case LOG_GPS_VELN:
+            loggerData.fp[i].fieldPointer = (void *)&gpsData.velN;
+            break;
+        case LOG_GPS_VELE:
+            loggerData.fp[i].fieldPointer = (void *)&gpsData.velE;
+            break;
+        case LOG_GPS_VELD:
+            loggerData.fp[i].fieldPointer = (void *)&gpsData.velD;
+            break;
+        case LOG_GPS_SACC:
+            loggerData.fp[i].fieldPointer = (void *)&gpsData.sAcc;
+            break;
+        case LOG_ADC_PRESSURE1:
+            loggerData.fp[i].fieldPointer = (void *)&AQ_PRESSURE;
+            break;
 #ifdef HAS_AIMU
-	    case LOG_ADC_PRESSURE2:
-		loggerData.fp[i].fieldPointer = (void *)&adcData.pressure2;
-		break;
+        case LOG_ADC_PRESSURE2:
+            loggerData.fp[i].fieldPointer = (void *)&adcData.pressure2;
+            break;
 #endif
-	    case LOG_ADC_TEMP0:
-		loggerData.fp[i].fieldPointer = (void *)&IMU_TEMP;
-		break;
-	    case LOG_ADC_VIN:
-		loggerData.fp[i].fieldPointer = (void *)&analogData.vIn;
-		break;
+        case LOG_ADC_TEMP0:
+            loggerData.fp[i].fieldPointer = (void *)&IMU_TEMP;
+            break;
+        case LOG_ADC_VIN:
+            loggerData.fp[i].fieldPointer = (void *)&analogData.vIn;
+            break;
 #ifdef HAS_AIMU
-	    case LOG_ADC_MAG_SIGN:
-		loggerData.fp[i].fieldPointer = (void *)&adcData.magSign;
-		break;
+        case LOG_ADC_MAG_SIGN:
+            loggerData.fp[i].fieldPointer = (void *)&adcData.magSign;
+            break;
 #endif
-	    case LOG_UKF_Q1:
-		loggerData.fp[i].fieldPointer = (void *)&UKF_Q1;
-		break;
-	    case LOG_UKF_Q2:
-		loggerData.fp[i].fieldPointer = (void *)&UKF_Q2;
-		break;
-	    case LOG_UKF_Q3:
-		loggerData.fp[i].fieldPointer = (void *)&UKF_Q3;
-		break;
-	    case LOG_UKF_Q4:
-		loggerData.fp[i].fieldPointer = (void *)&UKF_Q4;
-		break;
-	    case LOG_UKF_POSN:
-		loggerData.fp[i].fieldPointer = (void *)&UKF_POSN;
-		break;
-	    case LOG_UKF_POSE:
-		loggerData.fp[i].fieldPointer = (void *)&UKF_POSE;
-		break;
-	    case LOG_UKF_POSD:
-		loggerData.fp[i].fieldPointer = (void *)&UKF_POSD;
-		break;
-	    case LOG_UKF_PRES_ALT:
-		loggerData.fp[i].fieldPointer = (void *)&UKF_PRES_ALT;
-		break;
-	    case LOG_UKF_ALT:
-		loggerData.fp[i].fieldPointer = (void *)&ALT_POS;
-		break;
-	    case LOG_UKF_ALT_VEL:
-		loggerData.fp[i].fieldPointer = (void *)&ALT_VEL;
-		break;
-	    case LOG_UKF_VELN:
-		loggerData.fp[i].fieldPointer = (void *)&UKF_VELN;
-		break;
-	    case LOG_UKF_VELE:
-		loggerData.fp[i].fieldPointer = (void *)&UKF_VELE;
-		break;
-	    case LOG_UKF_VELD:
-		loggerData.fp[i].fieldPointer = (void *)&UKF_VELD;
-		break;
-	    case LOG_MOT_MOTOR0:
-		loggerData.fp[i].fieldPointer = (void *)&motorsData.value[0];
-		break;
-	    case LOG_MOT_MOTOR1:
-		loggerData.fp[i].fieldPointer = (void *)&motorsData.value[1];
-		break;
-	    case LOG_MOT_MOTOR2:
-		loggerData.fp[i].fieldPointer = (void *)&motorsData.value[2];
-		break;
-	    case LOG_MOT_MOTOR3:
-		loggerData.fp[i].fieldPointer = (void *)&motorsData.value[3];
-		break;
-	    case LOG_MOT_MOTOR4:
-		loggerData.fp[i].fieldPointer = (void *)&motorsData.value[4];
-		break;
-	    case LOG_MOT_MOTOR5:
-		loggerData.fp[i].fieldPointer = (void *)&motorsData.value[5];
-		break;
-	    case LOG_MOT_MOTOR6:
-		loggerData.fp[i].fieldPointer = (void *)&motorsData.value[6];
-		break;
-	    case LOG_MOT_MOTOR7:
-		loggerData.fp[i].fieldPointer = (void *)&motorsData.value[7];
-		break;
-	    case LOG_MOT_MOTOR8:
-		loggerData.fp[i].fieldPointer = (void *)&motorsData.value[8];
-		break;
-	    case LOG_MOT_MOTOR9:
-		loggerData.fp[i].fieldPointer = (void *)&motorsData.value[9];
-		break;
-	    case LOG_MOT_MOTOR10:
-		loggerData.fp[i].fieldPointer = (void *)&motorsData.value[10];
-		break;
-	    case LOG_MOT_MOTOR11:
-		loggerData.fp[i].fieldPointer = (void *)&motorsData.value[11];
-		break;
-	    case LOG_MOT_MOTOR12:
-		loggerData.fp[i].fieldPointer = (void *)&motorsData.value[12];
-		break;
-	    case LOG_MOT_MOTOR13:
-		loggerData.fp[i].fieldPointer = (void *)&motorsData.value[13];
-		break;
-	    case LOG_MOT_THROTTLE:
-		loggerData.fp[i].fieldPointer = (void *)&motorsData.throttle;
-		break;
-	    case LOG_MOT_PITCH:
-		loggerData.fp[i].fieldPointer = (void *)&motorsData.pitch;
-		break;
-	    case LOG_MOT_ROLL:
-		loggerData.fp[i].fieldPointer = (void *)&motorsData.roll;
-		break;
-	    case LOG_MOT_YAW:
-		loggerData.fp[i].fieldPointer = (void *)&motorsData.yaw;
-		break;
-	    case LOG_RADIO_QUALITY:
-		loggerData.fp[i].fieldPointer = (void *)&RADIO_QUALITY;
-		break;
-	    case LOG_RADIO_CHANNEL0:
-		loggerData.fp[i].fieldPointer = (void *)&radioData.channels[0];
-		break;
-	    case LOG_RADIO_CHANNEL1:
-		loggerData.fp[i].fieldPointer = (void *)&radioData.channels[1];
-		break;
-	    case LOG_RADIO_CHANNEL2:
-		loggerData.fp[i].fieldPointer = (void *)&radioData.channels[2];
-		break;
-	    case LOG_RADIO_CHANNEL3:
-		loggerData.fp[i].fieldPointer = (void *)&radioData.channels[3];
-		break;
-	    case LOG_RADIO_CHANNEL4:
-		loggerData.fp[i].fieldPointer = (void *)&radioData.channels[4];
-		break;
-	    case LOG_RADIO_CHANNEL5:
-		loggerData.fp[i].fieldPointer = (void *)&radioData.channels[5];
-		break;
-	    case LOG_RADIO_CHANNEL6:
-		loggerData.fp[i].fieldPointer = (void *)&radioData.channels[6];
-		break;
-	    case LOG_RADIO_CHANNEL7:
-		loggerData.fp[i].fieldPointer = (void *)&radioData.channels[7];
-		break;
-	    case LOG_RADIO_CHANNEL8:
-		loggerData.fp[i].fieldPointer = (void *)&radioData.channels[8];
-		break;
-	    case LOG_RADIO_CHANNEL9:
-		loggerData.fp[i].fieldPointer = (void *)&radioData.channels[9];
-		break;
-	    case LOG_RADIO_CHANNEL10:
-		loggerData.fp[i].fieldPointer = (void *)&radioData.channels[10];
-		break;
-	    case LOG_RADIO_CHANNEL11:
-		loggerData.fp[i].fieldPointer = (void *)&radioData.channels[11];
-		break;
-	    case LOG_RADIO_CHANNEL12:
-		loggerData.fp[i].fieldPointer = (void *)&radioData.channels[12];
-		break;
-	    case LOG_RADIO_CHANNEL13:
-		loggerData.fp[i].fieldPointer = (void *)&radioData.channels[13];
-		break;
-	    case LOG_RADIO_CHANNEL14:
-		loggerData.fp[i].fieldPointer = (void *)&radioData.channels[14];
-		break;
-	    case LOG_RADIO_CHANNEL15:
-		loggerData.fp[i].fieldPointer = (void *)&radioData.channels[15];
-		break;
-	    case LOG_RADIO_CHANNEL16:
-		loggerData.fp[i].fieldPointer = (void *)&radioData.channels[16];
-		break;
-	    case LOG_RADIO_CHANNEL17:
-		loggerData.fp[i].fieldPointer = (void *)&radioData.channels[17];
-		break;
-	    case LOG_RADIO_ERRORS:
-		loggerData.fp[i].fieldPointer = (void *)&RADIO_ERROR_COUNT;
-		break;
-	    case LOG_GMBL_TRIGGER:
-		loggerData.fp[i].fieldPointer = (void *)&gimbalData.triggerLogVal;
-		break;
-	    case LOG_ACC_BIAS_X:
-		loggerData.fp[i].fieldPointer = (void *)&UKF_ACC_BIAS_X;
-		break;
-	    case LOG_ACC_BIAS_Y:
-		loggerData.fp[i].fieldPointer = (void *)&UKF_ACC_BIAS_Y;
-		break;
-	    case LOG_ACC_BIAS_Z:
-		loggerData.fp[i].fieldPointer = (void *)&UKF_ACC_BIAS_Z;
-		break;
-	    case LOG_CURRENT_PDB:
-		loggerData.fp[i].fieldPointer = (void *)&canSensorsData.values[CAN_SENSORS_PDB_BATA];
-		break;
-	    case LOG_CURRENT_EXT:
-		loggerData.fp[i].fieldPointer = (void *)&analogData.extAmp;
-		break;
-	    case LOG_VIN_PDB:
-		loggerData.fp[i].fieldPointer = (void *)&canSensorsData.values[CAN_SENSORS_PDB_BATV];
-		break;
-	}
+        case LOG_UKF_Q1:
+            loggerData.fp[i].fieldPointer = (void *)&UKF_Q1;
+            break;
+        case LOG_UKF_Q2:
+            loggerData.fp[i].fieldPointer = (void *)&UKF_Q2;
+            break;
+        case LOG_UKF_Q3:
+            loggerData.fp[i].fieldPointer = (void *)&UKF_Q3;
+            break;
+        case LOG_UKF_Q4:
+            loggerData.fp[i].fieldPointer = (void *)&UKF_Q4;
+            break;
+        case LOG_UKF_POSN:
+            loggerData.fp[i].fieldPointer = (void *)&UKF_POSN;
+            break;
+        case LOG_UKF_POSE:
+            loggerData.fp[i].fieldPointer = (void *)&UKF_POSE;
+            break;
+        case LOG_UKF_POSD:
+            loggerData.fp[i].fieldPointer = (void *)&UKF_POSD;
+            break;
+        case LOG_UKF_PRES_ALT:
+            loggerData.fp[i].fieldPointer = (void *)&UKF_PRES_ALT;
+            break;
+        case LOG_UKF_ALT:
+            loggerData.fp[i].fieldPointer = (void *)&ALT_POS;
+            break;
+        case LOG_UKF_ALT_VEL:
+            loggerData.fp[i].fieldPointer = (void *)&ALT_VEL;
+            break;
+        case LOG_UKF_VELN:
+            loggerData.fp[i].fieldPointer = (void *)&UKF_VELN;
+            break;
+        case LOG_UKF_VELE:
+            loggerData.fp[i].fieldPointer = (void *)&UKF_VELE;
+            break;
+        case LOG_UKF_VELD:
+            loggerData.fp[i].fieldPointer = (void *)&UKF_VELD;
+            break;
+        case LOG_MOT_MOTOR0:
+            loggerData.fp[i].fieldPointer = (void *)&motorsData.value[0];
+            break;
+        case LOG_MOT_MOTOR1:
+            loggerData.fp[i].fieldPointer = (void *)&motorsData.value[1];
+            break;
+        case LOG_MOT_MOTOR2:
+            loggerData.fp[i].fieldPointer = (void *)&motorsData.value[2];
+            break;
+        case LOG_MOT_MOTOR3:
+            loggerData.fp[i].fieldPointer = (void *)&motorsData.value[3];
+            break;
+        case LOG_MOT_MOTOR4:
+            loggerData.fp[i].fieldPointer = (void *)&motorsData.value[4];
+            break;
+        case LOG_MOT_MOTOR5:
+            loggerData.fp[i].fieldPointer = (void *)&motorsData.value[5];
+            break;
+        case LOG_MOT_MOTOR6:
+            loggerData.fp[i].fieldPointer = (void *)&motorsData.value[6];
+            break;
+        case LOG_MOT_MOTOR7:
+            loggerData.fp[i].fieldPointer = (void *)&motorsData.value[7];
+            break;
+        case LOG_MOT_MOTOR8:
+            loggerData.fp[i].fieldPointer = (void *)&motorsData.value[8];
+            break;
+        case LOG_MOT_MOTOR9:
+            loggerData.fp[i].fieldPointer = (void *)&motorsData.value[9];
+            break;
+        case LOG_MOT_MOTOR10:
+            loggerData.fp[i].fieldPointer = (void *)&motorsData.value[10];
+            break;
+        case LOG_MOT_MOTOR11:
+            loggerData.fp[i].fieldPointer = (void *)&motorsData.value[11];
+            break;
+        case LOG_MOT_MOTOR12:
+            loggerData.fp[i].fieldPointer = (void *)&motorsData.value[12];
+            break;
+        case LOG_MOT_MOTOR13:
+            loggerData.fp[i].fieldPointer = (void *)&motorsData.value[13];
+            break;
+        case LOG_MOT_THROTTLE:
+            loggerData.fp[i].fieldPointer = (void *)&motorsData.throttle;
+            break;
+        case LOG_MOT_PITCH:
+            loggerData.fp[i].fieldPointer = (void *)&motorsData.pitch;
+            break;
+        case LOG_MOT_ROLL:
+            loggerData.fp[i].fieldPointer = (void *)&motorsData.roll;
+            break;
+        case LOG_MOT_YAW:
+            loggerData.fp[i].fieldPointer = (void *)&motorsData.yaw;
+            break;
+        case LOG_RADIO_QUALITY:
+            loggerData.fp[i].fieldPointer = (void *)&RADIO_QUALITY;
+            break;
+        case LOG_RADIO_CHANNEL0:
+            loggerData.fp[i].fieldPointer = (void *)&radioData.channels[0];
+            break;
+        case LOG_RADIO_CHANNEL1:
+            loggerData.fp[i].fieldPointer = (void *)&radioData.channels[1];
+            break;
+        case LOG_RADIO_CHANNEL2:
+            loggerData.fp[i].fieldPointer = (void *)&radioData.channels[2];
+            break;
+        case LOG_RADIO_CHANNEL3:
+            loggerData.fp[i].fieldPointer = (void *)&radioData.channels[3];
+            break;
+        case LOG_RADIO_CHANNEL4:
+            loggerData.fp[i].fieldPointer = (void *)&radioData.channels[4];
+            break;
+        case LOG_RADIO_CHANNEL5:
+            loggerData.fp[i].fieldPointer = (void *)&radioData.channels[5];
+            break;
+        case LOG_RADIO_CHANNEL6:
+            loggerData.fp[i].fieldPointer = (void *)&radioData.channels[6];
+            break;
+        case LOG_RADIO_CHANNEL7:
+            loggerData.fp[i].fieldPointer = (void *)&radioData.channels[7];
+            break;
+        case LOG_RADIO_CHANNEL8:
+            loggerData.fp[i].fieldPointer = (void *)&radioData.channels[8];
+            break;
+        case LOG_RADIO_CHANNEL9:
+            loggerData.fp[i].fieldPointer = (void *)&radioData.channels[9];
+            break;
+        case LOG_RADIO_CHANNEL10:
+            loggerData.fp[i].fieldPointer = (void *)&radioData.channels[10];
+            break;
+        case LOG_RADIO_CHANNEL11:
+            loggerData.fp[i].fieldPointer = (void *)&radioData.channels[11];
+            break;
+        case LOG_RADIO_CHANNEL12:
+            loggerData.fp[i].fieldPointer = (void *)&radioData.channels[12];
+            break;
+        case LOG_RADIO_CHANNEL13:
+            loggerData.fp[i].fieldPointer = (void *)&radioData.channels[13];
+            break;
+        case LOG_RADIO_CHANNEL14:
+            loggerData.fp[i].fieldPointer = (void *)&radioData.channels[14];
+            break;
+        case LOG_RADIO_CHANNEL15:
+            loggerData.fp[i].fieldPointer = (void *)&radioData.channels[15];
+            break;
+        case LOG_RADIO_CHANNEL16:
+            loggerData.fp[i].fieldPointer = (void *)&radioData.channels[16];
+            break;
+        case LOG_RADIO_CHANNEL17:
+            loggerData.fp[i].fieldPointer = (void *)&radioData.channels[17];
+            break;
+        case LOG_RADIO_ERRORS:
+            loggerData.fp[i].fieldPointer = (void *)&RADIO_ERROR_COUNT;
+            break;
+        case LOG_GMBL_TRIGGER:
+            loggerData.fp[i].fieldPointer = (void *)&gimbalData.triggerLogVal;
+            break;
+        case LOG_ACC_BIAS_X:
+            loggerData.fp[i].fieldPointer = (void *)&UKF_ACC_BIAS_X;
+            break;
+        case LOG_ACC_BIAS_Y:
+            loggerData.fp[i].fieldPointer = (void *)&UKF_ACC_BIAS_Y;
+            break;
+        case LOG_ACC_BIAS_Z:
+            loggerData.fp[i].fieldPointer = (void *)&UKF_ACC_BIAS_Z;
+            break;
+        case LOG_CURRENT_PDB:
+            loggerData.fp[i].fieldPointer = (void *)&canSensorsData.values[CAN_SENSORS_PDB_BATA];
+            break;
+        case LOG_CURRENT_EXT:
+            loggerData.fp[i].fieldPointer = (void *)&analogData.extAmp;
+            break;
+        case LOG_VIN_PDB:
+            loggerData.fp[i].fieldPointer = (void *)&canSensorsData.values[CAN_SENSORS_PDB_BATV];
+            break;
+        }
 
-	switch (loggerFields[i].fieldType) {
-	    case AQ_TYPE_DBL:
-		loggerData.fp[i].copyFunc = loggerCopy8;
-		loggerData.packetSize += 8;
-		break;
-	    case AQ_TYPE_FLT:
-	    case AQ_TYPE_U32:
-	    case AQ_TYPE_S32:
-		loggerData.fp[i].copyFunc = loggerCopy4;
-		loggerData.packetSize += 4;
-		break;
-	    case AQ_TYPE_U16:
-	    case AQ_TYPE_S16:
-		loggerData.fp[i].copyFunc = loggerCopy2;
-		loggerData.packetSize += 2;
-		break;
-	    case AQ_TYPE_U8:
-	    case AQ_TYPE_S8:
-		loggerData.fp[i].copyFunc = loggerCopy1;
-		loggerData.packetSize += 1;
-		break;
-	}
+        switch (loggerFields[i].fieldType) {
+        case AQ_TYPE_DBL:
+            loggerData.fp[i].copyFunc = loggerCopy8;
+            loggerData.packetSize += 8;
+            break;
+        case AQ_TYPE_FLT:
+        case AQ_TYPE_U32:
+        case AQ_TYPE_S32:
+            loggerData.fp[i].copyFunc = loggerCopy4;
+            loggerData.packetSize += 4;
+            break;
+        case AQ_TYPE_U16:
+        case AQ_TYPE_S16:
+            loggerData.fp[i].copyFunc = loggerCopy2;
+            loggerData.packetSize += 2;
+            break;
+        case AQ_TYPE_U8:
+        case AQ_TYPE_S8:
+            loggerData.fp[i].copyFunc = loggerCopy1;
+            loggerData.packetSize += 1;
+            break;
+        }
     }
 }
 

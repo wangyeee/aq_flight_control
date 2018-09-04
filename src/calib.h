@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #ifndef _calib_h
@@ -25,7 +25,7 @@
 #define CALIB_SAMPLES       20      // per octant
 #define CALIB_MIN_ANGLE     25      // degrees
 #define CALIB_EMPTY_SLOT    100.0f
-#define CALIB_SCALE	    2.0f
+#define CALIB_SCALE     2.0f
 
 typedef struct {
     float32_t *calibSamples;

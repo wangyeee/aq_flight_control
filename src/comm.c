@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #include "aq.h"
@@ -99,20 +99,20 @@ uint8_t commReadChar(commRcvrStruct_t *r) {
     uint8_t port = r->port;
 
     switch (commData.portTypes[port]) {
-        case COMM_PORT_TYPE_SERIAL:
-            if (commData.portHandles[port])
-                return serialRead(commData.portHandles[port]);
-            break;
+    case COMM_PORT_TYPE_SERIAL:
+        if (commData.portHandles[port])
+            return serialRead(commData.portHandles[port]);
+        break;
 
-        case COMM_PORT_TYPE_CAN:
-            if (commData.portHandles[port])
-                return canUartReadChar(commData.portHandles[port]);
-            break;
+    case COMM_PORT_TYPE_CAN:
+        if (commData.portHandles[port])
+            return canUartReadChar(commData.portHandles[port]);
+        break;
 
 #ifdef HAS_USB
-        case COMM_PORT_TYPE_USB:
-            return usbRx();
-            break;
+    case COMM_PORT_TYPE_USB:
+        return usbRx();
+        break;
 #endif
     }
 
@@ -123,20 +123,20 @@ uint8_t commAvailable(commRcvrStruct_t *r) {
     uint8_t port = r->port;
 
     switch (commData.portTypes[port]) {
-        case COMM_PORT_TYPE_SERIAL:
-            if (commData.portHandles[port])
-                return serialAvailable(commData.portHandles[port]);
-            break;
+    case COMM_PORT_TYPE_SERIAL:
+        if (commData.portHandles[port])
+            return serialAvailable(commData.portHandles[port]);
+        break;
 
-        case COMM_PORT_TYPE_CAN:
-            if (commData.portHandles[port])
-                return canUartAvailable(commData.portHandles[port]);
-            break;
+    case COMM_PORT_TYPE_CAN:
+        if (commData.portHandles[port])
+            return canUartAvailable(commData.portHandles[port]);
+        break;
 
 #ifdef HAS_USB
-        case COMM_PORT_TYPE_USB:
-            return usbAvailable();
-            break;
+    case COMM_PORT_TYPE_USB:
+        return usbAvailable();
+        break;
 #endif
     }
 
@@ -158,7 +158,7 @@ commTxBuf_t *commGetTxBuf(uint8_t streamType, uint16_t maxSize) {
 
         CoEnterMutexSection(commData.txBufferMutex);
 
-        commTopOfSearch:
+commTopOfSearch:
 
         // not too big?
         if (i < COMM_TX_NUM_SIZES) {
@@ -203,17 +203,18 @@ static void _commSchedule(uint8_t port) {
 
     if (commData.txStackHeads[port] != tail)
         switch (commData.portTypes[port]) {
-            case COMM_PORT_TYPE_SERIAL:
-                if (!((serialPort_t *)(commData.portHandles[port]))->txDmaRunning && _serialStartTxDMA(commData.portHandles[port], stack->memory, stack->size, commTxFinished, stack))
-                    commData.txStackTails[port] = (tail + 1) % COMM_STACK_DEPTH;
-                break;
+        case COMM_PORT_TYPE_SERIAL:
+            if (!((serialPort_t *)(commData.portHandles[port]))->txDmaRunning
+                    && _serialStartTxDMA(commData.portHandles[port], stack->memory, stack->size, commTxFinished, stack))
+                commData.txStackTails[port] = (tail + 1) % COMM_STACK_DEPTH;
+            break;
 
-            case COMM_PORT_TYPE_CAN:
-                if (((canUartStruct_t *)(commData.portHandles[port]))->txTail == ((canUartStruct_t *)(commData.portHandles[port]))->txHead) {
-                    canUartTxBuf(commData.portHandles[port], stack->memory, stack->size, commTxFinished, stack);
-                    commData.txStackTails[port] = (tail + 1) % COMM_STACK_DEPTH;
-                }
-                break;
+        case COMM_PORT_TYPE_CAN:
+            if (((canUartStruct_t *)(commData.portHandles[port]))->txTail == ((canUartStruct_t *)(commData.portHandles[port]))->txHead) {
+                canUartTxBuf(commData.portHandles[port], stack->memory, stack->size, commTxFinished, stack);
+                commData.txStackTails[port] = (tail + 1) % COMM_STACK_DEPTH;
+            }
+            break;
         }
 }
 
@@ -264,8 +265,7 @@ void commSendTxBuf(commTxBuf_t *txBuf, uint16_t size) {
                 if (newHeads[i] == commData.txStackTails[i]) {
                     // record incident
                     commData.txStackOverruns[i]++;
-                }
-                else {
+                } else {
                     txBuf->status++;
 
                     // prepare to send
@@ -287,8 +287,7 @@ void commSendTxBuf(commTxBuf_t *txBuf, uint16_t size) {
         if (!sent) {
             // release buffer
             txBuf->status = COMM_TX_BUF_FREE;
-        }
-        else {
+        } else {
             for (i = 0; i < COMM_NUM_PORTS; i++) {
                 if (toBeScheduled[i])
                     commData.txStackHeads[i] = newHeads[i];
@@ -399,7 +398,7 @@ void commNoticesInit(void) {
     // notice queue
     commData.notices = CoCreateQueue(commData.noticeQueue, COMM_NOTICE_DEPTH, EVENT_SORT_TYPE_FIFO);
     if (commData.notices != E_CREATE_FAIL)
-	commData.noticeQueueInit = 1;
+        commData.noticeQueueInit = 1;
 }
 
 void commInit(void) {
@@ -419,8 +418,8 @@ void commInit(void) {
     flowControl = USART_HardwareFlowControl_RTS_CTS;
 #endif
     if ((commData.portStreams[0] = (uint8_t)p[COMM_STREAM_TYP1])) {
-	commData.portHandles[0] = serialOpen(COMM_PORT1, p[COMM_BAUD1], flowControl, COMM_RX_BUF_SIZE, 0);
-	commData.portTypes[0] = COMM_PORT_TYPE_SERIAL;
+        commData.portHandles[0] = serialOpen(COMM_PORT1, p[COMM_BAUD1], flowControl, COMM_RX_BUF_SIZE, 0);
+        commData.portTypes[0] = COMM_PORT_TYPE_SERIAL;
     }
 #endif
 
@@ -431,8 +430,8 @@ void commInit(void) {
     flowControl = USART_HardwareFlowControl_RTS_CTS;
 #endif
     if ((commData.portStreams[1] = (uint8_t)p[COMM_STREAM_TYP2])) {
-	commData.portHandles[1] = serialOpen(COMM_PORT2, p[COMM_BAUD2], flowControl, COMM_RX_BUF_SIZE, 0);
-	commData.portTypes[1] = COMM_PORT_TYPE_SERIAL;
+        commData.portHandles[1] = serialOpen(COMM_PORT2, p[COMM_BAUD2], flowControl, COMM_RX_BUF_SIZE, 0);
+        commData.portTypes[1] = COMM_PORT_TYPE_SERIAL;
     }
 #endif
 
@@ -443,8 +442,8 @@ void commInit(void) {
     flowControl = USART_HardwareFlowControl_RTS_CTS;
 #endif
     if ((commData.portStreams[2] = (uint8_t)p[COMM_STREAM_TYP3])) {
-	commData.portHandles[2] = serialOpen(COMM_PORT3, p[COMM_BAUD3], flowControl, COMM_RX_BUF_SIZE, 0);
-	commData.portTypes[2] = COMM_PORT_TYPE_SERIAL;
+        commData.portHandles[2] = serialOpen(COMM_PORT3, p[COMM_BAUD3], flowControl, COMM_RX_BUF_SIZE, 0);
+        commData.portTypes[2] = COMM_PORT_TYPE_SERIAL;
     }
 #endif
 
@@ -455,8 +454,8 @@ void commInit(void) {
     flowControl = USART_HardwareFlowControl_RTS_CTS;
 #endif
     if ((commData.portStreams[3] = (uint8_t)p[COMM_STREAM_TYP4])) {
-	commData.portHandles[3] = serialOpen(COMM_PORT4, p[COMM_BAUD4], flowControl, COMM_RX_BUF_SIZE, 0);
-	commData.portTypes[3] = COMM_PORT_TYPE_SERIAL;
+        commData.portHandles[3] = serialOpen(COMM_PORT4, p[COMM_BAUD4], flowControl, COMM_RX_BUF_SIZE, 0);
+        commData.portTypes[3] = COMM_PORT_TYPE_SERIAL;
     }
 #endif
 

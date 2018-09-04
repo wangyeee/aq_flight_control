@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #ifndef _aq_init_h
@@ -24,7 +24,7 @@
 #include <CoOS.h>
 
 #define AQINIT_STACK_SIZE   400   // must be evenly divisible by 8
-#define AQINIT_PRIORITY	    12
+#define AQINIT_PRIORITY     12
 
 extern digitalPin *tp;
 

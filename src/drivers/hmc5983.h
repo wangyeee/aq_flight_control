@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #ifndef _hmc5983_h
@@ -21,17 +21,17 @@
 
 #include "spi.h"
 
-#define HMC5983_SPI_BAUD	    SPI_BaudRatePrescaler_8	// 5.25 Mhz
+#define HMC5983_SPI_BAUD     SPI_BaudRatePrescaler_8 // 5.25 Mhz
 
-#define HMC5983_BYTES		    (1+6)
-#define HMC5983_SLOT_SIZE	    ((HMC5983_BYTES+sizeof(int)-1) / sizeof(int) * sizeof(int))
-#define HMC5983_SLOTS		    2				// 37.5Hz bandwidth
+#define HMC5983_BYTES      (1+6)
+#define HMC5983_SLOT_SIZE     ((HMC5983_BYTES+sizeof(int)-1) / sizeof(int) * sizeof(int))
+#define HMC5983_SLOTS      2    // 37.5Hz bandwidth
 
 #define HMC5983_RETRIES             5
 
-#define HMC5983_READ_BIT	    (0b10000000)
-#define HMC5983_READ_MULT_BIT	    (0b11000000)
-#define HMC5983_WRITE_BIT	    (0b00000000)
+#define HMC5983_READ_BIT     (0b10000000)
+#define HMC5983_READ_MULT_BIT     (0b11000000)
+#define HMC5983_WRITE_BIT     (0b00000000)
 
 typedef struct {
     spiClient_t *spi;

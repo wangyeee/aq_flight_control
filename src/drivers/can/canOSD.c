@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #include "canOSD.h"
@@ -51,61 +51,61 @@ void canOSDTelemetry(uint32_t loop) {
 
     if (i < OSD_TELEM_NUM) {
         switch (i) {
-            case OSD_TELEM_STATUS:
-                ((uint8_t *)dataFloat)[0] = supervisorData.state;
-                ((uint8_t *)dataFloat)[1] = navData.mode;
-                n = 2;
-                break;
+        case OSD_TELEM_STATUS:
+            ((uint8_t *)dataFloat)[0] = supervisorData.state;
+            ((uint8_t *)dataFloat)[1] = navData.mode;
+            n = 2;
+            break;
 
-            case OSD_TELEM_LAT_LON:
-                dataInt[0] = gpsData.lat * (double)1e7;
-                dataInt[1] = gpsData.lon * (double)1e7;
-                n = 8;
-                break;
+        case OSD_TELEM_LAT_LON:
+            dataInt[0] = gpsData.lat * (double)1e7;
+            dataInt[1] = gpsData.lon * (double)1e7;
+            n = 8;
+            break;
 
-            case OSD_TELEM_VELNE:
-                dataFloat[0] = UKF_VELN;
-                dataFloat[1] = UKF_VELE;
-                n = 8;
-                break;
+        case OSD_TELEM_VELNE:
+            dataFloat[0] = UKF_VELN;
+            dataFloat[1] = UKF_VELE;
+            n = 8;
+            break;
 
-            case OSD_TELEM_VELD:
-                dataFloat[0] = VELOCITYD;
-                n = 4;
-                break;
+        case OSD_TELEM_VELD:
+            dataFloat[0] = VELOCITYD;
+            n = 4;
+            break;
 
-            case OSD_TELEM_ALT:
-                dataFloat[0] = UKF_PRES_ALT;
-                n = 4;
-                break;
+        case OSD_TELEM_ALT:
+            dataFloat[0] = UKF_PRES_ALT;
+            n = 4;
+            break;
 
-            case OSD_TELEM_HOME:
-                dataFloat[0] = navCalcDistance(gpsData.lat, gpsData.lon, navData.homeLeg.targetLat, navData.homeLeg.targetLon);
-                dataFloat[1] = navCalcBearing(navData.homeLeg.targetLat, navData.homeLeg.targetLon, gpsData.lat, gpsData.lon);
-                n = 8;
-                break;
+        case OSD_TELEM_HOME:
+            dataFloat[0] = navCalcDistance(gpsData.lat, gpsData.lon, navData.homeLeg.targetLat, navData.homeLeg.targetLon);
+            dataFloat[1] = navCalcBearing(navData.homeLeg.targetLat, navData.homeLeg.targetLon, gpsData.lat, gpsData.lon);
+            n = 8;
+            break;
 
-            case OSD_TELEM_RC_QUALITY:
-                dataFloat[0] = RADIO_QUALITY;
-                n = 4;
-                break;
+        case OSD_TELEM_RC_QUALITY:
+            dataFloat[0] = RADIO_QUALITY;
+            n = 4;
+            break;
 
-            case OSD_TELEM_GPS_HACC:
-                dataFloat[0] = gpsData.hAcc;
-                n = 4;
-                break;
+        case OSD_TELEM_GPS_HACC:
+            dataFloat[0] = gpsData.hAcc;
+            n = 4;
+            break;
 
-            case OSD_TELEM_Q1_Q2:
-                dataFloat[0] = UKF_Q1;
-                dataFloat[1] = UKF_Q2;
-                n = 8;
-                break;
+        case OSD_TELEM_Q1_Q2:
+            dataFloat[0] = UKF_Q1;
+            dataFloat[1] = UKF_Q2;
+            n = 8;
+            break;
 
-            case OSD_TELEM_Q3_Q4:
-                dataFloat[0] = UKF_Q3;
-                dataFloat[1] = UKF_Q4;
-                n = 8;
-                break;
+        case OSD_TELEM_Q3_Q4:
+            dataFloat[0] = UKF_Q3;
+            dataFloat[1] = UKF_Q4;
+            n = 8;
+            break;
         }
 
         canSend(CAN_LCC_NORMAL | CAN_TT_NODE | CAN_FID_TELEM | (CAN_DOC_MASK & (i<<19)), canOSDData.node->networkId, n, dataFloat);

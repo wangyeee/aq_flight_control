@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #ifndef fpu_h_
@@ -21,19 +21,17 @@
 
 #include "stm32f4xx.h"
 #include <CoOS.h>
-
-
 //#define FPU_SOFT
 #define FPU_HARD
 
-#define __fpu_enable()	    __asm__ __volatile__ ("LDR.W    R0, =0xE000ED88 \n"		\
-						    "LDR    R1, [R0] \n"		\
-						    "ORR    R1, R1, #(0xF << 20) \n"	\
-						    "STR    R1, [R0]")
-#define __fpu_disable()	    __asm__ __volatile__ ("LDR.W    R0, =0xE000ED88 \n"		\
-						    "LDR    R1, [R0] \n"		\
-						    "BIC    R1, R1, #(0xF << 20) \n"	\
-						    "STR    R1, [R0]")
+#define __fpu_enable()     __asm__ __volatile__ ("LDR.W    R0, =0xE000ED88 \n"  \
+          "LDR    R1, [R0] \n"  \
+          "ORR    R1, R1, #(0xF << 20) \n" \
+          "STR    R1, [R0]")
+#define __fpu_disable()     __asm__ __volatile__ ("LDR.W    R0, =0xE000ED88 \n"  \
+          "LDR    R1, [R0] \n"  \
+          "BIC    R1, R1, #(0xF << 20) \n" \
+          "STR    R1, [R0]")
 
 extern void fpuInit(void);
 

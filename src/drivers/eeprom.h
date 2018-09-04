@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #ifndef _eeprom_h
@@ -21,24 +21,24 @@
 
 #include "spi.h"
 
-#define DIMU_EEPROM_SPI_BAUD	    SPI_BaudRatePrescaler_4	// 10.5 MHz
+#define DIMU_EEPROM_SPI_BAUD     SPI_BaudRatePrescaler_4 // 10.5 MHz
 
-#define DIMU_EEPROM_SIZE	    0x8000
-#define DIMU_EEPROM_BLOCK_SIZE	    0x40
-#define DIMU_EEPROM_MASK	    0x7fff
-//#define DIUM_EEPROM_SIZE		    0x10000
-//#define DIUM_EEPROM_BLOCK_SIZE	    0x80
-//#define DIUM_EEPROM_MASK		    0xffff
+#define DIMU_EEPROM_SIZE     0x8000
+#define DIMU_EEPROM_BLOCK_SIZE     0x40
+#define DIMU_EEPROM_MASK     0x7fff
+//#define DIUM_EEPROM_SIZE      0x10000
+//#define DIUM_EEPROM_BLOCK_SIZE     0x80
+//#define DIUM_EEPROM_MASK      0xffff
 
-#define EEPROM_WREN		    0b0110
-#define EEPROM_WRDI		    0b0100
-#define EEPROM_RDSR		    0b0101
-#define EEPROM_WRSR		    0b0001
-#define EEPROM_READ		    0b0011
-#define EEPROM_WRITE		    0b0010
+#define EEPROM_WREN      0b0110
+#define EEPROM_WRDI      0b0100
+#define EEPROM_RDSR      0b0101
+#define EEPROM_WRSR      0b0001
+#define EEPROM_READ      0b0011
+#define EEPROM_WRITE      0b0010
 
-#define EEPROM_VERSION		    0x00010001
-#define EEPROM_SIGNATURE	    0xdeafbeef
+#define EEPROM_VERSION      0x00010001
+#define EEPROM_SIGNATURE     0xdeafbeef
 
 typedef struct {
     uint8_t cmd;

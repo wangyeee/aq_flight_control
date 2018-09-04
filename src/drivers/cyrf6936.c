@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2014  Bill Nesbitt
+    Copyright (c) 2014  Bill Nesbitt
 */
 
 #include "cyrf6936.h"
@@ -52,12 +52,12 @@ static void cyrfSetReg(uint8_t reg, uint8_t val) {
     spiTransaction(cyrfData.spi, &cyrfRxBuf, &cyrfTxBuf, 2);
 
     while (!cyrfData.spiFlag)
-		;
+        ;
 }
 
 void cyrfQueueClear(void) {
-	cyrfData.tail = cyrfData.head = 0;
-	cyrfData.slots[0].command = CYRF_COMMAND_NOP;
+    cyrfData.tail = cyrfData.head = 0;
+    cyrfData.slots[0].command = CYRF_COMMAND_NOP;
 }
 
 uint8_t cyrfProcessBatch(const uint8_t batch[][2], uint8_t index, uint8_t slotNo) {
@@ -71,8 +71,7 @@ uint8_t cyrfProcessBatch(const uint8_t batch[][2], uint8_t index, uint8_t slotNo
         spiTransaction(cyrfData.spi, cyrfRxBuf, txBuf, 2);
 
         return 1;
-    }
-    else {
+    } else {
         return 0;
     }
 }
@@ -85,7 +84,7 @@ void cyrfProcessStack(void) {
     if (inProcess)
         return;
 
-    processStackTop:
+processStackTop:
 
     if (!cyrfData.running) {
         cyrfData.tail = cyrfData.head = 0;
@@ -98,34 +97,33 @@ void cyrfProcessStack(void) {
     // only if not in the middle of a txn
     if (tail != cyrfData.head && cyrfData.spiFlag != 0) {
         switch (slot->command) {
-            case CYRF_COMMAND_READ:
-            case CYRF_COMMAND_WRITE:
-                cyrfData.spiFlag = 0;
-                spiTransaction(cyrfData.spi, cyrfRxBuf, cyrfTxBuf[tail], slot->len + 1);
-                break;
+        case CYRF_COMMAND_READ:
+        case CYRF_COMMAND_WRITE:
+            cyrfData.spiFlag = 0;
+            spiTransaction(cyrfData.spi, cyrfRxBuf, cyrfTxBuf[tail], slot->len + 1);
+            break;
 
-            case CYRF_COMMAND_BATCH:
-                if (cyrfProcessBatch(slot->target, slot->len, tail) == 0) {
-                    cyrfData.tail = (tail + 1) % CYRF_STACK_SIZE;
-                    goto processStackTop;
-                }
-                else {
-                    slot->len++;
-                }
-                break;
-
-            case CYRF_COMMAND_EXEC:
-                inProcess = 1;
-                if (slot->target)
-                    ((cyrfCallback_t *)slot->target)(slot->len);
-                inProcess = 0;
-
+        case CYRF_COMMAND_BATCH:
+            if (cyrfProcessBatch(slot->target, slot->len, tail) == 0) {
                 cyrfData.tail = (tail + 1) % CYRF_STACK_SIZE;
                 goto processStackTop;
-                break;
+            } else {
+                slot->len++;
+            }
+            break;
 
-            default:
-                break;
+        case CYRF_COMMAND_EXEC:
+            inProcess = 1;
+            if (slot->target)
+                ((cyrfCallback_t *)slot->target)(slot->len);
+            inProcess = 0;
+
+            cyrfData.tail = (tail + 1) % CYRF_STACK_SIZE;
+            goto processStackTop;
+            break;
+
+        default:
+            break;
         }
     }
 }
@@ -217,17 +215,17 @@ void cyrfTxnComplete(int unused) {
     int i;
 
     switch (slot->command) {
-        case CYRF_COMMAND_READ:
-            for (i = 0; i < slot->len; i++)
-                target[i] = ((uint8_t *)cyrfRxBuf)[i+1];
-            tail++;
-            break;
+    case CYRF_COMMAND_READ:
+        for (i = 0; i < slot->len; i++)
+            target[i] = ((uint8_t *)cyrfRxBuf)[i+1];
+        tail++;
+        break;
 
-        case CYRF_COMMAND_WRITE:
-            tail++;
+    case CYRF_COMMAND_WRITE:
+        tail++;
 
-        default:
-            break;
+    default:
+        break;
     }
 
     cyrfData.tail = tail % CYRF_STACK_SIZE;
@@ -283,8 +281,8 @@ void cyrfTimerInit(void) {
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
 
-	// stop timer when core halted (debug)
-	DBGMCU_APB1PeriphConfig(CYRF_TIMER_DBG, ENABLE);
+// stop timer when core halted (debug)
+    DBGMCU_APB1PeriphConfig(CYRF_TIMER_DBG, ENABLE);
 
     /* Time base configuration for 1MHz (us)*/
     TIM_TimeBaseStructure.TIM_Period = 0xFFFF;
@@ -342,8 +340,7 @@ uint8_t cyrfInit(void) {
         cyrfSetReg(CYRF_XACT_CFG, 0x82);
         delayMicros(100);
         i--;
-    }
-    while (cyrfGetReg(CYRF_XACT_CFG) != 0x82 && i);
+    } while (cyrfGetReg(CYRF_XACT_CFG) != 0x82 && i);
 
     if (i) {
         uint16_t pin = CYRF_IRQ_PIN;
@@ -363,15 +360,12 @@ uint8_t cyrfInit(void) {
         cyrfData.initialized = 1;
 
         spiChangeCallback(cyrfData.spi, cyrfTxnComplete);
-    }
-    else {
+    } else {
         spiClientFree(cyrfData.spi);
     }
 
     return i;
 }
-
-
 void CYRF_TIMER_ISR(void) {
     CYRF_TIMER->SR &= (uint16_t)~TIM_IT_Update;
 

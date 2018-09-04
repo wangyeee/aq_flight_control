@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #include "aq.h"
@@ -48,117 +48,117 @@ void canTxIMUData(uint32_t loop) {
     float value;
 
     if (canCalibData.initialized) {
-	canCalibData.txMessage.ExtId = 0x01;
-	canCalibData.txMessage.RTR = CAN_RTR_DATA;
-	canCalibData.txMessage.IDE = CAN_ID_STD;
-	canCalibData.txMessage.DLC = 8;		// two floats
+        canCalibData.txMessage.ExtId = 0x01;
+        canCalibData.txMessage.RTR = CAN_RTR_DATA;
+        canCalibData.txMessage.IDE = CAN_ID_STD;
+        canCalibData.txMessage.DLC = 8;  // two floats
 
-	// odd - can only stuff 3 mailboxes at a time
-	if (loop & 0x1) {
-	    // ACCX & ACCY
-	    canCalibData.txMessage.StdId = CAN_IMU_VALUES_1 | CAN_ID;
+// odd - can only stuff 3 mailboxes at a time
+        if (loop & 0x1) {
+            // ACCX & ACCY
+            canCalibData.txMessage.StdId = CAN_IMU_VALUES_1 | CAN_ID;
 
-	    ptr = (uint8_t *)&IMU_RAW_ACCX;
-	    canCalibData.txMessage.Data[0] = *ptr++;
-	    canCalibData.txMessage.Data[1] = *ptr++;
-	    canCalibData.txMessage.Data[2] = *ptr++;
-	    canCalibData.txMessage.Data[3] = *ptr++;
+            ptr = (uint8_t *)&IMU_RAW_ACCX;
+            canCalibData.txMessage.Data[0] = *ptr++;
+            canCalibData.txMessage.Data[1] = *ptr++;
+            canCalibData.txMessage.Data[2] = *ptr++;
+            canCalibData.txMessage.Data[3] = *ptr++;
 
-	    ptr = (uint8_t *)&IMU_RAW_ACCY;
-	    canCalibData.txMessage.Data[4] = *ptr++;
-	    canCalibData.txMessage.Data[5] = *ptr++;
-	    canCalibData.txMessage.Data[6] = *ptr++;
-	    canCalibData.txMessage.Data[7] = *ptr++;
+            ptr = (uint8_t *)&IMU_RAW_ACCY;
+            canCalibData.txMessage.Data[4] = *ptr++;
+            canCalibData.txMessage.Data[5] = *ptr++;
+            canCalibData.txMessage.Data[6] = *ptr++;
+            canCalibData.txMessage.Data[7] = *ptr++;
 
-	    canCalibData.lastTxMailbox = CAN_Transmit(CANx, &canCalibData.txMessage);
+            canCalibData.lastTxMailbox = CAN_Transmit(CANx, &canCalibData.txMessage);
 
-	    // ACCZ & MAGX
-	    canCalibData.txMessage.StdId = CAN_IMU_VALUES_2 | CAN_ID;
+            // ACCZ & MAGX
+            canCalibData.txMessage.StdId = CAN_IMU_VALUES_2 | CAN_ID;
 
-	    ptr = (uint8_t *)&IMU_RAW_ACCZ;
-	    canCalibData.txMessage.Data[0] = *ptr++;
-	    canCalibData.txMessage.Data[1] = *ptr++;
-	    canCalibData.txMessage.Data[2] = *ptr++;
-	    canCalibData.txMessage.Data[3] = *ptr++;
-
-#ifdef HAS_DIGITAL_IMU
-	    value = IMU_RAW_MAGX;
-#else
-	    value = (IMU_RAW_MAGX - adcData.magBridgeBiasX) * (float)adcData.magSign;
-#endif
-
-	    ptr = (uint8_t *)&value;
-	    canCalibData.txMessage.Data[4] = *ptr++;
-	    canCalibData.txMessage.Data[5] = *ptr++;
-	    canCalibData.txMessage.Data[6] = *ptr++;
-	    canCalibData.txMessage.Data[7] = *ptr++;
-
-	    canCalibData.lastTxMailbox = CAN_Transmit(CANx, &canCalibData.txMessage);
-
-	    // MAGY & MAGZ
-	    canCalibData.txMessage.StdId = CAN_IMU_VALUES_3 | CAN_ID;
+            ptr = (uint8_t *)&IMU_RAW_ACCZ;
+            canCalibData.txMessage.Data[0] = *ptr++;
+            canCalibData.txMessage.Data[1] = *ptr++;
+            canCalibData.txMessage.Data[2] = *ptr++;
+            canCalibData.txMessage.Data[3] = *ptr++;
 
 #ifdef HAS_DIGITAL_IMU
-	    value = IMU_RAW_MAGY;
+            value = IMU_RAW_MAGX;
 #else
-	    value = (IMU_RAW_MAGY - adcData.magBridgeBiasY) * (float)adcData.magSign;
+            value = (IMU_RAW_MAGX - adcData.magBridgeBiasX) * (float)adcData.magSign;
 #endif
 
-	    ptr = (uint8_t *)&value;
-	    canCalibData.txMessage.Data[0] = *ptr++;
-	    canCalibData.txMessage.Data[1] = *ptr++;
-	    canCalibData.txMessage.Data[2] = *ptr++;
-	    canCalibData.txMessage.Data[3] = *ptr++;
+            ptr = (uint8_t *)&value;
+            canCalibData.txMessage.Data[4] = *ptr++;
+            canCalibData.txMessage.Data[5] = *ptr++;
+            canCalibData.txMessage.Data[6] = *ptr++;
+            canCalibData.txMessage.Data[7] = *ptr++;
+
+            canCalibData.lastTxMailbox = CAN_Transmit(CANx, &canCalibData.txMessage);
+
+            // MAGY & MAGZ
+            canCalibData.txMessage.StdId = CAN_IMU_VALUES_3 | CAN_ID;
 
 #ifdef HAS_DIGITAL_IMU
-	    value = IMU_RAW_MAGZ;
+            value = IMU_RAW_MAGY;
 #else
-	    value = (IMU_RAW_MAGZ - adcData.magBridgeBiasZ) * (float)adcData.magSign;
+            value = (IMU_RAW_MAGY - adcData.magBridgeBiasY) * (float)adcData.magSign;
 #endif
 
-	    ptr = (uint8_t *)&value;
-	    canCalibData.txMessage.Data[4] = *ptr++;
-	    canCalibData.txMessage.Data[5] = *ptr++;
-	    canCalibData.txMessage.Data[6] = *ptr++;
-	    canCalibData.txMessage.Data[7] = *ptr++;
+            ptr = (uint8_t *)&value;
+            canCalibData.txMessage.Data[0] = *ptr++;
+            canCalibData.txMessage.Data[1] = *ptr++;
+            canCalibData.txMessage.Data[2] = *ptr++;
+            canCalibData.txMessage.Data[3] = *ptr++;
 
-	    canCalibData.lastTxMailbox = CAN_Transmit(CANx, &canCalibData.txMessage);
-	}
-	// even
-	else {
-	    // GYOX & GYOY
-	    canCalibData.txMessage.StdId = CAN_IMU_VALUES_4 | CAN_ID;
+#ifdef HAS_DIGITAL_IMU
+            value = IMU_RAW_MAGZ;
+#else
+            value = (IMU_RAW_MAGZ - adcData.magBridgeBiasZ) * (float)adcData.magSign;
+#endif
 
-	    ptr = (uint8_t *)&IMU_RAW_RATEX;
-	    canCalibData.txMessage.Data[0] = *ptr++;
-	    canCalibData.txMessage.Data[1] = *ptr++;
-	    canCalibData.txMessage.Data[2] = *ptr++;
-	    canCalibData.txMessage.Data[3] = *ptr++;
+            ptr = (uint8_t *)&value;
+            canCalibData.txMessage.Data[4] = *ptr++;
+            canCalibData.txMessage.Data[5] = *ptr++;
+            canCalibData.txMessage.Data[6] = *ptr++;
+            canCalibData.txMessage.Data[7] = *ptr++;
 
-	    ptr = (uint8_t *)&IMU_RAW_RATEY;
-	    canCalibData.txMessage.Data[4] = *ptr++;
-	    canCalibData.txMessage.Data[5] = *ptr++;
-	    canCalibData.txMessage.Data[6] = *ptr++;
-	    canCalibData.txMessage.Data[7] = *ptr++;
+            canCalibData.lastTxMailbox = CAN_Transmit(CANx, &canCalibData.txMessage);
+        }
+// even
+        else {
+            // GYOX & GYOY
+            canCalibData.txMessage.StdId = CAN_IMU_VALUES_4 | CAN_ID;
 
-	    canCalibData.lastTxMailbox = CAN_Transmit(CANx, &canCalibData.txMessage);
+            ptr = (uint8_t *)&IMU_RAW_RATEX;
+            canCalibData.txMessage.Data[0] = *ptr++;
+            canCalibData.txMessage.Data[1] = *ptr++;
+            canCalibData.txMessage.Data[2] = *ptr++;
+            canCalibData.txMessage.Data[3] = *ptr++;
 
-	    // GYOZ & TEMP
-	    canCalibData.txMessage.StdId = CAN_IMU_VALUES_5 | CAN_ID;
+            ptr = (uint8_t *)&IMU_RAW_RATEY;
+            canCalibData.txMessage.Data[4] = *ptr++;
+            canCalibData.txMessage.Data[5] = *ptr++;
+            canCalibData.txMessage.Data[6] = *ptr++;
+            canCalibData.txMessage.Data[7] = *ptr++;
 
-	    ptr = (uint8_t *)&IMU_RAW_RATEZ;
-	    canCalibData.txMessage.Data[0] = *ptr++;
-	    canCalibData.txMessage.Data[1] = *ptr++;
-	    canCalibData.txMessage.Data[2] = *ptr++;
-	    canCalibData.txMessage.Data[3] = *ptr++;
+            canCalibData.lastTxMailbox = CAN_Transmit(CANx, &canCalibData.txMessage);
 
-	    ptr = (uint8_t *)&IMU_TEMP;
-	    canCalibData.txMessage.Data[4] = *ptr++;
-	    canCalibData.txMessage.Data[5] = *ptr++;
-	    canCalibData.txMessage.Data[6] = *ptr++;
-	    canCalibData.txMessage.Data[7] = *ptr++;
+            // GYOZ & TEMP
+            canCalibData.txMessage.StdId = CAN_IMU_VALUES_5 | CAN_ID;
 
-	    canCalibData.lastTxMailbox = CAN_Transmit(CANx, &canCalibData.txMessage);
-	}
+            ptr = (uint8_t *)&IMU_RAW_RATEZ;
+            canCalibData.txMessage.Data[0] = *ptr++;
+            canCalibData.txMessage.Data[1] = *ptr++;
+            canCalibData.txMessage.Data[2] = *ptr++;
+            canCalibData.txMessage.Data[3] = *ptr++;
+
+            ptr = (uint8_t *)&IMU_TEMP;
+            canCalibData.txMessage.Data[4] = *ptr++;
+            canCalibData.txMessage.Data[5] = *ptr++;
+            canCalibData.txMessage.Data[6] = *ptr++;
+            canCalibData.txMessage.Data[7] = *ptr++;
+
+            canCalibData.lastTxMailbox = CAN_Transmit(CANx, &canCalibData.txMessage);
+        }
     }
 }

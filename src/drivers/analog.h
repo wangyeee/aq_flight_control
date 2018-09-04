@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #ifndef _analog_h
@@ -21,25 +21,25 @@
 
 #include "aq.h"
 #ifdef HAS_AIMU
-    #include "adc.h"
+#include "adc.h"
 #endif
 
-#define ANALOG_CHANNELS		    7
-#define ANALOG_SAMPLES		    32
-#define ANALOG_SAMPLE_TIME	    ADC_SampleTime_480Cycles
-#define ANALOG_DIVISOR		    ((double)ANALOG_REF_VOLTAGE / (double)4096.0 / (double)ANALOG_SAMPLES)
+#define ANALOG_CHANNELS      7
+#define ANALOG_SAMPLES      32
+#define ANALOG_SAMPLE_TIME     ADC_SampleTime_480Cycles
+#define ANALOG_DIVISOR      ((double)ANALOG_REF_VOLTAGE / (double)4096.0 / (double)ANALOG_SAMPLES)
 
-#define ANALOG_VIN_SLOPE	    ((ANALOG_VIN_RTOP + ANALOG_VIN_RBOT) / ANALOG_VIN_RBOT)
+#define ANALOG_VIN_SLOPE     ((ANALOG_VIN_RTOP + ANALOG_VIN_RBOT) / ANALOG_VIN_RBOT)
 #ifdef ANALOG_EXT_VOLT_RTOP
-#define ANALOG_EXT_VOLT_SLOPE	    ((ANALOG_EXT_VOLT_RTOP + ANALOG_EXT_VOLT_RBOT) / ANALOG_EXT_VOLT_RBOT)
+#define ANALOG_EXT_VOLT_SLOPE     ((ANALOG_EXT_VOLT_RTOP + ANALOG_EXT_VOLT_RBOT) / ANALOG_EXT_VOLT_RBOT)
 #endif
 #ifdef ANALOG_EXT_AMP_RTOP
-#define ANALOG_EXT_AMP_SLOPE	    ((ANALOG_EXT_AMP_RTOP + ANALOG_EXT_AMP_RBOT) / ANALOG_EXT_AMP_RBOT)
+#define ANALOG_EXT_AMP_SLOPE     ((ANALOG_EXT_AMP_RTOP + ANALOG_EXT_AMP_RBOT) / ANALOG_EXT_AMP_RBOT)
 #endif
 
-#define ANALOG_VOLTS_VIN	    0
-#define ANALOG_VOLTS_EXT_VOLT	    1
-#define ANALOG_VOLTS_EXT_AMP	    2
+#define ANALOG_VOLTS_VIN     0
+#define ANALOG_VOLTS_EXT_VOLT     1
+#define ANALOG_VOLTS_EXT_AMP     2
 
 typedef struct {
     uint16_t rawSamples[ANALOG_SAMPLES*ANALOG_CHANNELS];

@@ -38,13 +38,9 @@
 * @brief This file is responsible to offer board support package
 * @{
 */
-
-
 /** @defgroup USB_BSP_Private_Functions
 * @{
 */
-
-
 /**
 * @brief  USB_OTG_BSP_Init
 *         Initilizes BSP configurations
@@ -53,38 +49,37 @@
 */
 #include "util.h"
 
-void USB_OTG_BSP_Init(USB_OTG_CORE_HANDLE *pdev)
-{
-  GPIO_InitTypeDef GPIO_InitStructure;
- #ifdef USE_USB_OTG_FS
-  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA , ENABLE);
+void USB_OTG_BSP_Init(USB_OTG_CORE_HANDLE *pdev) {
+    GPIO_InitTypeDef GPIO_InitStructure;
+#ifdef USE_USB_OTG_FS
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
 
-   /* Configure SOF ID DM DP Pins */
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8  |
-                                GPIO_Pin_11 |
-                                GPIO_Pin_12;
+    /* Configure SOF ID DM DP Pins */
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8  |
+                                  GPIO_Pin_11 |
+                                  GPIO_Pin_12;
 
-  // pull DP low to reset any established USB connection
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL ;
-  GPIO_Init(GPIOA, &GPIO_InitStructure);
+    // pull DP low to reset any established USB connection
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL ;
+    GPIO_Init(GPIOA, &GPIO_InitStructure);
 
-  GPIO_ResetBits(GPIOA, GPIO_Pin_12);
-  delay(10);
+    GPIO_ResetBits(GPIOA, GPIO_Pin_12);
+    delay(10);
 
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL ;
-  GPIO_Init(GPIOA, &GPIO_InitStructure);
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL ;
+    GPIO_Init(GPIOA, &GPIO_InitStructure);
 
-  GPIO_PinAFConfig(GPIOA, GPIO_PinSource8, GPIO_AF_OTG1_FS) ;
-  GPIO_PinAFConfig(GPIOA, GPIO_PinSource11, GPIO_AF_OTG1_FS) ;
-  GPIO_PinAFConfig(GPIOA, GPIO_PinSource12, GPIO_AF_OTG1_FS) ;
+    GPIO_PinAFConfig(GPIOA, GPIO_PinSource8, GPIO_AF_OTG1_FS) ;
+    GPIO_PinAFConfig(GPIOA, GPIO_PinSource11, GPIO_AF_OTG1_FS) ;
+    GPIO_PinAFConfig(GPIOA, GPIO_PinSource12, GPIO_AF_OTG1_FS) ;
 
-  /* Configure  VBUS Pin */
+    /* Configure  VBUS Pin */
 //  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
 //  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
 //  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
@@ -92,7 +87,7 @@ void USB_OTG_BSP_Init(USB_OTG_CORE_HANDLE *pdev)
 //  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL ;
 //  GPIO_Init(GPIOA, &GPIO_InitStructure);
 
-  /* Configure ID pin */
+    /* Configure ID pin */
 //  GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_10;
 //  GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
 //  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP ;
@@ -100,32 +95,30 @@ void USB_OTG_BSP_Init(USB_OTG_CORE_HANDLE *pdev)
 //  GPIO_Init(GPIOA, &GPIO_InitStructure);
 //  GPIO_PinAFConfig(GPIOA,GPIO_PinSource10,GPIO_AF_OTG1_FS) ;
 
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
-  RCC_AHB2PeriphClockCmd(RCC_AHB2Periph_OTG_FS, ENABLE) ;
- #else // USE_USB_OTG_HS
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
+    RCC_AHB2PeriphClockCmd(RCC_AHB2Periph_OTG_FS, ENABLE) ;
+#else // USE_USB_OTG_HS
 
-  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB , ENABLE);
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
 
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12 |
-                                GPIO_Pin_14 |
-                                GPIO_Pin_15;
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12 |
+                                  GPIO_Pin_14 |
+                                  GPIO_Pin_15;
 
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-  GPIO_Init(GPIOB, &GPIO_InitStructure);
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+    GPIO_Init(GPIOB, &GPIO_InitStructure);
 
-  GPIO_PinAFConfig(GPIOB,GPIO_PinSource12, GPIO_AF_OTG2_FS) ;
-  GPIO_PinAFConfig(GPIOB,GPIO_PinSource14,GPIO_AF_OTG2_FS) ;
-  GPIO_PinAFConfig(GPIOB,GPIO_PinSource15,GPIO_AF_OTG2_FS) ;
+    GPIO_PinAFConfig(GPIOB,GPIO_PinSource12, GPIO_AF_OTG2_FS) ;
+    GPIO_PinAFConfig(GPIOB,GPIO_PinSource14,GPIO_AF_OTG2_FS) ;
+    GPIO_PinAFConfig(GPIOB,GPIO_PinSource15,GPIO_AF_OTG2_FS) ;
 
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_13;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
-  GPIO_Init(GPIOB, &GPIO_InitStructure);
-
-
-  RCC_AHB1PeriphClockCmd( RCC_AHB1Periph_OTG_HS, ENABLE) ;
- #endif //USB_OTG_HS
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_13;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+    GPIO_Init(GPIOB, &GPIO_InitStructure);
+    RCC_AHB1PeriphClockCmd( RCC_AHB1Periph_OTG_HS, ENABLE) ;
+#endif //USB_OTG_HS
 }
 
 /**
@@ -134,34 +127,33 @@ void USB_OTG_BSP_Init(USB_OTG_CORE_HANDLE *pdev)
 * @param  None
 * @retval None
 */
-void USB_OTG_BSP_EnableInterrupt(USB_OTG_CORE_HANDLE *pdev)
-{
-  NVIC_InitTypeDef NVIC_InitStructure;
+void USB_OTG_BSP_EnableInterrupt(USB_OTG_CORE_HANDLE *pdev) {
+    NVIC_InitTypeDef NVIC_InitStructure;
 
 //  NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
 #ifdef USE_USB_OTG_HS
-  NVIC_InitStructure.NVIC_IRQChannel = OTG_HS_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannel = OTG_HS_IRQn;
 #else
-  NVIC_InitStructure.NVIC_IRQChannel = OTG_FS_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannel = OTG_FS_IRQn;
 #endif
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;
-  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-  NVIC_Init(&NVIC_InitStructure);
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;
+    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
 #ifdef USB_OTG_HS_DEDICATED_EP1_ENABLED
-  NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
-  NVIC_InitStructure.NVIC_IRQChannel = OTG_HS_EP1_OUT_IRQn;
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;
-  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-  NVIC_Init(&NVIC_InitStructure);
+    NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
+    NVIC_InitStructure.NVIC_IRQChannel = OTG_HS_EP1_OUT_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;
+    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
 
-  NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
-  NVIC_InitStructure.NVIC_IRQChannel = OTG_HS_EP1_IN_IRQn;
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
-  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-  NVIC_Init(&NVIC_InitStructure);
+    NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
+    NVIC_InitStructure.NVIC_IRQChannel = OTG_HS_EP1_IN_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
+    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
 #endif
 }
 
@@ -171,31 +163,22 @@ void USB_OTG_BSP_EnableInterrupt(USB_OTG_CORE_HANDLE *pdev)
 * @param  usec : Value of delay required in micro sec
 * @retval None
 */
-void USB_OTG_BSP_uDelay (const uint32_t usec)
-{
-  uint32_t count = 0;
-  const uint32_t utime = (120 * usec / 7);
-  do
-  {
-    if ( ++count > utime )
-    {
-      return ;
-    }
-  }
-  while (1);
+void USB_OTG_BSP_uDelay (const uint32_t usec) {
+    uint32_t count = 0;
+    const uint32_t utime = (120 * usec / 7);
+    do {
+        if ( ++count > utime ) {
+            return ;
+        }
+    } while (1);
 }
-
-
 /**
 * @brief  USB_OTG_BSP_mDelay
 *          This function provides delay time in milli sec
 * @param  msec : Value of delay required in milli sec
 * @retval None
 */
-void USB_OTG_BSP_mDelay (const uint32_t msec)
-{
-  USB_OTG_BSP_uDelay(msec * 1000);
+void USB_OTG_BSP_mDelay (const uint32_t msec) {
+    USB_OTG_BSP_uDelay(msec * 1000);
 }
-
-
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #include "aq.h"
@@ -39,8 +39,8 @@ uint8_t rtcByteToBcd2(uint8_t Value) {
     uint8_t bcdhigh = 0;
 
     while (Value >= 10) {
-	bcdhigh++;
-	Value -= 10;
+        bcdhigh++;
+        Value -= 10;
     }
 
     return  ((uint8_t)(bcdhigh << 4) | Value);
@@ -49,54 +49,55 @@ uint8_t rtcByteToBcd2(uint8_t Value) {
 int rtcSetDataTime(int year, int month, int day, int hour, int minute, int second) {
     // if RTC is not in Initialization mode
     if ((RTC->ISR & RTC_ISR_INITF) == (uint32_t)RESET) {
-	RTC_WriteProtectionCmd(DISABLE);
+        RTC_WriteProtectionCmd(DISABLE);
 
-	// set init mode (which takes a while)
-	RTC->ISR = (uint32_t)RTC_INIT_MASK;
+// set init mode (which takes a while)
+        RTC->ISR = (uint32_t)RTC_INIT_MASK;
 
-	// don't wait around, instead return failure this time
-	return 0;
+// don't wait around, instead return failure this time
+        return 0;
     }
     // otherwise set the clock
     else {
-	RTC_TimeTypeDef time;
-	RTC_DateTypeDef date;
-	uint32_t tmpreg;
+        RTC_TimeTypeDef time;
+        RTC_DateTypeDef date;
+        uint32_t tmpreg;
 
-	date.RTC_Year = year - 2000;
-	date.RTC_Month = month;
-	date.RTC_Date = day;
-	date.RTC_WeekDay = rtcDow(2000+date.RTC_Year, date.RTC_Month, date.RTC_Date);
-//	RTC_SetDate(RTC_Format_BIN, &date);
+        date.RTC_Year = year - 2000;
+        date.RTC_Month = month;
+        date.RTC_Date = day;
+        date.RTC_WeekDay = rtcDow(2000+date.RTC_Year, date.RTC_Month, date.RTC_Date);
+// RTC_SetDate(RTC_Format_BIN, &date);
 
-	tmpreg = (((uint32_t)rtcByteToBcd2(date.RTC_Year) << 16) | \
-	    ((uint32_t)rtcByteToBcd2(date.RTC_Month) << 8) | \
-	    ((uint32_t)rtcByteToBcd2(date.RTC_Date)) | \
-	    ((uint32_t)date.RTC_WeekDay << 13));
+        tmpreg = (((uint32_t)rtcByteToBcd2(date.RTC_Year) << 16) | \
+                  ((uint32_t)rtcByteToBcd2(date.RTC_Month) << 8) | \
+                  ((uint32_t)rtcByteToBcd2(date.RTC_Date)) | \
+                  ((uint32_t)date.RTC_WeekDay << 13));
 
-	RTC->DR = (uint32_t)(tmpreg & RTC_DR_RESERVED_MASK);
+        RTC->DR = (uint32_t)(tmpreg & RTC_DR_RESERVED_MASK);
 
-	time.RTC_Hours = hour;
-	time.RTC_Minutes = minute;
-	time.RTC_Seconds = second;
-	time.RTC_H12 = 0x00;
-//	RTC_SetTime(RTC_Format_BIN, &time);
+        time.RTC_Hours = hour;
+        time.RTC_Minutes = minute;
+        time.RTC_Seconds = second;
+        time.RTC_H12 = 0x00;
+// RTC_SetTime(RTC_Format_BIN, &time);
 
-	tmpreg = (uint32_t)(((uint32_t)rtcByteToBcd2(time.RTC_Hours) << 16) | \
-	    ((uint32_t)rtcByteToBcd2(time.RTC_Minutes) << 8) | \
-	    ((uint32_t)rtcByteToBcd2(time.RTC_Seconds)) | \
-	    (((uint32_t)time.RTC_H12) << 16));
+        tmpreg = (uint32_t)(((uint32_t)rtcByteToBcd2(time.RTC_Hours) << 16) | \
+                            ((uint32_t)rtcByteToBcd2(time.RTC_Minutes) << 8) | \
+                            ((uint32_t)rtcByteToBcd2(time.RTC_Seconds)) | \
+                            (((uint32_t)time.RTC_H12) << 16));
 
-	RTC->TR = (uint32_t)(tmpreg & RTC_TR_RESERVED_MASK);
+        RTC->TR = (uint32_t)(tmpreg & RTC_TR_RESERVED_MASK);
 
-	// allow clock to run, don't wait for synchronization
-	RTC_ExitInitMode();
-	RTC_WriteProtectionCmd(ENABLE);
+// allow clock to run, don't wait for synchronization
+        RTC_ExitInitMode();
+        RTC_WriteProtectionCmd(ENABLE);
 
-	AQ_PRINTF("RTC set: %d-%02d-%02d %02d:%02d:%02d UTC\n", date.RTC_Year+2000, date.RTC_Month, date.RTC_Date, time.RTC_Hours, time.RTC_Minutes, time.RTC_Seconds);
+        AQ_PRINTF("RTC set: %d-%02d-%02d %02d:%02d:%02d UTC\n", date.RTC_Year+2000, date.RTC_Month, date.RTC_Date, time.RTC_Hours, time.RTC_Minutes,
+                  time.RTC_Seconds);
 
-	// return success
-	return 1;
+// return success
+        return 1;
     }
 }
 
@@ -124,11 +125,11 @@ unsigned long rtcGetDateTime(void) {
     RTC_GetTime(RTC_Format_BIN, &time);
 
     return ((unsigned long)date.RTC_Year + 2000 - 1980)<<25 |
-	((unsigned long)date.RTC_Month)<<21 |
-	((unsigned long)date.RTC_Date)<<16 |
-	((unsigned long)time.RTC_Hours)<<11 |
-	((unsigned long)time.RTC_Minutes)<<5 |
-	((unsigned long)time.RTC_Seconds)>>1;
+           ((unsigned long)date.RTC_Month)<<21 |
+           ((unsigned long)date.RTC_Date)<<16 |
+           ((unsigned long)time.RTC_Hours)<<11 |
+           ((unsigned long)time.RTC_Minutes)<<5 |
+           ((unsigned long)time.RTC_Seconds)>>1;
 }
 
 void rtcInit(void) {
@@ -150,7 +151,7 @@ void rtcInit(void) {
 
     // Wait till LSI is ready
     while (RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET)
-	;
+        ;
 
     // Select the RTC Clock Source
     RCC_RTCCLKConfig(RCC_RTCCLKSource_LSI);
@@ -226,7 +227,7 @@ void rtcInit(void) {
 
     // wait
     while (rtcData.captureNumber < 2)
-	;
+        ;
 
     TIM_DeInit(TIM5);
 
@@ -236,7 +237,7 @@ void rtcInit(void) {
     // Get PCLK1 prescaler
     rtcData.lsiFrequency = (((2 * rccClocks.PCLK1_Frequency / 1000000 * AQ_US_PER_SEC) / periodValue) * 8);
 
-    rtcData.asyncPrediv = 4;	// low as possible for max resolution
+    rtcData.asyncPrediv = 4; // low as possible for max resolution
     rtcData.syncPrediv = (rtcData.lsiFrequency / (rtcData.asyncPrediv + 1)) - 1;
 
     // Calendar Configuration with measured LSI frequency
@@ -253,20 +254,20 @@ void rtcInit(void) {
 
 void RTC_WKUP_IRQHandler(void) {
     if (RTC_GetITStatus(RTC_IT_WUT) != RESET) {
-	// nothing at the moment
+// nothing at the moment
 
-	RTC_ClearITPendingBit(RTC_IT_WUT);
-	EXTI_ClearITPendingBit(EXTI_Line22);
+        RTC_ClearITPendingBit(RTC_IT_WUT);
+        EXTI_ClearITPendingBit(EXTI_Line22);
     }
 }
 
 // only used for calibration at startup
 //void TIM5_IRQHandler(void) {
 //    if (TIM_GetITStatus(TIM5, TIM_IT_CC4) != RESET) {
-//	// Get the Input Capture value
-//	rtcData.captureLSI[rtcData.captureNumber++] = TIM_GetCapture4(TIM5);
+// // Get the Input Capture value
+// rtcData.captureLSI[rtcData.captureNumber++] = TIM_GetCapture4(TIM5);
 //
-//	// Clear CC4 Interrupt pending bit
-//	TIM_ClearITPendingBit(TIM5, TIM_IT_CC4);
+// // Clear CC4 Interrupt pending bit
+// TIM_ClearITPendingBit(TIM5, TIM_IT_CC4);
 //    }
 //}

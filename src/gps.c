@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #include "gps.h"
@@ -47,14 +47,14 @@ void gpsSendSetup(void) {
 
 void gpsCheckBaud(serialPort_t *s) {
     if ((IMU_LASTUPD - gpsData.lastMessage) > 10000000) {
-	if (!gpsData.baudCycle[++gpsData.baudSlot])
-	    gpsData.baudSlot = 0;
-	AQ_NOTICE("GPS: trying new baud rate\n");
-	serialChangeBaud(s, gpsData.baudCycle[gpsData.baudSlot]);
-	ubloxInitGps();
-	serialChangeBaud(s, GPS_BAUD_RATE);
-	gpsSendSetup();
-	gpsData.lastMessage = IMU_LASTUPD;
+        if (!gpsData.baudCycle[++gpsData.baudSlot])
+            gpsData.baudSlot = 0;
+        AQ_NOTICE("GPS: trying new baud rate\n");
+        serialChangeBaud(s, gpsData.baudCycle[gpsData.baudSlot]);
+        ubloxInitGps();
+        serialChangeBaud(s, GPS_BAUD_RATE);
+        gpsSendSetup();
+        gpsData.lastMessage = IMU_LASTUPD;
     }
 }
 
@@ -72,50 +72,50 @@ void gpsTaskCode(void *p) {
     ubloxInit();
 
     while (1) {
-	yield(1);
-	gpsCheckBaud(s);
+        yield(1);
+        gpsCheckBaud(s);
 
-	ledOn = digitalGet(supervisorData.gpsLed);
-	if (!ledOn && !(supervisorData.state & STATE_CALIBRATION))
-	    digitalHi(supervisorData.gpsLed);
+        ledOn = digitalGet(supervisorData.gpsLed);
+        if (!ledOn && !(supervisorData.state & STATE_CALIBRATION))
+            digitalHi(supervisorData.gpsLed);
 
-	while (serialAvailable(s)) {
-	    c = serialRead(s);
-	    ret = ubloxCharIn(c);
+        while (serialAvailable(s)) {
+            c = serialRead(s);
+            ret = ubloxCharIn(c);
 
-	    // position update
-	    if (ret == 1) {
-		// notify world of new data
-		CoSetFlag(gpsData.gpsPosFlag);
-	    }
-	    // velocity update
-	    else if (ret == 2) {
-		// notify world of new data
-		CoSetFlag(gpsData.gpsVelFlag);
-	    }
-	    // lost sync
-	    else if (ret == 3) {
-		gpsCheckBaud(s);
-	    }
-
-#ifdef GPS_LOG_BUF
-	    gpsLog[logPointer] = c;
-	    logPointer = (logPointer + 1) % GPS_LOG_BUF;
-#endif
-	}
+            // position update
+            if (ret == 1) {
+                // notify world of new data
+                CoSetFlag(gpsData.gpsPosFlag);
+            }
+            // velocity update
+            else if (ret == 2) {
+                // notify world of new data
+                CoSetFlag(gpsData.gpsVelFlag);
+            }
+            // lost sync
+            else if (ret == 3) {
+                gpsCheckBaud(s);
+            }
 
 #ifdef GPS_LOG_BUF
-	filerSetHead(gpsData.logHandle, logPointer);
+            gpsLog[logPointer] = c;
+            logPointer = (logPointer + 1) % GPS_LOG_BUF;
+#endif
+        }
+
+#ifdef GPS_LOG_BUF
+        filerSetHead(gpsData.logHandle, logPointer);
 #endif
 
-	if (!ledOn && !(supervisorData.state & STATE_CALIBRATION))
-	    digitalLo(supervisorData.gpsLed);
+        if (!ledOn && !(supervisorData.state & STATE_CALIBRATION))
+            digitalLo(supervisorData.gpsLed);
     }
 }
 
 void gpsPassThrough(commRcvrStruct_t *r) {
     while (commAvailable(r))
-	serialWrite(gpsData.gpsPort, commReadChar(r));
+        serialWrite(gpsData.gpsPort, commReadChar(r));
 }
 
 void gpsTpHandler() {
@@ -123,7 +123,7 @@ void gpsTpHandler() {
     unsigned long diff = (tp - gpsData.lastTimepulse);
 
     if (diff > 950000 && diff < 1050000)
-	gpsData.microsPerSecond -= (gpsData.microsPerSecond - (signed long)((tp - gpsData.lastTimepulse)<<11))>>5;
+        gpsData.microsPerSecond -= (gpsData.microsPerSecond - (signed long)((tp - gpsData.lastTimepulse)<<11))>>5;
     gpsData.lastTimepulse = tp;
     gpsData.TPtowMS = gpsData.lastReceivedTPtowMS;
 }
@@ -168,5 +168,5 @@ void gpsSendPacket(unsigned char len, char *buf) {
     unsigned int i;
 
     for (i = 0; i < len; i++)
-	serialWrite(gpsData.gpsPort, buf[i]);
+        serialWrite(gpsData.gpsPort, buf[i]);
 }

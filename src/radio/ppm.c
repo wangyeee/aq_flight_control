@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 /*
@@ -62,16 +62,14 @@ void ppmCallback(uint32_t capture, uint8_t bitstatus) {
             ppmData.signalQuality = -1;
 
             if (ppmData.lastChannel <= PPM_MAX_CHANNELS
-                && ppmData.lastChannel == ppmData.previousChannels) {
+                    && ppmData.lastChannel == ppmData.previousChannels) {
 
                 if (ppmData.stableChannelsCount >= PPM_STAB_CHANNEL_FRAMES) {
                     ppmData.numberChannels = ppmData.lastChannel;
-                }
-                else {
+                } else {
                     ppmData.stableChannelsCount++;
                 }
-            }
-            else {
+            } else {
                 ppmData.stableChannelsCount = 0;
             }
         }
@@ -83,9 +81,9 @@ void ppmCallback(uint32_t capture, uint8_t bitstatus) {
 
             // valid frame, pass values to ppmData.channels
             if (ppmData.inputValid) {
-		memcpy(ppmData.channels, ppmData.tmp_channels, sizeof(ppmData.channels));
-		ppmData.frameParsed = 1;
-	        ppmData.signalQuality = 1;  // normal operation
+                memcpy(ppmData.channels, ppmData.tmp_channels, sizeof(ppmData.channels));
+                ppmData.frameParsed = 1;
+                ppmData.signalQuality = 1;  // normal operation
             }
             // handle invalid frame
             else {
@@ -102,7 +100,7 @@ void ppmCallback(uint32_t capture, uint8_t bitstatus) {
 
     else if (ppmData.inputValid) { // We are inside the frame and no errors found this far in the frame
 
-	// Too many channels, invalidate the whole frame
+// Too many channels, invalidate the whole frame
         if (ppmData.lastChannel >= PPM_MAX_CHANNELS)
             ppmData.inputValid = 0;
 
@@ -115,7 +113,7 @@ void ppmCallback(uint32_t capture, uint8_t bitstatus) {
         //  but in practice this seems to cause random channel value drops. )
         else
             ppmData.inputValid = 0;
-            //ppmData.signalQuality = 0; // non-critical error
+        //ppmData.signalQuality = 0; // non-critical error
 
     }
 }
@@ -137,12 +135,11 @@ int ppmDataAvailable(radioInstance_t *r) {
             if (&RADIO_THROT == &r->channels[i])
                 r->channels[i] = constrainInt((int)((ppmData.channels[i] - p[PPM_THROT_LOW])*5 / p[PPM_SCALER]), PPM_THROT_MIN, PPM_THROT_MAX);
             else
-        	r->channels[i] = constrainInt((int)((ppmData.channels[i] - p[PPM_CHAN_MID])*5 / p[PPM_SCALER]), PPM_CHAN_MIN, PPM_CHAN_MAX);
+                r->channels[i] = constrainInt((int)((ppmData.channels[i] - p[PPM_CHAN_MID])*5 / p[PPM_SCALER]), PPM_CHAN_MIN, PPM_CHAN_MAX);
         }
 
         return 1;
-    }
-    else {
+    } else {
         return 0;
     }
 }

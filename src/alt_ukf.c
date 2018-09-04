@@ -53,8 +53,8 @@ void altUkfProcess(float measuredPres) {
 }
 
 void altUkfInit(void) {
-    float Q[ALT_S];		// state variance
-    float V[ALT_V];		// process variance
+    float Q[ALT_S];  // state variance
+    float V[ALT_V];  // process variance
 
     memset((void *)&altUkfData, 0, sizeof(altUkfData));
 

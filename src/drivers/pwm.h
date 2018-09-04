@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #ifndef _pwm_h
@@ -21,9 +21,9 @@
 
 #include "aq.h"
 
-#define pwmDigitalHi(p)		{ p->port->BSRRL = p->pin; }
-#define pwmDigitalLo(p)		{ p->port->BSRRH = p->pin; }
-#define pwmDigitalGet(p)	((p->port->ODR & p->pin) != 0)
+#define pwmDigitalHi(p)  { p->port->BSRRL = p->pin; }
+#define pwmDigitalLo(p)  { p->port->BSRRH = p->pin; }
+#define pwmDigitalGet(p) ((p->port->ODR & p->pin) != 0)
 
 enum pwmDirections {
     PWM_OUTPUT = 1,

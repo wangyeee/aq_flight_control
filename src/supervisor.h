@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
     Copyright 2013-2016 Maxim Paperno
 */
 
@@ -23,32 +23,32 @@
 #include <CoOS.h>
 #include "digital.h"
 
-#define SUPERVISOR_STACK_SIZE	    224             // must be evenly divisible by 8
-#define SUPERVISOR_PRIORITY	    34
+#define SUPERVISOR_STACK_SIZE     224             // must be evenly divisible by 8
+#define SUPERVISOR_PRIORITY     34
 
-#define SUPERVISOR_RATE		    20		    // Hz
-#define SUPERVISOR_DISARM_TIME	    (1e6*2)	    // 2 seconds delay for arm/disarm stick commands
-#define SUPERVISOR_STICK_CMD_TIME   (1e6*2)	    // 2 seconds delay for other stick commands
-#define SUPERVISOR_RADIO_LOSS1	    ((int)1e6)	    // 1 second
-#define SUPERVISOR_RADIO_LOSS2	    ((int)15e6)	    // 15 seconds
+#define SUPERVISOR_RATE      20      // Hz
+#define SUPERVISOR_DISARM_TIME     (1e6*2)     // 2 seconds delay for arm/disarm stick commands
+#define SUPERVISOR_STICK_CMD_TIME   (1e6*2)     // 2 seconds delay for other stick commands
+#define SUPERVISOR_RADIO_LOSS1     ((int)1e6)     // 1 second
+#define SUPERVISOR_RADIO_LOSS2     ((int)15e6)     // 15 seconds
 
 // Radio loss stage 2 failsafe settings:
-#define SUPERVISOR_HOME_POS_DETECT_RADIUS	2.0f 	// start descending when within this radius of home position in meters
-#define SUPERVISOR_HOME_ALT_DETECT_MARGIN	2.0f	// start moving to home lat/lon when within this altitude of home position in meters
+#define SUPERVISOR_HOME_POS_DETECT_RADIUS 2.0f  // start descending when within this radius of home position in meters
+#define SUPERVISOR_HOME_ALT_DETECT_MARGIN 2.0f // start moving to home lat/lon when within this altitude of home position in meters
 
 #define SUPERVISOR_SOC_TABLE_SIZE               100
 #define SUPERVISOR_INVALID_AMPSOUT_VALUE        -9999.0f // value of supervisorData.aOutLPF when current flow is unknown
 
 enum supervisorStates {
-    STATE_INITIALIZING	= 0x00,
-    STATE_CALIBRATION	= 0x01,
-    STATE_DISARMED	= 0x02,
-    STATE_ARMED		= 0x04,
-    STATE_FLYING	= 0x08,
-    STATE_RADIO_LOSS1	= 0x10,
-    STATE_RADIO_LOSS2	= 0x20,
-    STATE_LOW_BATTERY1	= 0x40,
-    STATE_LOW_BATTERY2	= 0x80
+    STATE_INITIALIZING = 0x00,
+    STATE_CALIBRATION = 0x01,
+    STATE_DISARMED = 0x02,
+    STATE_ARMED  = 0x04,
+    STATE_FLYING = 0x08,
+    STATE_RADIO_LOSS1 = 0x10,
+    STATE_RADIO_LOSS2 = 0x20,
+    STATE_LOW_BATTERY1 = 0x40,
+    STATE_LOW_BATTERY2 = 0x80
 };
 
 enum supervisorFailsafeStg2Options {
@@ -93,7 +93,7 @@ typedef struct {
     digitalPin *debugLed;
     digitalPin *gpsLed;
 
-    float flightTime;		    // seconds
+    float flightTime;      // seconds
     uint32_t armTime;
     uint32_t stickCmdTimer;
     uint32_t lastGoodRadioMicros;

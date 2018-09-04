@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #include "aq.h"
@@ -85,10 +85,10 @@ static void radioProcessInstance(radioInstance_t *r) {
 
     case RADIO_TYPE_MLINK:
         while (serialAvailable(s))
-        if ((q = mlinkrxCharIn(r, serialRead(s)))) {
-            r->lastUpdate = timerMicros();
-            radioReceptionQuality(r, q);
-        }
+            if ((q = mlinkrxCharIn(r, serialRead(s)))) {
+                r->lastUpdate = timerMicros();
+                radioReceptionQuality(r, q);
+            }
         break;
 
     case RADIO_TYPE_CYRF6936:
@@ -112,8 +112,8 @@ void radioTaskCode(void *unused) {
     AQ_NOTICE("Radio task started\n");
 
     while (1) {
-	// wait for data
-	yield(2); // 2ms
+// wait for data
+        yield(2); // 2ms
 
         for (i = 0; i < RADIO_NUM; i++) {
             radioInstance_t *r = &radioData.radioInstances[i];
@@ -157,22 +157,22 @@ void radioInit(void) {
 
         // determine UART
         switch (i) {
-            case 0:
-                uart = RC1_UART;
-                break;
+        case 0:
+            uart = RC1_UART;
+            break;
 #ifdef RC2_UART
-            case 1:
-                uart = RC2_UART;
-                break;
+        case 1:
+            uart = RC2_UART;
+            break;
 #endif
 #ifdef RC3_UART
-            case 2:
-                uart = RC3_UART;
-                break;
+        case 2:
+            uart = RC3_UART;
+            break;
 #endif
-            default:
-                uart = 0;
-                break;
+        default:
+            uart = 0;
+            break;
         }
 
         r->radioType = (radioType>>(i*4)) & 0x0f;
@@ -238,19 +238,19 @@ void radioInit(void) {
     radioData.channels = radioData.radioInstances[0].channels;
 
     switch (radioData.mode) {
-        case RADIO_MODE_DIVERSITY:
-            // select first available radio to start with
-            for (i = 0; i < RADIO_NUM; i++) {
-                if (radioData.radioInstances[i].radioType > RADIO_TYPE_NONE) {
-                    radioMakeCurrent(&radioData.radioInstances[i]);
-                    break;
-                }
+    case RADIO_MODE_DIVERSITY:
+        // select first available radio to start with
+        for (i = 0; i < RADIO_NUM; i++) {
+            if (radioData.radioInstances[i].radioType > RADIO_TYPE_NONE) {
+                radioMakeCurrent(&radioData.radioInstances[i]);
+                break;
             }
-            break;
+        }
+        break;
 
-        case RADIO_MODE_SPLIT:
-            radioMakeCurrent(&radioData.radioInstances[0]);
-            break;
+    case RADIO_MODE_SPLIT:
+        radioMakeCurrent(&radioData.radioInstances[0]);
+        break;
     }
 
     // set mode default - not needed anymore ?

@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #include "config.h"
@@ -123,7 +123,7 @@ void dIMUTare(void) {
 
     // reset all parameters
     for (i = 0; dImuCalibParameters[i] != IMU_MAG_BIAS_X; i++)
-    p[dImuCalibParameters[i]] = 0.0f;
+        p[dImuCalibParameters[i]] = 0.0f;
 
     p[IMU_ACC_SCAL_X] = 1.0f;
     p[IMU_ACC_SCAL_Y] = 1.0f;
@@ -191,8 +191,8 @@ static void dIMUCalcTempDiff(void) {
 #endif
 #ifdef DIMU_HAVE_MS5611
     if (ms5611Data.enabled) {
-      temp += ms5611Data.temp;
-      i++;
+        temp += ms5611Data.temp;
+        i++;
     }
 #endif
     dImuData.temp = temp / (float)i;
@@ -212,8 +212,7 @@ static void dIMUReadCalib(void) {
 
     if (buf == 0) {
         AQ_NOTICE("DIMU: cannot read EEPROM parameters!\n");
-    }
-    else {
+    } else {
         while ((size = eepromRead(DIMU_EEPROM_BLOCK_SIZE)) != 0)
             p1 = configParseParams((char *)buf, size, p1);
 
@@ -242,7 +241,7 @@ static void dIMUWriteCalib(void) {
 
         for (j = 0; j < n; j++) {
             buf[k++] = lineBuf[j];
-                if (k == DIMU_EEPROM_BLOCK_SIZE) {
+            if (k == DIMU_EEPROM_BLOCK_SIZE) {
                 eepromWrite();
                 k = 0;
             }
@@ -276,9 +275,9 @@ static void dIMUReadWriteCalib(void) {
 #endif
 
     if (dImuData.calibReadWriteFlag == 1)
-	dIMUReadCalib();
+        dIMUReadCalib();
     else if (dImuData.calibReadWriteFlag == 2)
-	dIMUWriteCalib();
+        dIMUWriteCalib();
 
     dImuData.calibReadWriteFlag = 0;
 
@@ -312,7 +311,7 @@ static void dIMUTaskCode(void *unused) {
     uint32_t loops = 0;
 
     while (1) {
-    // wait for work
+        // wait for work
         CoWaitForSingleFlag(dImuData.flag, 0);
 
         if (dImuData.calibReadWriteFlag)
@@ -386,11 +385,11 @@ void dIMUInit(void) {
 #endif
 #ifdef DIMU_HAVE_HMC5983
     if (hmc5983Init() == 0)
-      AQ_NOTICE("DIMU: MAG sensor init failed!\n");
+        AQ_NOTICE("DIMU: MAG sensor init failed!\n");
 #endif
 #ifdef DIMU_HAVE_MS5611
     if (ms5611Init() == 0)
-      AQ_NOTICE("DIMU: PRES sensor init failed!\n");
+        AQ_NOTICE("DIMU: PRES sensor init failed!\n");
 #endif
     dIMUTaskStack = aqStackInit(DIMU_STACK_SIZE, "DIMU");
 
@@ -480,28 +479,25 @@ void dIMUSetAlarm1(int32_t us, dIMUCallback_t *callback, int parameter) {
     DIMU_TIM->CCR1 = DIMU_TIM->CNT + us;
     DIMU_TIM->DIER |= TIM_IT_CC1;
 }
-
-
 void DIMU_ISR(void) {
     // CC2 is used for IMU period timing
     if (TIM_GetITStatus(DIMU_TIM, TIM_IT_CC2) != RESET) {
-	DIMU_TIM->SR = (uint16_t)~TIM_IT_CC2;
+        DIMU_TIM->SR = (uint16_t)~TIM_IT_CC2;
 
-	// set next alarm
-	dImuData.nextPeriod += DIMU_INNER_PERIOD;
-	DIMU_TIM->CCR2 = dImuData.nextPeriod;
+// set next alarm
+        dImuData.nextPeriod += DIMU_INNER_PERIOD;
+        DIMU_TIM->CCR2 = dImuData.nextPeriod;
 
-	CoEnterISR();
-	isr_SetFlag(dImuData.flag);
-	CoExitISR();
-    }
-    else if (TIM_GetITStatus(DIMU_TIM, TIM_IT_CC1) != RESET) {
-	DIMU_TIM->SR = (uint16_t)~TIM_IT_CC1;
+        CoEnterISR();
+        isr_SetFlag(dImuData.flag);
+        CoExitISR();
+    } else if (TIM_GetITStatus(DIMU_TIM, TIM_IT_CC1) != RESET) {
+        DIMU_TIM->SR = (uint16_t)~TIM_IT_CC1;
 
-	// Disable the Interrupt
-	DIMU_TIM->DIER &= (uint16_t)~TIM_IT_CC1;
+// Disable the Interrupt
+        DIMU_TIM->DIER &= (uint16_t)~TIM_IT_CC1;
 
-	dImuData.alarm1Callback(dImuData.alarm1Parameter);
+        dImuData.alarm1Callback(dImuData.alarm1Parameter);
     }
 }
 #endif

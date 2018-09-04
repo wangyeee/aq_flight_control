@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright © 2011-2014  Bill Nesbitt
+    Copyright (c) 2011-2014  Bill Nesbitt
 */
 
 #include "aq.h"
@@ -52,31 +52,31 @@ static void commandResponseSend(commandBufStruct_t *r, uint8_t len) {
 
     txBuf = commGetTxBuf(COMM_STREAM_TYPE_TELEMETRY, len + 3 + 5 + 2);
     if (txBuf != 0) {
-	ptr = &txBuf->buf;
+        ptr = &txBuf->buf;
 
-	supervisorSendDataStart();
+        supervisorSendDataStart();
 
-	*ptr++ = 'A';
-	*ptr++ = 'q';
-	*ptr++ = 'R';
+        *ptr++ = 'A';
+        *ptr++ = 'q';
+        *ptr++ = 'R';
 
-	commandData.checkA = commandData.checkB = 0;
+        commandData.checkA = commandData.checkB = 0;
 
-	ptr = commandSendChar(ptr, commandData.requestId[0]);
-	ptr = commandSendChar(ptr, commandData.requestId[1]);
-	ptr = commandSendChar(ptr, commandData.requestId[2]);
-	ptr = commandSendChar(ptr, commandData.requestId[3]);
-	ptr = commandSendChar(ptr, len);
-	do {
-	    ptr = commandSendChar(ptr, *c++);
-	} while (--len);
+        ptr = commandSendChar(ptr, commandData.requestId[0]);
+        ptr = commandSendChar(ptr, commandData.requestId[1]);
+        ptr = commandSendChar(ptr, commandData.requestId[2]);
+        ptr = commandSendChar(ptr, commandData.requestId[3]);
+        ptr = commandSendChar(ptr, len);
+        do {
+            ptr = commandSendChar(ptr, *c++);
+        } while (--len);
 
-	*ptr++ = commandData.checkA;
-	*ptr++ = commandData.checkB;
+        *ptr++ = commandData.checkA;
+        *ptr++ = commandData.checkB;
 
-	commSendTxBuf(txBuf, ptr - &txBuf->buf);
+        commSendTxBuf(txBuf, ptr - &txBuf->buf);
 
-	supervisorSendDataStop();
+        supervisorSendDataStop();
     }
 }
 
@@ -85,11 +85,10 @@ static void commandRespond(unsigned char c, char *reply, unsigned char len) {
 
     resp.commandId = c;
     if (reply) {
-	memcpy((char *)&resp.data, reply, len);
-	commandResponseSend(&resp, len + sizeof(resp.commandId));
-    }
-    else {
-	commandResponseSend(&resp, sizeof(resp.commandId));
+        memcpy((char *)&resp.data, reply, len);
+        commandResponseSend(&resp, len + sizeof(resp.commandId));
+    } else {
+        commandResponseSend(&resp, sizeof(resp.commandId));
     }
 }
 
@@ -104,10 +103,10 @@ static void commandNack(char *reply, unsigned char len) {
 // temporary to receive external acc from serial port
 static void commandAccIn(commandBufStruct_t *b) {
     typedef struct {
-	unsigned char command;
-	unsigned char rows;
-	unsigned char floats;
-	float values[10];
+        unsigned char command;
+        unsigned char rows;
+        unsigned char floats;
+        float values[10];
     } __attribute__((packed)) dumpStruct_t;
     dumpStruct_t *dump;
 
@@ -129,203 +128,195 @@ static void commandAccIn(commandBufStruct_t *b) {
 static void commandExecute(commandBufStruct_t *b) {
     switch (b->commandId) {
     case COMMAND_GPS_PACKET:
-	    // first character is length
-	    gpsSendPacket(*b->data, b->data+1);
-	    commandAck(NULL, 0);
-	    break;
+        // first character is length
+        gpsSendPacket(*b->data, b->data+1);
+        commandAck(NULL, 0);
+        break;
 
 //    case COMMAND_ID_GPS_PASSTHROUGH:
-//	    if (!(supervisorData.state & STATE_FLYING)) {
-//		    telemetryDisable();
-//		    commandAck(NULL, 0);
-//		    gpsPassthrough(gpsData.gpsPort, downlinkData.serialPort);
-//	    }
-//	    else {
-//		    commandNack(NULL, 0);
-//	    }
-//	    break;
+//     if (!(supervisorData.state & STATE_FLYING)) {
+//      telemetryDisable();
+//      commandAck(NULL, 0);
+//      gpsPassthrough(gpsData.gpsPort, downlinkData.serialPort);
+//     }
+//     else {
+//      commandNack(NULL, 0);
+//     }
+//     break;
 
-    case COMMAND_CONFIG_PARAM_READ:
-	    {
-		    unsigned int replyLength = configParameterRead(b->data);
+    case COMMAND_CONFIG_PARAM_READ: {
+        unsigned int replyLength = configParameterRead(b->data);
 
-		    if (replyLength)
-			    commandAck(b->data, replyLength+8);
-		    else
-			    commandNack(NULL, 0);
-	    }
-	    break;
+        if (replyLength)
+            commandAck(b->data, replyLength+8);
+        else
+            commandNack(NULL, 0);
+    }
+    break;
 
     case COMMAND_CONFIG_PARAM_WRITE:
-	    if (!(supervisorData.state & STATE_FLYING)) {
-		    unsigned int replyLength = configParameterWrite(b->data);
+        if (!(supervisorData.state & STATE_FLYING)) {
+            unsigned int replyLength = configParameterWrite(b->data);
 
-		    if (replyLength)
-			    commandAck(b->data, replyLength);
-		    else
-			    commandNack(NULL, 0);
-	    }
-	    else {
-		    commandNack(NULL, 0);
-	    }
-	    break;
+            if (replyLength)
+                commandAck(b->data, replyLength);
+            else
+                commandNack(NULL, 0);
+        } else {
+            commandNack(NULL, 0);
+        }
+        break;
 
     case COMMAND_CONFIG_FLASH_READ:
-	    if (!(supervisorData.state & STATE_FLYING)) {
-		    configFlashRead();
-		    commandAck(NULL, 0);
-	    }
-	    else {
-		    commandNack(NULL, 0);
-	    }
-	    break;
+        if (!(supervisorData.state & STATE_FLYING)) {
+            configFlashRead();
+            commandAck(NULL, 0);
+        } else {
+            commandNack(NULL, 0);
+        }
+        break;
 
     case COMMAND_CONFIG_FLASH_WRITE:
-	    if (!(supervisorData.state & STATE_FLYING)) {
-		    if (configFlashWrite())
-			    commandAck(NULL, 0);
-		    else
-			    commandNack(NULL, 0);
-	    }
-	    else {
-		    commandNack(NULL, 0);
-	    }
-	    break;
+        if (!(supervisorData.state & STATE_FLYING)) {
+            if (configFlashWrite())
+                commandAck(NULL, 0);
+            else
+                commandNack(NULL, 0);
+        } else {
+            commandNack(NULL, 0);
+        }
+        break;
 
     case COMMAND_CONFIG_FACTORY_RESET:
-	    if (!(supervisorData.state & STATE_FLYING)) {
-		    configLoadDefault();
-		    commandAck(NULL, 0);
-	    }
-	    else {
-		    commandNack(NULL, 0);
-	    }
-	    break;
+        if (!(supervisorData.state & STATE_FLYING)) {
+            configLoadDefault();
+            commandAck(NULL, 0);
+        } else {
+            commandNack(NULL, 0);
+        }
+        break;
 
     case COMMAND_TELEMETRY_DISABLE:
-	    telemetryDisable();
-	    commandAck(NULL, 0);
-	    break;
+        telemetryDisable();
+        commandAck(NULL, 0);
+        break;
 
     case COMMAND_TELEMETRY_ENABLE:
-	    telemetryEnable();
-	    commandAck(NULL, 0);
-	    break;
+        telemetryEnable();
+        commandAck(NULL, 0);
+        break;
 
     case COMMAND_ACC_IN:
-	    commandAccIn(b);
-	    break;
+        commandAccIn(b);
+        break;
 
     default:
-	    commandNack(NULL, 0);
-	    break;
+        commandNack(NULL, 0);
+        break;
     }
 }
 
 static void commandCharIn(unsigned char ch) {
     switch (commandData.state) {
     case COMMAND_WAIT_SYNC1:
-	if (ch == COMMAND_SYNC1)
-	    commandData.state = COMMAND_WAIT_SYNC2;
-	break;
+        if (ch == COMMAND_SYNC1)
+            commandData.state = COMMAND_WAIT_SYNC2;
+        break;
 
     case COMMAND_WAIT_SYNC2:
-	if (ch == COMMAND_SYNC2)
-	    commandData.state = COMMAND_WAIT_SYNC3;
-	else
-	    commandData.state = COMMAND_WAIT_SYNC1;
-	break;
+        if (ch == COMMAND_SYNC2)
+            commandData.state = COMMAND_WAIT_SYNC3;
+        else
+            commandData.state = COMMAND_WAIT_SYNC1;
+        break;
 
     case COMMAND_WAIT_SYNC3:
-	if (ch == COMMAND_COMMAND) {
-	    commandData.checkA = commandData.checkB = 0;
-	    commandData.state = COMMAND_WAIT_RQID1;
-	}
-	else if (ch == COMMAND_FLOAT_DUMP) {
-	    commandData.buf.commandId = COMMAND_ACC_IN;
-	    commandData.bufPoint = 1;
-	    commandData.checkA = commandData.checkB = 0;
-	    commandData.state = COMMAND_WAIT_ROWS;
-	}
-	else
-	    commandData.state = COMMAND_WAIT_SYNC1;
-	break;
+        if (ch == COMMAND_COMMAND) {
+            commandData.checkA = commandData.checkB = 0;
+            commandData.state = COMMAND_WAIT_RQID1;
+        } else if (ch == COMMAND_FLOAT_DUMP) {
+            commandData.buf.commandId = COMMAND_ACC_IN;
+            commandData.bufPoint = 1;
+            commandData.checkA = commandData.checkB = 0;
+            commandData.state = COMMAND_WAIT_ROWS;
+        } else
+            commandData.state = COMMAND_WAIT_SYNC1;
+        break;
 
     case COMMAND_WAIT_RQID1:
-	commandChecksum(ch);
-	commandData.requestId[0] = ch;
-	commandData.state = COMMAND_WAIT_RQID2;
-	break;
+        commandChecksum(ch);
+        commandData.requestId[0] = ch;
+        commandData.state = COMMAND_WAIT_RQID2;
+        break;
 
     case COMMAND_WAIT_RQID2:
-	commandChecksum(ch);
-	commandData.requestId[1] = ch;
-	commandData.state = COMMAND_WAIT_RQID3;
-	break;
+        commandChecksum(ch);
+        commandData.requestId[1] = ch;
+        commandData.state = COMMAND_WAIT_RQID3;
+        break;
 
     case COMMAND_WAIT_RQID3:
-	commandChecksum(ch);
-	commandData.requestId[2] = ch;
-	commandData.state = COMMAND_WAIT_RQID4;
-	break;
+        commandChecksum(ch);
+        commandData.requestId[2] = ch;
+        commandData.state = COMMAND_WAIT_RQID4;
+        break;
 
     case COMMAND_WAIT_RQID4:
-	commandChecksum(ch);
-	commandData.requestId[3] = ch;
-	commandData.state = COMMAND_WAIT_LEN;
-	break;
+        commandChecksum(ch);
+        commandData.requestId[3] = ch;
+        commandData.state = COMMAND_WAIT_LEN;
+        break;
 
     case COMMAND_WAIT_LEN:
-	commandChecksum(ch);
-	commandData.len = ch;
-	commandData.bufPoint = 0;
-	commandData.state = COMMAND_PAYLOAD;
-	break;
+        commandChecksum(ch);
+        commandData.len = ch;
+        commandData.bufPoint = 0;
+        commandData.state = COMMAND_PAYLOAD;
+        break;
 
     case COMMAND_WAIT_ROWS:
-	commandChecksum(ch);
-	*((char *)&commandData.buf + commandData.bufPoint++) = ch;
-	commandData.len = ch;
-	commandData.state = COMMAND_WAIT_FLOATS;
-	break;
+        commandChecksum(ch);
+        *((char *)&commandData.buf + commandData.bufPoint++) = ch;
+        commandData.len = ch;
+        commandData.state = COMMAND_WAIT_FLOATS;
+        break;
 
     case COMMAND_WAIT_FLOATS:
-	commandChecksum(ch);
-	*((char *)&commandData.buf + commandData.bufPoint++) = ch;
-	commandData.len = commandData.bufPoint + commandData.len * ch * sizeof(float);
-	commandData.state = COMMAND_PAYLOAD;
-	break;
+        commandChecksum(ch);
+        *((char *)&commandData.buf + commandData.bufPoint++) = ch;
+        commandData.len = commandData.bufPoint + commandData.len * ch * sizeof(float);
+        commandData.state = COMMAND_PAYLOAD;
+        break;
 
     case COMMAND_PAYLOAD:
-	commandChecksum(ch);
-	*((char *)&commandData.buf + commandData.bufPoint++) = ch;
-	if (commandData.bufPoint == commandData.len)
-	    commandData.state = COMMAND_CHECK1;
-	break;
+        commandChecksum(ch);
+        *((char *)&commandData.buf + commandData.bufPoint++) = ch;
+        if (commandData.bufPoint == commandData.len)
+            commandData.state = COMMAND_CHECK1;
+        break;
 
     case COMMAND_CHECK1:
-	if (ch == commandData.checkA) {
-	    commandData.state = COMMAND_CHECK2;
-	}
-	else {
-	    commandData.state = COMMAND_WAIT_SYNC1;
-	    commandData.checksumErrors++;
-	}
-	break;
+        if (ch == commandData.checkA) {
+            commandData.state = COMMAND_CHECK2;
+        } else {
+            commandData.state = COMMAND_WAIT_SYNC1;
+            commandData.checksumErrors++;
+        }
+        break;
 
     case COMMAND_CHECK2:
-	commandData.state = COMMAND_WAIT_SYNC1;
-	if (ch == commandData.checkB)
-	    commandExecute(&commandData.buf);
-	else
-	    commandData.checksumErrors++;
-	break;
+        commandData.state = COMMAND_WAIT_SYNC1;
+        if (ch == commandData.checkB)
+            commandExecute(&commandData.buf);
+        else
+            commandData.checksumErrors++;
+        break;
     }
 }
 
 void commandTaskCode(commRcvrStruct_t *r) {
     while (commAvailable(r))
-	commandCharIn(commReadChar(r));
+        commandCharIn(commReadChar(r));
 }
 
 void commandInit(void) {

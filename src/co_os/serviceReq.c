@@ -1,19 +1,17 @@
 /**
  *******************************************************************************
  * @file       serviceReq.c
- * @version   V1.1.4    
+ * @version   V1.1.4
  * @date      2011.04.20
- * @brief      servive request management implementation code of CooCox CoOS kernel.	
+ * @brief      servive request management implementation code of CooCox CoOS kernel.
  *******************************************************************************
  * @copy
  *
  * INTERNAL FILE,DON'T PUBLIC.
- * 
+ *
  * <h2><center>&copy; COPYRIGHT 2009 CooCox </center></h2>
  *******************************************************************************
- */ 
-
-
+ */
 
 /*---------------------------- Include ---------------------------------------*/
 #include <coocox.h>
@@ -22,8 +20,8 @@
 
 #if CFG_MAX_SERVICE_REQUEST > 0
 /*---------------------------- Variable Define -------------------------------*/
-SRQ   ServiceReq = {0,0};             /*!< ISR server request queue         */		     
-#endif       
+SRQ   ServiceReq = {0,0};             /*!< ISR server request queue         */
+#endif
 BOOL  IsrReq   = Co_FALSE;
 #if (CFG_TASK_WAITTING_EN > 0)
 BOOL  TimeReq  = Co_FALSE;                 /*!< Time delay dispose request       */
@@ -35,36 +33,34 @@ BOOL  TimerReq = Co_FALSE;                 /*!< Timer dispose request           
 
 /**
  *******************************************************************************
- * @brief      Insert into service requst queue	 
- * @param[in]  type     Service request type.	
+ * @brief      Insert into service requst queue
+ * @param[in]  type     Service request type.
  * @param[in]  id       Service request event id,event id/flag id.
- * @param[in]  arg      Service request argument. 
- * @param[out] None 
- * 	 
+ * @param[in]  arg      Service request argument.
+ * @param[out] None
+ *
  * @retval     Co_FALSE    Successfully insert into service request queue.
  * @retval     Co_TRUE     Failure to insert into service request queue.
  *
- * @par Description		 
- * @details    This function be called to insert a requst into service request	
+ * @par Description
+ * @details    This function be called to insert a requst into service request
  *             queue.
- * @note 
+ * @note
  *******************************************************************************
  */
 #if (CFG_MAX_SERVICE_REQUEST > 0)
-BOOL InsertInSRQ(U8 type,U8 id,void* arg)
-{
+BOOL InsertInSRQ(U8 type,U8 id,void* arg) {
     P_SQC   pcell;
-	U8 cnt;
-	U8 heed;
+    U8 cnt;
+    U8 heed;
     IRQ_DISABLE_SAVE();
-    if (ServiceReq.cnt >= CFG_MAX_SERVICE_REQUEST)
-    {
+    if (ServiceReq.cnt >= CFG_MAX_SERVICE_REQUEST) {
         IRQ_ENABLE_RESTORE ();
 
         return Co_FALSE;                   /* Error return                       */
     }
-	cnt = Inc8(&ServiceReq.cnt);
-	heed = ServiceReq.head;
+    cnt = Inc8(&ServiceReq.cnt);
+    heed = ServiceReq.head;
     IsrReq = Co_TRUE;
     pcell = &ServiceReq.cell[((cnt+heed)%CFG_MAX_SERVICE_REQUEST)];/*the tail */
     pcell->type = type;                 /* Save service request type,         */
@@ -76,23 +72,20 @@ BOOL InsertInSRQ(U8 type,U8 id,void* arg)
 }
 #endif
 
-
-
 /**
  *******************************************************************************
- * @brief      Respond the request in the service request queue.	 
+ * @brief      Respond the request in the service request queue.
  * @param[in]  None
- * @param[out] None 
- * @retval     None  
+ * @param[out] None
+ * @retval     None
  *
- * @par Description		 
- * @details    This function be called to respond the request in the service  
+ * @par Description
+ * @details    This function be called to respond the request in the service
  *             request queue.
- * @note 
+ * @note
  *******************************************************************************
  */
-void RespondSRQ(void)
-{
+void RespondSRQ(void) {
 
 #if CFG_MAX_SERVICE_REQUEST > 0
     SQC cell;
@@ -100,15 +93,13 @@ void RespondSRQ(void)
 #endif
 
 #if (CFG_TASK_WAITTING_EN > 0)
-    if(TimeReq == Co_TRUE)                 /* Time delay request?                */
-    {
+    if(TimeReq == Co_TRUE) {               /* Time delay request?                */
         TimeDispose();                  /* Yes,call handler                   */
         TimeReq = Co_FALSE;                /* Reset time delay request Co_FALSE     */
     }
 #endif
 #if CFG_TMR_EN  > 0
-    if(TimerReq == Co_TRUE)                /* Timer request?                     */
-    {
+    if(TimerReq == Co_TRUE) {              /* Timer request?                     */
         TmrDispose();                   /* Yes,call handler                   */
         TimerReq = Co_FALSE;               /* Reset timer request Co_FALSE          */
     }
@@ -116,17 +107,15 @@ void RespondSRQ(void)
 
 #if CFG_MAX_SERVICE_REQUEST > 0
 
-    while (ServiceReq.cnt != 0)
-    {
+    while (ServiceReq.cnt != 0) {
         IRQ_DISABLE_SAVE ();            /* need to protect the following      */
         cell = ServiceReq.cell[ServiceReq.head];  /* extract one cell         */
         ServiceReq.head = (ServiceReq.head + 1) % /* move head (pop)          */
-                     CFG_MAX_SERVICE_REQUEST;
+                          CFG_MAX_SERVICE_REQUEST;
         ServiceReq.cnt--;
         IRQ_ENABLE_RESTORE ();          /* now use the cell copy              */
 
-        switch(cell.type)               /* Judge service request type         */
-        {
+        switch(cell.type) {             /* Judge service request type         */
 #if CFG_SEM_EN > 0
         case SEM_REQ:                   /* Semaphore post request,call handler*/
             CoPostSem(cell.id);
@@ -154,8 +143,7 @@ void RespondSRQ(void)
 #endif
     IRQ_DISABLE_SAVE ();                /* need to protect the following      */
 
-    if (ServiceReq.cnt == 0)            /* another item in the queue already? */
-    {
+    if (ServiceReq.cnt == 0) {          /* another item in the queue already? */
         IsrReq = Co_FALSE;                 /* queue still empty here             */
     }
     IRQ_ENABLE_RESTORE ();              /* now it is done and return          */
