@@ -14,7 +14,7 @@
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
     Copyright (c) 2011-2014  Bill Nesbitt
-*/
+ */
 
 #include "analog.h"
 #include "comm.h"
@@ -49,9 +49,7 @@ void analogDecode(void) {
 #endif
 
 void analogInit(void) {
-
 #ifdef ANALOG_DMA_STREAM
-
     analogData.vInSourceIndex = ANALOG_VOLTS_VIN;
     analogData.vInSlope = ANALOG_VIN_SLOPE;
 #ifdef ANALOG_EXT_VOLT_SLOPE
@@ -106,11 +104,18 @@ void analogInit(void) {
     ADC_RegularChannelConfig(ADC1, ANALOG_CHANNEL_VIN, 1, ANALOG_SAMPLE_TIME);
     ADC_RegularChannelConfig(ADC1, ANALOG_CHANNEL_EXT_VOLT, 2, ANALOG_SAMPLE_TIME);
     ADC_RegularChannelConfig(ADC1, ANALOG_CHANNEL_EXT_AMP, 3, ANALOG_SAMPLE_TIME);
+#ifdef ANALOG_CHANNEL_SPARE4
     ADC_RegularChannelConfig(ADC1, ANALOG_CHANNEL_SPARE4, 4, ANALOG_SAMPLE_TIME);
-
+#endif
+#ifdef ANALOG_CHANNEL_SPARE5
     ADC_RegularChannelConfig(ADC1, ANALOG_CHANNEL_SPARE5, 5, ANALOG_SAMPLE_TIME);
+#endif
+#ifdef ANALOG_CHANNEL_SPARE6
     ADC_RegularChannelConfig(ADC1, ANALOG_CHANNEL_SPARE6, 6, ANALOG_SAMPLE_TIME);
+#endif
+#ifdef ANALOG_CHANNEL_SPARE7
     ADC_RegularChannelConfig(ADC1, ANALOG_CHANNEL_SPARE7, 7, ANALOG_SAMPLE_TIME);
+#endif
 
     ADC_DMARequestAfterLastTransferCmd(ADC1, ENABLE);
 

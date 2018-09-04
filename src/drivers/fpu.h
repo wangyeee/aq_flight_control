@@ -21,6 +21,7 @@
 
 #include "stm32f4xx.h"
 #include <CoOS.h>
+
 //#define FPU_SOFT
 #define FPU_HARD
 

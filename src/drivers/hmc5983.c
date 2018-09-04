@@ -14,10 +14,11 @@
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
     Copyright (c) 2011-2014  Bill Nesbitt
-*/
+ */
 
 #include "config.h"
 #ifdef HAS_DIGITAL_IMU
+#ifdef DIMU_HAVE_HMC5983
 #include "imu.h"
 #include "hmc5983.h"
 #include "aq_timer.h"
@@ -86,7 +87,8 @@ void hmc5983Decode(void) {
             // check if we are in the middle of a transaction for this slot
             if (i == hmc5983Data.slot && hmc5983Data.spiFlag == 0) {
                 divisor -= 1.0f;
-            } else {
+            }
+            else {
                 mag[1] += (int16_t)__rev16(*(uint16_t *)&d[j+1]);
                 mag[2] += (int16_t)__rev16(*(uint16_t *)&d[j+3]);
                 mag[0] += (int16_t)__rev16(*(uint16_t *)&d[j+5]);
@@ -210,10 +212,12 @@ uint8_t hmc5983Init(void) {
         extRegisterCallback(DIMU_HMC5983_INT_PORT, DIMU_HMC5983_INT_PIN, EXTI_Trigger_Rising, 1, GPIO_PuPd_NOPULL, hmc5983IntHandler);
 
         hmc5983Data.initialized = 1;
-    } else {
+    }
+    else {
         hmc5983Data.initialized = 0;
     }
 
     return hmc5983Data.initialized;
 }
+#endif
 #endif

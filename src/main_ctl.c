@@ -14,7 +14,7 @@
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
     Copyright (c) 2011-2014  Bill Nesbitt
-*/
+ */
 
 #include "aq.h"
 #include "fpu.h"
@@ -29,7 +29,7 @@ volatile unsigned long counter;
 volatile unsigned long minCycles = 0xFFFFFFFF;
 
 int main(void) {
-    fpuInit();        // setup FPU context switching
+    fpuInit();      // setup FPU context switching
 
     rccConfiguration();
 
@@ -89,7 +89,7 @@ void HardFault_Handler(void) {
 
 #ifdef USE_FULL_ASSERT
 void assert_failed(uint8_t* file, uint32_t line) {
-//    printf("Wrong parameters value: file %s on line %d\r\n", file, line);
+    //    printf("Wrong parameters value: file %s on line %d\r\n", file, line);
     while (1)
         ;
 }

@@ -14,7 +14,7 @@
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
     Copyright (c) 2011-2014  Bill Nesbitt
-*/
+ */
 
 #include "config.h"
 #ifdef HAS_DIGITAL_IMU
@@ -29,90 +29,90 @@
 
 OS_STK *dIMUTaskStack;
 
-dImuStruct_t dImuData __attribute__((section(".ccm")));
+dImuStruct_t dImuData CCM_RAM;
 
 const uint16_t dImuCalibParameters[] = {
-    IMU_ACC_BIAS_X,
-    IMU_ACC_BIAS_Y,
-    IMU_ACC_BIAS_Z,
-    IMU_ACC_BIAS1_X,
-    IMU_ACC_BIAS1_Y,
-    IMU_ACC_BIAS1_Z,
-    IMU_ACC_BIAS2_X,
-    IMU_ACC_BIAS2_Y,
-    IMU_ACC_BIAS2_Z,
-    IMU_ACC_BIAS3_X,
-    IMU_ACC_BIAS3_Y,
-    IMU_ACC_BIAS3_Z,
-    IMU_ACC_SCAL_X,
-    IMU_ACC_SCAL_Y,
-    IMU_ACC_SCAL_Z,
-    IMU_ACC_SCAL1_X,
-    IMU_ACC_SCAL1_Y,
-    IMU_ACC_SCAL1_Z,
-    IMU_ACC_SCAL2_X,
-    IMU_ACC_SCAL2_Y,
-    IMU_ACC_SCAL2_Z,
-    IMU_ACC_SCAL3_X,
-    IMU_ACC_SCAL3_Y,
-    IMU_ACC_SCAL3_Z,
-    IMU_ACC_ALGN_XY,
-    IMU_ACC_ALGN_XZ,
-    IMU_ACC_ALGN_YX,
-    IMU_ACC_ALGN_YZ,
-    IMU_ACC_ALGN_ZX,
-    IMU_ACC_ALGN_ZY,
-    IMU_GYO_BIAS_X,
-    IMU_GYO_BIAS_Y,
-    IMU_GYO_BIAS_Z,
-    IMU_GYO_BIAS1_X,
-    IMU_GYO_BIAS1_Y,
-    IMU_GYO_BIAS1_Z,
-    IMU_GYO_BIAS2_X,
-    IMU_GYO_BIAS2_Y,
-    IMU_GYO_BIAS2_Z,
-    IMU_GYO_BIAS3_X,
-    IMU_GYO_BIAS3_Y,
-    IMU_GYO_BIAS3_Z,
-    IMU_GYO_SCAL_X,
-    IMU_GYO_SCAL_Y,
-    IMU_GYO_SCAL_Z,
-    IMU_GYO_ALGN_XY,
-    IMU_GYO_ALGN_XZ,
-    IMU_GYO_ALGN_YX,
-    IMU_GYO_ALGN_YZ,
-    IMU_GYO_ALGN_ZX,
-    IMU_GYO_ALGN_ZY,
-    IMU_MAG_BIAS_X,
-    IMU_MAG_BIAS_Y,
-    IMU_MAG_BIAS_Z,
-    IMU_MAG_BIAS1_X,
-    IMU_MAG_BIAS1_Y,
-    IMU_MAG_BIAS1_Z,
-    IMU_MAG_BIAS2_X,
-    IMU_MAG_BIAS2_Y,
-    IMU_MAG_BIAS2_Z,
-    IMU_MAG_BIAS3_X,
-    IMU_MAG_BIAS3_Y,
-    IMU_MAG_BIAS3_Z,
-    IMU_MAG_SCAL_X,
-    IMU_MAG_SCAL_Y,
-    IMU_MAG_SCAL_Z,
-    IMU_MAG_SCAL1_X,
-    IMU_MAG_SCAL1_Y,
-    IMU_MAG_SCAL1_Z,
-    IMU_MAG_SCAL2_X,
-    IMU_MAG_SCAL2_Y,
-    IMU_MAG_SCAL2_Z,
-    IMU_MAG_SCAL3_X,
-    IMU_MAG_SCAL3_Y,
-    IMU_MAG_SCAL3_Z,
-    IMU_MAG_ALGN_XY,
-    IMU_MAG_ALGN_XZ,
-    IMU_MAG_ALGN_YX,
-    IMU_MAG_ALGN_YZ,
-    IMU_MAG_ALGN_ZX,
-    IMU_MAG_ALGN_ZY
+        IMU_ACC_BIAS_X,
+        IMU_ACC_BIAS_Y,
+        IMU_ACC_BIAS_Z,
+        IMU_ACC_BIAS1_X,
+        IMU_ACC_BIAS1_Y,
+        IMU_ACC_BIAS1_Z,
+        IMU_ACC_BIAS2_X,
+        IMU_ACC_BIAS2_Y,
+        IMU_ACC_BIAS2_Z,
+        IMU_ACC_BIAS3_X,
+        IMU_ACC_BIAS3_Y,
+        IMU_ACC_BIAS3_Z,
+        IMU_ACC_SCAL_X,
+        IMU_ACC_SCAL_Y,
+        IMU_ACC_SCAL_Z,
+        IMU_ACC_SCAL1_X,
+        IMU_ACC_SCAL1_Y,
+        IMU_ACC_SCAL1_Z,
+        IMU_ACC_SCAL2_X,
+        IMU_ACC_SCAL2_Y,
+        IMU_ACC_SCAL2_Z,
+        IMU_ACC_SCAL3_X,
+        IMU_ACC_SCAL3_Y,
+        IMU_ACC_SCAL3_Z,
+        IMU_ACC_ALGN_XY,
+        IMU_ACC_ALGN_XZ,
+        IMU_ACC_ALGN_YX,
+        IMU_ACC_ALGN_YZ,
+        IMU_ACC_ALGN_ZX,
+        IMU_ACC_ALGN_ZY,
+        IMU_GYO_BIAS_X,
+        IMU_GYO_BIAS_Y,
+        IMU_GYO_BIAS_Z,
+        IMU_GYO_BIAS1_X,
+        IMU_GYO_BIAS1_Y,
+        IMU_GYO_BIAS1_Z,
+        IMU_GYO_BIAS2_X,
+        IMU_GYO_BIAS2_Y,
+        IMU_GYO_BIAS2_Z,
+        IMU_GYO_BIAS3_X,
+        IMU_GYO_BIAS3_Y,
+        IMU_GYO_BIAS3_Z,
+        IMU_GYO_SCAL_X,
+        IMU_GYO_SCAL_Y,
+        IMU_GYO_SCAL_Z,
+        IMU_GYO_ALGN_XY,
+        IMU_GYO_ALGN_XZ,
+        IMU_GYO_ALGN_YX,
+        IMU_GYO_ALGN_YZ,
+        IMU_GYO_ALGN_ZX,
+        IMU_GYO_ALGN_ZY,
+        IMU_MAG_BIAS_X,
+        IMU_MAG_BIAS_Y,
+        IMU_MAG_BIAS_Z,
+        IMU_MAG_BIAS1_X,
+        IMU_MAG_BIAS1_Y,
+        IMU_MAG_BIAS1_Z,
+        IMU_MAG_BIAS2_X,
+        IMU_MAG_BIAS2_Y,
+        IMU_MAG_BIAS2_Z,
+        IMU_MAG_BIAS3_X,
+        IMU_MAG_BIAS3_Y,
+        IMU_MAG_BIAS3_Z,
+        IMU_MAG_SCAL_X,
+        IMU_MAG_SCAL_Y,
+        IMU_MAG_SCAL_Z,
+        IMU_MAG_SCAL1_X,
+        IMU_MAG_SCAL1_Y,
+        IMU_MAG_SCAL1_Z,
+        IMU_MAG_SCAL2_X,
+        IMU_MAG_SCAL2_Y,
+        IMU_MAG_SCAL2_Z,
+        IMU_MAG_SCAL3_X,
+        IMU_MAG_SCAL3_Y,
+        IMU_MAG_SCAL3_Z,
+        IMU_MAG_ALGN_XY,
+        IMU_MAG_ALGN_XZ,
+        IMU_MAG_ALGN_YX,
+        IMU_MAG_ALGN_YZ,
+        IMU_MAG_ALGN_ZX,
+        IMU_MAG_ALGN_ZY
 };
 
 void dIMUTare(void) {
@@ -204,6 +204,21 @@ static void dIMUCalcTempDiff(void) {
 
 static void dIMUReadCalib(void) {
 #ifdef DIMU_HAVE_EEPROM
+#if 1  // binary
+    uint8_t *buf;
+    int size;
+
+    buf = eepromOpenRead();
+
+    if (buf == 0) {
+        AQ_NOTICE("DIMU: cannot read EEPROM parameters!\n");
+    } else {
+        while ((size = eepromRead(DIMU_EEPROM_BLOCK_SIZE)) != 0)
+            configParseBinaryParams(buf, size);
+
+        AQ_NOTICE("DIMU: read calibration parameters from EEPROM\n");
+    }
+#else
     uint8_t *buf;
     int size;
     int p1 = 0;
@@ -219,10 +234,41 @@ static void dIMUReadCalib(void) {
         AQ_NOTICE("DIMU: read calibration parameters from EEPROM\n");
     }
 #endif
+#endif
 }
 
 static void dIMUWriteCalib(void) {
 #ifdef DIMU_HAVE_EEPROM
+#if 1  // binary format
+    configBinary_t cfg;
+    uint8_t* buf;
+    uint8_t* lineBuf;
+    int i, j, k;
+
+    buf = eepromOpenWrite();
+
+    k = 0;
+    for (i = 0; i < sizeof(dImuCalibParameters) / sizeof(uint16_t); i++) {
+        configGetBinaryParam(&cfg, dImuCalibParameters[i]);
+        lineBuf = (uint8_t*) (&cfg);
+
+        for (j = 0; j < CONFIG_BINARY_PARAM_SIZE; j++) {
+            buf[k++] = lineBuf[j];
+            if (k == DIMU_EEPROM_BLOCK_SIZE) {
+                eepromWrite();
+                k = 0;
+                yield(5); // wait for eeprom
+            }
+        }
+    }
+    if (k != 0) {
+        eepromWrite();
+        yield(5);
+    }
+    AQ_NOTICE("DIMU: wrote calibration parameters to EEPROM\n");
+
+    eepromClose();
+#else
     char *lineBuf;
     uint8_t *buf;
     int n;
@@ -244,6 +290,7 @@ static void dIMUWriteCalib(void) {
             if (k == DIMU_EEPROM_BLOCK_SIZE) {
                 eepromWrite();
                 k = 0;
+                yield(5); // wait for eeprom
             }
         }
     }
@@ -255,6 +302,7 @@ static void dIMUWriteCalib(void) {
     AQ_NOTICE("DIMU: wrote calibration parameters to EEPROM\n");
 
     eepromClose();
+#endif
 #endif
 }
 
@@ -269,6 +317,9 @@ static void dIMUReadWriteCalib(void) {
 #endif
 #ifdef DIMU_HAVE_HMC5983
     hmc5983Disable();
+#endif
+#ifdef DIMU_HAVE_MAG3110
+    mag3110Disable();
 #endif
 #ifdef DIMU_HAVE_MS5611
     ms5611Disable();
@@ -290,6 +341,9 @@ static void dIMUReadWriteCalib(void) {
 #ifdef DIMU_HAVE_HMC5983
     hmc5983Enable();
 #endif
+#ifdef DIMU_HAVE_MAG3110
+    mag3110Enable();
+#endif
 #ifdef DIMU_HAVE_MS5611
     ms5611Enable();
 #endif
@@ -307,7 +361,7 @@ void dIMURequestCalibRead(void) {
         dImuData.calibReadWriteFlag = 1;
 }
 
-static void dIMUTaskCode(void *unused) {
+static void __attribute__((optimize("Os"))) dIMUTaskCode(void *unused) {
     uint32_t loops = 0;
 
     while (1) {
@@ -338,6 +392,9 @@ static void dIMUTaskCode(void *unused) {
 #ifdef DIMU_HAVE_HMC5983
             hmc5983Decode();
 #endif
+#ifdef DIMU_HAVE_MAG3110
+            mag3110Decode();
+#endif
 #ifdef DIMU_HAVE_MS5611
             ms5611Decode();
 #endif
@@ -351,9 +408,31 @@ static void dIMUTaskCode(void *unused) {
     }
 }
 
-void dIMUInit(void) {
-    TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
-    TIM_OCInitTypeDef  TIM_OCInitStructure;
+// test only, the dev stm32 processor possibly
+// got damaged during solder cycle, exti not working
+// use tim6 to periodically trigger i2c txn
+static void initDIMU_GyroAccelTIM(void) {
+#ifdef STM32F4_DEFECTS
+    NVIC_InitTypeDef NVIC_InitStructure;
+
+    // Enable TIM6 IRQ
+    NVIC_InitStructure.NVIC_IRQChannel = TIM6_DAC_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
+
+    RCC->APB1ENR |= RCC_APB1ENR_TIM6EN;   // Enable TIM6 clock
+    TIM6->DIER |= TIM_DIER_UIE;   // Enable interrupt on update event
+    TIM6->PSC = 4199;  // Set prescaler to 4199
+    TIM6->ARR = 249;   // Hz = 84M / ((4199+1)*(249+1)) = 1000
+    TIM6->CR1 |= TIM_CR1_CEN;   // Enable TIM6 counter
+#endif
+}
+
+void __attribute__((optimize("Os"))) dIMUInit(void) {
+    TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
+    TIM_OCInitTypeDef TIM_OCInitStructure;
     NVIC_InitTypeDef NVIC_InitStructure;
 
 #ifdef DIMU_HAVE_MPU6000
@@ -371,6 +450,9 @@ void dIMUInit(void) {
 #ifdef DIMU_HAVE_MS5611
     ms5611PreInit();
 #endif
+#ifdef DIMU_HAVE_MAG3110
+    mag3110PreInit();
+#endif
 
 #ifdef DIMU_HAVE_MPU6000
     mpu6000Init();
@@ -378,18 +460,23 @@ void dIMUInit(void) {
 #ifdef DIMU_HAVE_MAX21100
     max21100Init();
 #endif
+
 #ifdef DIMU_HAVE_EEPROM
     eepromInit();
-//    dIMUWriteCalib();
+    //dIMUWriteCalib();
     dIMUReadCalib();
+#endif
+#ifdef DIMU_HAVE_MS5611
+    if (ms5611Init() == 0)
+        AQ_NOTICE("DIMU: PRES sensor init failed!\n");
 #endif
 #ifdef DIMU_HAVE_HMC5983
     if (hmc5983Init() == 0)
         AQ_NOTICE("DIMU: MAG sensor init failed!\n");
 #endif
-#ifdef DIMU_HAVE_MS5611
-    if (ms5611Init() == 0)
-        AQ_NOTICE("DIMU: PRES sensor init failed!\n");
+#ifdef DIMU_HAVE_MAG3110
+    if (mag3110Init() == 0)
+        AQ_NOTICE("DIMU: MAG3110 sensor init failed!\n");
 #endif
     dIMUTaskStack = aqStackInit(DIMU_STACK_SIZE, "DIMU");
 
@@ -415,11 +502,12 @@ void dIMUInit(void) {
     TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
     TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
 
-    TIM_OC1Init(DIMU_TIM, &TIM_OCInitStructure);
-    TIM_OC1PreloadConfig(DIMU_TIM, TIM_OCPreload_Disable);
-
     TIM_OC2Init(DIMU_TIM, &TIM_OCInitStructure);
     TIM_OC2PreloadConfig(DIMU_TIM, TIM_OCPreload_Disable);
+
+    //TIM_OCInitStructure.TIM_Pulse = DIMU_INNER_PERIOD;
+    TIM_OC1Init(DIMU_TIM, &TIM_OCInitStructure);
+    TIM_OC1PreloadConfig(DIMU_TIM, TIM_OCPreload_Disable);
 
     // Enable the global Interrupt
     NVIC_InitStructure.NVIC_IRQChannel = DIMU_IRQ_CH;
@@ -436,6 +524,8 @@ void dIMUInit(void) {
     // go...
     TIM_Cmd(DIMU_TIM, ENABLE);
 
+    initDIMU_GyroAccelTIM();
+
 #ifdef DIMU_HAVE_MPU6000
     mpu6000Enable();
 #endif
@@ -444,6 +534,9 @@ void dIMUInit(void) {
 #endif
 #ifdef DIMU_HAVE_HMC5983
     hmc5983Enable();
+#endif
+#ifdef DIMU_HAVE_MAG3110
+    mag3110Enable();
 #endif
 #ifdef DIMU_HAVE_MS5611
     ms5611Enable();
@@ -455,7 +548,7 @@ void dIMUInit(void) {
     DIMU_TIM->DIER |= TIM_IT_CC2;
 
 #ifdef DIMU_HAVE_MPU6000
-    mpu6600InitialBias();
+    mpu6000InitialBias();
 #endif
 #ifdef DIMU_HAVE_MAX21100
     max21100InitialBias();
@@ -479,25 +572,37 @@ void dIMUSetAlarm1(int32_t us, dIMUCallback_t *callback, int parameter) {
     DIMU_TIM->CCR1 = DIMU_TIM->CNT + us;
     DIMU_TIM->DIER |= TIM_IT_CC1;
 }
+
 void DIMU_ISR(void) {
     // CC2 is used for IMU period timing
     if (TIM_GetITStatus(DIMU_TIM, TIM_IT_CC2) != RESET) {
         DIMU_TIM->SR = (uint16_t)~TIM_IT_CC2;
 
-// set next alarm
+        // set next alarm
         dImuData.nextPeriod += DIMU_INNER_PERIOD;
         DIMU_TIM->CCR2 = dImuData.nextPeriod;
 
         CoEnterISR();
         isr_SetFlag(dImuData.flag);
         CoExitISR();
-    } else if (TIM_GetITStatus(DIMU_TIM, TIM_IT_CC1) != RESET) {
+    }
+    else if (TIM_GetITStatus(DIMU_TIM, TIM_IT_CC1) != RESET) {
         DIMU_TIM->SR = (uint16_t)~TIM_IT_CC1;
 
-// Disable the Interrupt
+        // Disable the Interrupt
         DIMU_TIM->DIER &= (uint16_t)~TIM_IT_CC1;
-
         dImuData.alarm1Callback(dImuData.alarm1Parameter);
     }
 }
+
+void TIM6_DAC_IRQHandler() {
+    if (TIM6->SR) {
+#ifdef STM32F4_DEFECTS
+        if (mag3110Data.enabled)
+            i2cReadBlock(mag3110Data.i2cBus, 0, mag3110Data.readCmd, MAG3110_BYTES, &(mag3110Data.rxBuf[mag3110Data.slot * MAG3110_SLOT_SIZE]));
+#endif
+    }
+    TIM6->SR &= ~1; // Reset tim6 interrupt
+}
+
 #endif

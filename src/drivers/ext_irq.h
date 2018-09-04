@@ -27,7 +27,6 @@ typedef struct {
     extCallback_t *callbacks[EXT_NUM_EXTI];
 } extStruct_t;
 
-extern int extRegisterCallback(GPIO_TypeDef *port, uint16_t pin, EXTITrigger_TypeDef polarity, uint8_t priority, GPIOPuPd_TypeDef pull,
-                               extCallback_t *callback);
+extern int extRegisterCallback(GPIO_TypeDef *port, uint16_t pin, EXTITrigger_TypeDef polarity, uint8_t priority, GPIOPuPd_TypeDef pull, extCallback_t *callback);
 
 #endif

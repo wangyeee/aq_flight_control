@@ -14,6 +14,8 @@
  * <h2><center>&copy; COPYRIGHT 2009 CooCox </center></h2>
  *******************************************************************************
  */
+
+
 #ifndef _MUTEX_H
 #define _MUTEX_H
 
@@ -31,17 +33,22 @@
  * @brief    Mutex control block
  * @details  This struct is use to mutex management.
  */
-typedef struct Mutex {
+typedef struct Mutex
+{
     U8       originalPrio;              /*!< Mutex priority.                  */
     U8       mutexFlag;                 /*!< Mutex flag.                      */
     OS_TID   taskID;                    /*!< Task ID.                         */
     OS_TID   hipriTaskID;               /*!< Mutex ID.                        */
     P_OSTCB  waittingList;              /*!< waitting the Mutex.              */
-} MUTEX,*P_MUTEX;
+}MUTEX,*P_MUTEX;
+
+
 /*---------------------------- Variable declare ------------------------------*/
 /*!< Table use to save mutex control block.                                   */
 extern MUTEX      MutexTbl[CFG_MAX_MUTEX];
 extern OS_MutexID MutexFreeID;      /*!< A pointer to next vliad resource ID. */
+
+
 /*---------------------------- Function declare ------------------------------*/
 extern void   RemoveMutexList(P_OSTCB ptcb);
 

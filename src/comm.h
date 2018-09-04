@@ -19,25 +19,24 @@
 #ifndef _comm_h
 #define _comm_h
 
-#include "aq.h"
 #include "serial.h"
 #include <stdio.h>
 
-#define COMM_STACK_SIZE  768   // must be evenly divisible by 8
-#define COMM_PRIORITY  40
-#define COMM_NOTICE_DEPTH 36    // must be power of 2
+#define COMM_STACK_SIZE    336   // must be evenly divisible by 8
+#define COMM_PRIORITY      40
+#define COMM_NOTICE_DEPTH  36    // must be power of 2
 #define COMM_NOTICE_LENGTH 64
 
-#define COMM_LOG_BUF_SIZE 512
-#define COMM_LOG_FNAME  "MSG"  // comment out to disable logging
+#define COMM_LOG_BUF_SIZE  512
+#define COMM_LOG_FNAME    "MSG"  // comment out to disable logging
 
 #ifdef HAS_USB
 #define COMM_NUM_PORTS  8
-#define COMM_USB_PORT  7
+#define COMM_USB_PORT   7
 #else
 #define COMM_NUM_PORTS  7
 #endif
-#define COMM_CAN_PORT  4
+#define COMM_CAN_PORT   4
 
 #define COMM_DISABLE_FLOW_CONTROL1
 #define COMM_DISABLE_FLOW_CONTROL2
@@ -143,7 +142,7 @@ typedef struct {
     uint8_t noticePointer;
     int8_t noticeQueueInit;
     uint8_t logHandle;
-} CC_ALIGNED commStruct_t;
+} commStruct_t;
 
 extern commStruct_t commData;
 

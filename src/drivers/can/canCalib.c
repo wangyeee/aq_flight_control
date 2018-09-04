@@ -14,7 +14,7 @@
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
     Copyright (c) 2011-2014  Bill Nesbitt
-*/
+ */
 
 #include "aq.h"
 #include "canCalib.h"
@@ -53,7 +53,7 @@ void canTxIMUData(uint32_t loop) {
         canCalibData.txMessage.IDE = CAN_ID_STD;
         canCalibData.txMessage.DLC = 8;  // two floats
 
-// odd - can only stuff 3 mailboxes at a time
+        // odd - can only stuff 3 mailboxes at a time
         if (loop & 0x1) {
             // ACCX & ACCY
             canCalibData.txMessage.StdId = CAN_IMU_VALUES_1 | CAN_ID;
@@ -124,7 +124,7 @@ void canTxIMUData(uint32_t loop) {
 
             canCalibData.lastTxMailbox = CAN_Transmit(CANx, &canCalibData.txMessage);
         }
-// even
+        // even
         else {
             // GYOX & GYOY
             canCalibData.txMessage.StdId = CAN_IMU_VALUES_4 | CAN_ID;

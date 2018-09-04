@@ -48,19 +48,19 @@ typedef struct {
     uint32_t lastCaptureValue;
     uint8_t  lastChannel;      // index into channels[]
     uint8_t  previousChannels;      // number of channels seen in previous frame;
-    // used to autodetermine number of channels
+         // used to autodetermine number of channels
     uint8_t  numberChannels;      // autodetermined number of channels or 0
     uint8_t  stableChannelsCount;     // number of frames with the same number of channels
     int8_t   signalQuality;      // -1 critical error (lost frame)
-    // 0 non-critical error (invalid pulse)
-    // 1 normal operation (frame parsed OK)
+         // 0 non-critical error (invalid pulse)
+         // 1 normal operation (frame parsed OK)
     uint8_t  inputValid;      // 1 valid
-    // 0 current frame is invalid
+         // 0 current frame is invalid
 
     int16_t  channels[PPM_MAX_CHANNELS];    // channel values are stored here after successful capture of the whole frame
     int16_t tmp_channels[PPM_MAX_CHANNELS]; // temporary channel values while capturing the frame
 
-} CC_ALIGNED ppmStruct_t;
+} ppmStruct_t;
 
 extern void ppmInit(radioInstance_t *r);
 extern int  ppmDataAvailable(radioInstance_t *r);

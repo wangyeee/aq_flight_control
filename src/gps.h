@@ -78,7 +78,7 @@ typedef struct {
     unsigned long lastVelUpdate;
     unsigned long lastMessage;
     signed long microsPerSecond;
-} CC_ALIGNED gpsStruct_t;
+} gpsStruct_t;
 
 extern gpsStruct_t gpsData;
 

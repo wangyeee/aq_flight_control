@@ -14,8 +14,12 @@
  * <h2><center>&copy; COPYRIGHT 2009 CooCox </center></h2>
  *******************************************************************************
  */
+
+
 #ifndef  _CPU_H
 #define  _CPU_H
+
+
 #define NVIC_ST_CTRL    (*((volatile U32 *)0xE000E010))
 #define NVIC_ST_RELOAD  (*((volatile U32 *)0xE000E014))
 #define RELOAD_VAL      ((U32)(( (U32)CFG_CPU_FREQ) / (U32)CFG_SYSTICK_FREQ) -1)
@@ -30,6 +34,8 @@
 /*!< Initialize PendSV,SVC and SysTick interrupt priority to lowest.          */
 #define InitInt()       NVIC_SYS_PRI2 |=  0xFF000000;\
                         NVIC_SYS_PRI3 |=  0xFFFF0000
+
+
 /*---------------------------- Variable declare ------------------------------*/
 extern U64      OSTickCnt;          /*!< Counter for current system ticks.    */
 

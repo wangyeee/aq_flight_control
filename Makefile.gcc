@@ -23,8 +23,8 @@ GDB=$(TOOLCHAIN_PREFIX)-gdb
 PROJ_ROOT?=$(CURDIR)
 
 # AQM4 v2 (v8.6)
-BRD_VER?=8
-BRD_REV?=6
+BRD_VER?=9
+BRD_REV?=1
 
 # Un-comment this to enable DIMU for AQ6
 #DIMU_VER:=11
@@ -32,16 +32,19 @@ DIMU_VER?=0
 TARGET:=$(PROJ)$(BRD_VER).$(BRD_REV)
 
 BUILD_TYPE?=Release
+DEBUG_DEFS:=
 
 ifeq ($(findstring Debug, $(BUILD_TYPE)), Debug)
 BUILD_TYPE=Debug
-BUILD_DIR=$(PROJ_ROOT)/../build/Debug/obj
-BIN_DIR=$(PROJ_ROOT)/../build/Debug
-OPTLVL=0
+BUILD_DIR=$(PROJ_ROOT)/build/Debug/obj
+BIN_DIR=$(PROJ_ROOT)/build/Debug
+# TODO test only
+OPTLVL=2
 DBG=-g3
+DEBUG_DEFS=-DDEBUG_ENABLED
 else
-BUILD_DIR=$(PROJ_ROOT)/../build/Release/obj
-BIN_DIR=$(PROJ_ROOT)/../build/Release
+BUILD_DIR=$(PROJ_ROOT)/build/Release/obj
+BIN_DIR=$(PROJ_ROOT)/build/Release
 OPTLVL=2
 DBG=
 endif
@@ -112,6 +115,7 @@ SRC+=rtc.c
 SRC+=sdio.c
 SRC+=serial.c
 SRC+=spi.c
+SRC+=i2c.c
 SRC+=usb.c
 SRC+=usbd_cdc_msc_core.c
 SRC+=usbd_core.c
@@ -157,6 +161,7 @@ SRC+=hmc5983.c
 SRC+=max21100.c
 SRC+=mpu6000.c
 SRC+=ms5611.c
+SRC+=mag3110.c
 SRC+=imu.c
 SRC+=alt_ukf.c
 SRC+=nav.c
@@ -164,6 +169,7 @@ SRC+=nav_ukf.c
 SRC+=filer.c
 SRC+=logger.c
 SRC+=algebra.c
+SRC+=wmm.c
 SRC+=calib.c
 SRC+=compass.c
 SRC+=rotations.c
@@ -256,6 +262,7 @@ CDEFS+=-DARM_MATH_CM4
 CDEFS+=-DBOARD_VERSION=$(BRD_VER)
 CDEFS+=-DBOARD_REVISION=$(BRD_REV)
 CDEFS+=-DDIMU_VERSION=$(DIMU_VER)
+CDEFS+=$(DEBUG_DEFS)
 
 MCUFLAGS=-mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -fsingle-precision-constant -finline-functions -Wdouble-promotion -std=gnu99
 COMMONFLAGS=-O$(OPTLVL) $(DBG) -Wall -ffunction-sections -fdata-sections
@@ -270,7 +277,7 @@ DEP := $(OBJ:.o=.d)
 .PHONY: clean all elf bin
 .IGNORE: sym
 
-all: elf bin
+all: elf
 
 ifeq ($(findstring clean, $(MAKECMDGOALS)),)
 -include $(DEP)
@@ -282,13 +289,13 @@ $(BUILD_DIR)/%.o: %.c
 	@echo [CC] $(notdir $<)
 	@$(CC) $(CFLAGS) -MMD -MP -MF $(@:%.o=%.d) -MT $(@) -c -o $@ $<
 
+#bin: elf
+
 elf: $(OBJ)
 	@echo [AS] $(notdir $(STARTUP)/$(ASRC))
 	@$(AS) -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -o $(ASRC:%.s=$(BUILD_DIR)/%.o) $(STARTUP)/$(ASRC)
 	@echo [LD] $(notdir $(BIN_DIR)/$(TARGET).elf)
 	@$(LD) $(LDFLAGS) -o $(BIN_DIR)/$(TARGET).elf $(OBJ) $(ASRC:%.s=$(BUILD_DIR)/%.o) $(LDLIBS)
-
-bin: elf
 	@echo [HEX] $(notdir $(BIN_DIR)/$(TARGET).hex)
 	@$(OBJCOPY) -O ihex $(BIN_DIR)/$(TARGET).elf $(BIN_DIR)/$(TARGET).hex
 	@echo [BIN] $(notdir $(BIN_DIR)/$(TARGET).bin)

@@ -12,8 +12,12 @@
  * <h2><center>&copy; COPYRIGHT 2009 CooCox </center></h2>
  *******************************************************************************
  */
+
+
 /*---------------------------- Include ---------------------------------------*/
 #include <coocox.h>
+
+
 #if  CFG_MM_EN > 0
 /*---------------------------- Variable Define -------------------------------*/
 MM    MemoryTbl[CFG_MAX_MM] = {{0}};/*!< Table which save memory control block. */
@@ -33,30 +37,37 @@ U32   MemoryIDVessel = 0;         /*!< Memory ID container.                   */
  * @details    This function is called to create a memory partition.
  *******************************************************************************
  */
-OS_MMID CoCreateMemPartition(U8* memBuf,U32 blockSize,U32 blockNum) {
+OS_MMID CoCreateMemPartition(U8* memBuf,U32 blockSize,U32 blockNum)
+{
     U8        i,j;
     U8        *memory;
     P_MemBlk  memBlk;
     memory = memBuf;
 
 #if CFG_PAR_CHECKOUT_EN >0              /* Check validity of parameter        */
-    if(memBuf == Co_NULL) {
+    if(memBuf == Co_NULL)
+    {
         return  E_CREATE_FAIL;
     }
-    if(blockSize == 0) {
+    if(blockSize == 0)
+    {
         return  E_CREATE_FAIL;
     }
-    if((blockSize&0x3) != 0) {
+    if((blockSize&0x3) != 0)
+    {
         return  E_CREATE_FAIL;
     }
-    if(blockNum<=1) {
+    if(blockNum<=1)
+    {
         return  E_CREATE_FAIL;
     }
 #endif
 
     OsSchedLock();                      /* Lock schedule                      */
-    for(i = 0; i < CFG_MAX_MM; i++) {
-        if((MemoryIDVessel & (1 << i)) == 0) { /* Is free memory ID?           */
+    for(i = 0; i < CFG_MAX_MM; i++)
+    {
+        if((MemoryIDVessel & (1 << i)) == 0)  /* Is free memory ID?           */
+        {
             MemoryIDVessel |= (1<<i);   /* Yes,assign ID to this memory block */
             OsSchedUnlock();            /* Unlock schedule                    */
             MemoryTbl[i].memAddr   = memory;/* Initialize memory control block*/
@@ -64,7 +75,8 @@ OS_MMID CoCreateMemPartition(U8* memBuf,U32 blockSize,U32 blockNum) {
             MemoryTbl[i].blockSize = blockSize;
             MemoryTbl[i].blockNum  = blockNum;
             memBlk  = (P_MemBlk)memory;     /* Bulid list in this memory block*/
-            for(j=0; j<blockNum-1; j++) {
+            for(j=0;j<blockNum-1;j++)
+            {
                 memory = memory+blockSize;
                 memBlk->nextBlock = (P_MemBlk)memory;
                 memBlk = memBlk->nextBlock;
@@ -76,6 +88,8 @@ OS_MMID CoCreateMemPartition(U8* memBuf,U32 blockSize,U32 blockNum) {
     OsSchedUnlock();                    /* Unlock schedule                    */
     return E_CREATE_FAIL;               /* Error return                       */
 }
+
+
 /**
  *******************************************************************************
  * @brief      Delete a memory partition
@@ -88,13 +102,16 @@ OS_MMID CoCreateMemPartition(U8* memBuf,U32 blockSize,U32 blockNum) {
  * @details    This function is called to Delete a memory partition.
  *******************************************************************************
  */
-StatusType CoDelMemoryPartition(OS_MMID mmID) {
+StatusType CoDelMemoryPartition(OS_MMID mmID)
+{
     P_MM  memCtl;
 #if CFG_PAR_CHECKOUT_EN >0              /* Check validity of parameter        */
-    if(mmID >= CFG_MAX_MM) {
+    if(mmID >= CFG_MAX_MM)
+    {
         return E_INVALID_ID;
     }
-    if( ((1<<mmID)&MemoryIDVessel) == 0) {
+    if( ((1<<mmID)&MemoryIDVessel) == 0)
+    {
         return E_INVALID_ID;
     }
 #endif
@@ -109,6 +126,8 @@ StatusType CoDelMemoryPartition(OS_MMID mmID) {
     memCtl->blockNum  = 0;
     return E_OK;                        /* Return OK                          */
 }
+
+
 /**
  *******************************************************************************
  * @brief      Get free block number in a memory partition
@@ -123,16 +142,19 @@ StatusType CoDelMemoryPartition(OS_MMID mmID) {
  *             partition.
  *******************************************************************************
  */
-U32 CoGetFreeBlockNum(OS_MMID mmID,StatusType* perr) {
+U32 CoGetFreeBlockNum(OS_MMID mmID,StatusType* perr)
+{
     U32       fbNum;
     P_MM      memCtl;
     P_MemBlk  memBlk;
 #if CFG_PAR_CHECKOUT_EN >0              /* Check validity of parameter        */
-    if(mmID >= CFG_MAX_MM) {
+    if(mmID >= CFG_MAX_MM)
+    {
         *perr = E_INVALID_ID;
         return 0;
     }
-    if( ((1<<mmID)&MemoryIDVessel) == 0) {
+    if( ((1<<mmID)&MemoryIDVessel) == 0)
+    {
         *perr = E_INVALID_ID;           /* Invalid memory id,return 0         */
         return 0;
     }
@@ -141,7 +163,8 @@ U32 CoGetFreeBlockNum(OS_MMID mmID,StatusType* perr) {
     OsSchedLock();                      /* Lock schedule                      */
     memBlk = (P_MemBlk)(memCtl->freeBlock);/* Get the free item in memory list*/
     fbNum  = 0;
-    while(memBlk != Co_NULL) {             /* Get counter of free item           */
+    while(memBlk != Co_NULL)               /* Get counter of free item           */
+    {
         fbNum++;
         memBlk = memBlk->nextBlock;     /* Get next free iterm                */
     }
@@ -149,6 +172,8 @@ U32 CoGetFreeBlockNum(OS_MMID mmID,StatusType* perr) {
     *perr = E_OK;
     return fbNum;                       /* Return the counter of free item    */
 }
+
+
 /**
  *******************************************************************************
  * @brief      Get a memory buffer from memory partition
@@ -161,20 +186,24 @@ U32 CoGetFreeBlockNum(OS_MMID mmID,StatusType* perr) {
  * @details    This function is called to Delete a memory partition.
  *******************************************************************************
  */
-void* CoGetMemoryBuffer(OS_MMID mmID) {
+void* CoGetMemoryBuffer(OS_MMID mmID)
+{
     P_MM      memCtl;
     P_MemBlk  memBlk;
 #if CFG_PAR_CHECKOUT_EN >0              /* Check validity of parameter        */
-    if(mmID >= CFG_MAX_MM) {
+    if(mmID >= CFG_MAX_MM)
+    {
         return Co_NULL;
     }
-    if( ((1<<mmID)&MemoryIDVessel)  == 0) {
+    if( ((1<<mmID)&MemoryIDVessel)  == 0)
+    {
         return Co_NULL;
     }
 #endif
     memCtl = &MemoryTbl[mmID];
     OsSchedLock();                      /* Lock schedule                      */
-    if(memCtl->freeBlock == Co_NULL ) {  /* Is there no free item in memory list */
+    if(memCtl->freeBlock == Co_NULL )    /* Is there no free item in memory list */
+    {
         OsSchedUnlock();                /* Unlock schedule                    */
         return Co_NULL;                    /* Yes,error return                   */
     }
@@ -183,6 +212,8 @@ void* CoGetMemoryBuffer(OS_MMID mmID) {
     OsSchedUnlock();                    /* Unlock schedule                    */
     return memBlk;                      /* Return free memory block address   */
 }
+
+
 
 /**
  *******************************************************************************
@@ -198,30 +229,37 @@ void* CoGetMemoryBuffer(OS_MMID mmID) {
  * @details    This function is called to Delete a memory partition.
  *******************************************************************************
  */
-StatusType CoFreeMemoryBuffer(OS_MMID mmID,void* buf) {
+StatusType CoFreeMemoryBuffer(OS_MMID mmID,void* buf)
+{
     P_MM      memCtl;
     P_MemBlk  memBlk;
 #if CFG_PAR_CHECKOUT_EN >0              /* Check validity of parameter        */
-    if(mmID >= CFG_MAX_MM) {
+    if(mmID >= CFG_MAX_MM)
+    {
         return E_INVALID_ID;
     }
-    if( ((1<<mmID)&MemoryIDVessel) == 0) {
+    if( ((1<<mmID)&MemoryIDVessel) == 0)
+    {
         return E_INVALID_ID;
     }
-    if(buf == Co_NULL) {
+    if(buf == Co_NULL)
+    {
         return E_INVALID_PARAMETER;
     }
 #endif
 
     memCtl = &MemoryTbl[mmID];
 #if CFG_PAR_CHECKOUT_EN >0              /* Check validity of parameter        */
-    if((U32)buf < (U32)(memCtl->memAddr)) {
+    if((U32)buf < (U32)(memCtl->memAddr))
+    {
         return E_INVALID_PARAMETER;
     }
-    if((U32)buf > (U32)(memCtl->memAddr + memCtl->blockSize*memCtl->blockNum)) {
+    if((U32)buf > (U32)(memCtl->memAddr + memCtl->blockSize*memCtl->blockNum))
+    {
         return E_INVALID_PARAMETER;
     }
-    if(((U32)buf - (U32)(memCtl->memAddr))%(memCtl->blockSize) != 0) {
+    if(((U32)buf - (U32)(memCtl->memAddr))%(memCtl->blockSize) != 0)
+    {
         return E_INVALID_PARAMETER;
     }
 #endif

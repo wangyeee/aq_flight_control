@@ -31,6 +31,8 @@
 #define __USBD_MEM_H
 /* Includes ------------------------------------------------------------------*/
 #include "usbd_def.h"
+
+
 /** @addtogroup STM32_USB_OTG_DEVICE_LIBRARY
   * @{
   */
@@ -47,25 +49,30 @@
 /**
   * @}
   */
+
+
 /** @defgroup USBD_MEM_Exported_TypesDefinitions
   * @{
   */
 
-typedef struct _USBD_STORAGE {
-    int8_t (* Init) (uint8_t lun);
-    int8_t (* GetCapacity) (uint8_t lun, uint32_t *block_num, uint32_t *block_size);
-    int8_t (* IsReady) (uint8_t lun);
-    int8_t (* IsWriteProtected) (uint8_t lun);
-    int8_t (* Read) (uint8_t lun, uint8_t *buf, uint32_t blk_addr, uint16_t blk_len);
-    int8_t (* Write)(uint8_t lun, uint8_t *buf, uint32_t blk_addr, uint16_t blk_len);
-    int8_t (* GetMaxLun)(void);
-    int8_t *pInquiry;
-    int8_t (* Eject) (uint8_t lun);
+typedef struct _USBD_STORAGE
+{
+  int8_t (* Init) (uint8_t lun);
+  int8_t (* GetCapacity) (uint8_t lun, uint32_t *block_num, uint32_t *block_size);
+  int8_t (* IsReady) (uint8_t lun);
+  int8_t (* IsWriteProtected) (uint8_t lun);
+  int8_t (* Read) (uint8_t lun, uint8_t *buf, uint32_t blk_addr, uint16_t blk_len);
+  int8_t (* Write)(uint8_t lun, uint8_t *buf, uint32_t blk_addr, uint16_t blk_len);
+  int8_t (* GetMaxLun)(void);
+  int8_t *pInquiry;
+  int8_t (* Eject) (uint8_t lun);
 
-} USBD_STORAGE_cb_TypeDef;
+}USBD_STORAGE_cb_TypeDef;
 /**
   * @}
   */
+
+
 
 /** @defgroup USBD_MEM_Exported_Macros
   * @{

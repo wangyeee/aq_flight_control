@@ -19,7 +19,6 @@
 #ifndef _usb_h
 #define _usb_h
 
-#include "aq.h"
 #include <stdint.h>
 
 #define USB_RX_BUFSIZE  512
@@ -40,7 +39,7 @@ typedef struct {
     uint16_t rxBufHead;
     uint16_t rxBufTail;
     lineCoding_t lineCoding;
-} CC_ALIGNED usbStruct_t;
+} usbStruct_t;
 
 extern usbStruct_t usbData;
 

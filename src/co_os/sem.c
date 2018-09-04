@@ -12,6 +12,8 @@
  * <h2><center>&copy; COPYRIGHT 2009 CooCox </center></h2>
  *******************************************************************************
  */
+
+
 /*---------------------------- Include ---------------------------------------*/
 #include <coocox.h>
 
@@ -31,27 +33,33 @@
  * @details    This function is called to create a semaphore.
  *******************************************************************************
  */
-OS_EventID CoCreateSem(U16 initCnt,U16 maxCnt,U8 sortType) {
+OS_EventID CoCreateSem(U16 initCnt,U16 maxCnt,U8 sortType)
+{
     P_ECB pecb;
 #if CFG_PAR_CHECKOUT_EN >0
-    if(initCnt > maxCnt) {
+    if(initCnt > maxCnt)
+    {
         return E_CREATE_FAIL;           /* Invalid 'initCnt' or 'maxCnt'      */
     }
 
-    if ((sortType != EVENT_SORT_TYPE_FIFO) && (sortType != EVENT_SORT_TYPE_PRIO)) {
+    if ((sortType != EVENT_SORT_TYPE_FIFO) && (sortType != EVENT_SORT_TYPE_PRIO))
+    {
         return E_CREATE_FAIL;           /* Illegal sort type,return error     */
     }
 #endif
 
     /* Create a semaphore type event control block                            */
     pecb = CreatEvent(EVENT_TYPE_SEM,sortType,Co_NULL);
-    if(pecb == Co_NULL) {                  /* If failed to create event block    */
+    if(pecb == Co_NULL)                    /* If failed to create event block    */
+    {
         return E_CREATE_FAIL;
     }
     pecb->eventCounter        = initCnt;/* Initialize event block             */
     pecb->initialEventCounter = maxCnt;
     return (pecb->id);                  /* Return event id                    */
 }
+
+
 /**
  *******************************************************************************
  * @brief      Delete a semaphore
@@ -71,11 +79,13 @@ OS_EventID CoCreateSem(U16 initCnt,U16 maxCnt,U8 sortType) {
  * @note
  *******************************************************************************
  */
-StatusType CoDelSem(OS_EventID id,U8 opt) {
+StatusType CoDelSem(OS_EventID id,U8 opt)
+{
     P_ECB pecb;
 
 #if CFG_PAR_CHECKOUT_EN >0
-    if(id >= CFG_MAX_EVENT) {
+    if(id >= CFG_MAX_EVENT)
+    {
         return E_INVALID_ID;
     }
 #endif
@@ -83,13 +93,16 @@ StatusType CoDelSem(OS_EventID id,U8 opt) {
     pecb = &EventTbl[id];
 
 #if CFG_PAR_CHECKOUT_EN >0
-    if(pecb->eventType != EVENT_TYPE_SEM) {
+    if(pecb->eventType != EVENT_TYPE_SEM)
+    {
         return E_INVALID_ID;             /* The event type is not semaphore   */
     }
 #endif
 
     return (DeleteEvent(pecb,opt));/* Delete the semaphore event control block*/
 }
+
+
 /**
  *******************************************************************************
  * @brief      Accept a semaphore without waitting
@@ -103,30 +116,38 @@ StatusType CoDelSem(OS_EventID id,U8 opt) {
  * @details    This function is called accept a semaphore without waitting.
  *******************************************************************************
  */
-StatusType CoAcceptSem(OS_EventID id) {
+StatusType CoAcceptSem(OS_EventID id)
+{
     P_ECB pecb;
 #if CFG_PAR_CHECKOUT_EN >0
-    if(id >= CFG_MAX_EVENT) {
+    if(id >= CFG_MAX_EVENT)
+    {
         return E_INVALID_ID;
     }
 #endif
 
     pecb = &EventTbl[id];
 #if CFG_PAR_CHECKOUT_EN >0
-    if( pecb->eventType != EVENT_TYPE_SEM) {
+    if( pecb->eventType != EVENT_TYPE_SEM)
+    {
         return E_INVALID_ID;
     }
 #endif
     OsSchedLock();
-    if(pecb->eventCounter > 0) { /* If semaphore is positive,resource available */
+    if(pecb->eventCounter > 0) /* If semaphore is positive,resource available */
+    {
         OsSchedUnlock();
         pecb->eventCounter--;         /* Decrement semaphore only if positive */
         return E_OK;
-    } else {                            /* Resource is not available          */
+    }
+    else                                /* Resource is not available          */
+    {
         OsSchedUnlock();
         return E_SEM_EMPTY;
     }
 }
+
+
 /**
  *******************************************************************************
  * @brief       wait for a semaphore
@@ -147,40 +168,51 @@ StatusType CoAcceptSem(OS_EventID id) {
  * @note       IF this function is called in ISR,nothing to do and return immediately.
  *******************************************************************************
  */
-StatusType CoPendSem(OS_EventID id,U32 timeout) {
+StatusType CoPendSem(OS_EventID id,U32 timeout)
+{
     P_ECB   pecb;
     P_OSTCB  curTCB;
-    if(OSIntNesting > 0) {              /* If the caller is ISR               */
+    if(OSIntNesting > 0)                /* If the caller is ISR               */
+    {
         return E_CALL;
     }
 #if CFG_PAR_CHECKOUT_EN >0
-    if(id >= CFG_MAX_EVENT) {
+    if(id >= CFG_MAX_EVENT)
+    {
         return E_INVALID_ID;
     }
 #endif
 
     pecb = &EventTbl[id];
 #if CFG_PAR_CHECKOUT_EN >0
-    if(pecb->eventType != EVENT_TYPE_SEM) {
+    if(pecb->eventType != EVENT_TYPE_SEM)
+    {
         return E_INVALID_ID;
     }
 #endif
-    if(OSSchedLock != 0) {              /* Schdule is locked?                 */
+    if(OSSchedLock != 0)                /* Schdule is locked?                 */
+    {
         return E_OS_IN_LOCK;            /* Yes,error return                   */
     }
     OsSchedLock();
-    if(pecb->eventCounter > 0) { /* If semaphore is positive,resource available */
+    if(pecb->eventCounter > 0) /* If semaphore is positive,resource available */
+    {
         pecb->eventCounter--;         /* Decrement semaphore only if positive */
         OsSchedUnlock();
         return E_OK;
-    } else {                            /* Resource is not available          */
+    }
+    else                                /* Resource is not available          */
+    {
         OsSchedUnlock();
         curTCB = TCBRunning;
-        if(timeout == 0) {              /* If time-out is not configured      */
+        if(timeout == 0)                /* If time-out is not configured      */
+        {
             EventTaskToWait(pecb,curTCB); /* Block task until event occurs    */
             curTCB->pmail = Co_NULL;
             return E_OK;
-        } else {                        /* If time-out is configured          */
+        }
+        else                            /* If time-out is configured          */
+        {
             OsSchedLock();
 
             /* Block task until event or timeout occurs                       */
@@ -188,15 +220,20 @@ StatusType CoPendSem(OS_EventID id,U32 timeout) {
             InsertDelayList(curTCB,timeout);
 
             OsSchedUnlock();
-            if (curTCB->pmail == Co_NULL) { /* If pmail is Co_NULL, time-out occurred*/
+            if (curTCB->pmail == Co_NULL)  /* If pmail is Co_NULL, time-out occurred*/
+            {
                 return E_TIMEOUT;
-            } else {              /* Event occurred or event have been deleted*/
+            }
+            else                  /* Event occurred or event have been deleted*/
+            {
                 curTCB->pmail = Co_NULL;
                 return E_OK;
             }
         }
     }
 }
+
+
 /**
  *******************************************************************************
  * @brief       Post a semaphore
@@ -212,23 +249,27 @@ StatusType CoPendSem(OS_EventID id,U32 timeout) {
  * @note
  *******************************************************************************
  */
-StatusType CoPostSem(OS_EventID id) {
+StatusType CoPostSem(OS_EventID id)
+{
     P_ECB pecb;
 #if CFG_PAR_CHECKOUT_EN >0
-    if(id >= CFG_MAX_EVENT) {
+    if(id >= CFG_MAX_EVENT)
+    {
         return E_INVALID_ID;
     }
 #endif
 
     pecb = &EventTbl[id];
 #if CFG_PAR_CHECKOUT_EN >0
-    if(pecb->eventType != EVENT_TYPE_SEM) { /* Invalid event control block type */
+    if(pecb->eventType != EVENT_TYPE_SEM) /* Invalid event control block type */
+    {
         return E_INVALID_ID;
     }
 #endif
 
     /* Make sure semaphore will not overflow */
-    if(pecb->eventCounter == pecb->initialEventCounter) {
+    if(pecb->eventCounter == pecb->initialEventCounter)
+    {
         return E_SEM_FULL;    /* The counter of Semaphore reach the max number*/
     }
     OsSchedLock();
@@ -238,6 +279,8 @@ StatusType CoPostSem(OS_EventID id) {
     return E_OK;
 
 }
+
+
 /**
  *******************************************************************************
  * @brief       Post a semaphore in ISR
@@ -255,15 +298,22 @@ StatusType CoPostSem(OS_EventID id) {
  *******************************************************************************
  */
 #if CFG_MAX_SERVICE_REQUEST > 0
-StatusType isr_PostSem(OS_EventID id) {
-    if(OSSchedLock > 0) {       /* If scheduler is locked,(the caller is ISR) */
+StatusType isr_PostSem(OS_EventID id)
+{
+    if(OSSchedLock > 0)         /* If scheduler is locked,(the caller is ISR) */
+    {
         /* Initiate a post service handling request */
-        if(InsertInSRQ(SEM_REQ,id,Co_NULL) == Co_FALSE) {
+        if(InsertInSRQ(SEM_REQ,id,Co_NULL) == Co_FALSE)
+        {
             return E_SEV_REQ_FULL;        /* If service request queue is full */
-        } else {                          /* Operate successfully             */
+        }
+        else                              /* Operate successfully             */
+        {
             return E_OK;
         }
-    } else {
+    }
+    else
+    {
         return(CoPostSem(id));            /* Post semaphore                   */
     }
 }

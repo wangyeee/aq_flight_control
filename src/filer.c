@@ -14,7 +14,7 @@
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
     Copyright (c) 2011-2014  Bill Nesbitt
-*/
+ */
 
 #include "aq.h"
 #include "filer.h"
@@ -33,6 +33,11 @@ OS_STK *filerTaskStack;
 // buffer used by logger and USB MSC drivers
 uint8_t filerBuf[FILER_BUF_SIZE] __attribute__ ((aligned (16)));
 
+#ifdef SDIO_NO_CD
+// workaround for defect tf card slot
+void sdioIntHandler(void);
+#endif
+
 static int32_t filerProcessWrite(filerFileStruct_t *f) {
     uint32_t res;
     UINT bytes;
@@ -41,7 +46,6 @@ static int32_t filerProcessWrite(filerFileStruct_t *f) {
         res = f_open(&f->fp, f->fileName, FA_CREATE_ALWAYS | FA_WRITE);
         if (res != FR_OK)
             return FILER_STATUS_ERR_OPEN;
-
         f->open = 1;
     }
 
@@ -117,7 +121,7 @@ static int32_t filerProcessStream(filerFileStruct_t *f, uint8_t final) {
     uint32_t size;
 
     if (!f->open) {
-        sprintf(filerData.buf, "%03d-%s.LOG", filerData.session, f->fileName);
+        sprintf(filerData.buf, "%03d-%s.LOG", (int) filerData.session, f->fileName);
         res = f_open(&f->fp, filerData.buf, FA_CREATE_ALWAYS | FA_WRITE);
         if (res != FR_OK)
             return FILER_STATUS_ERR_OPEN;
@@ -200,7 +204,7 @@ int32_t filerInitFS(void) {
     if (res == FR_OK) {
         f_read(&filerData.sess, filerData.buf, sizeof(filerData.buf), &bytes);
         if (bytes > 1) {
-            if (sscanf(filerData.buf, "%d\n", &filerData.session) < 1)
+            if (sscanf(filerData.buf, "%d\n", (int*) (&filerData.session)) < 1)
                 filerData.session = 0;
         }
         f_close(&filerData.sess);
@@ -214,14 +218,15 @@ int32_t filerInitFS(void) {
         filerDebug("cannot create config file", res);
         return -1;
     }
-    sprintf(filerData.buf, "%d\n", filerData.session);
+    sprintf(filerData.buf, "%d\n", (int) filerData.session);
     res = f_write(&filerData.sess, filerData.buf, strlen(filerData.buf), &bytes);
 
     f_close(&filerData.sess);
 
     if (res != FR_OK) {
         return -1;
-    } else {
+    }
+    else {
         filerDebug("created new session", filerData.session);
 
         return 0;
@@ -234,7 +239,11 @@ void filerTaskCode(void *p) {
 
     AQ_NOTICE("Filer task started\n");
 
-filerRestart:
+    filerRestart:
+
+#ifdef SDIO_NO_CD
+    sdioIntHandler();
+#endif
 
 #ifdef HAS_USB
     // does USB MSC want or have the uSD card?
@@ -243,12 +252,13 @@ filerRestart:
             if (disk_status(0) != SD_OK) {
                 if (disk_initialize(0) == SD_OK)
                     filerData.mscState = FILER_STATE_MSC_ACTIVE;
-            } else {
+            }
+            else {
                 filerData.mscState = FILER_STATE_MSC_ACTIVE;
             }
         }
 
-// check for USB suspend - TODO: clean this up
+        // check for USB suspend - TODO: clean this up
         if (usbIsSuspend())
             // reset MSC state
             filerData.mscState = FILER_STATE_MSC_DISABLE;
@@ -283,7 +293,7 @@ filerRestart:
 
     while (1) {
 #ifdef HAS_USB
-// have we been disabled for USB MSC?
+        // have we been disabled for USB MSC?
         if (filerData.mscState == FILER_STATE_MSC_REQUEST) {
             if (filerData.initialized) {
                 AQ_NOTICE("USB MSC detected - closing all files\n");
@@ -313,7 +323,8 @@ filerRestart:
 #endif
                 yield(1000);
                 goto filerRestart;
-            } else {
+            }
+            else {
                 filerData.initialized = 1;
             }
         }
@@ -330,7 +341,8 @@ filerRestart:
                     if (filerData.files[i].status < 0) {
                         filerDebug("session write error, aborting", filerData.files[i].status);
                         goto filerRestart;
-                    } else if (!((filerData.loops+i) % FILER_STREAM_SYNC)) {
+                    }
+                    else if (!((filerData.loops+i) % FILER_STREAM_SYNC)) {
                         filerProcessSync(&filerData.files[i]);
                     }
                 }

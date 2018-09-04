@@ -12,10 +12,14 @@
  * <h2><center>&copy; COPYRIGHT 2009 CooCox </center></h2>
  *******************************************************************************
  */
+
+
 /*---------------------------- Include ---------------------------------------*/
 #include <coocox.h>
 
 #if CFG_UTILITY_EN > 0
+
+
 /**
  *******************************************************************************
  * @brief      Convert tick number to time
@@ -31,7 +35,8 @@
  *******************************************************************************
  */
 #if CFG_TICK_TO_TIME_EN > 0
-void CoTickToTime(U32 ticks,U8* hour,U8* minute,U8* sec,U16* millsec) {
+void CoTickToTime(U32 ticks,U8* hour,U8* minute,U8* sec,U16* millsec)
+{
     U32 totalTime;
 
     /* Convert ticks to time*/
@@ -45,6 +50,8 @@ void CoTickToTime(U32 ticks,U8* hour,U8* minute,U8* sec,U16* millsec) {
     *hour     = totalTime;
 }
 #endif    /* CFG_TICK_TO_TIME_EN    */
+
+
 /**
  *******************************************************************************
  * @brief      Convert time to tick
@@ -61,7 +68,8 @@ void CoTickToTime(U32 ticks,U8* hour,U8* minute,U8* sec,U16* millsec) {
  *******************************************************************************
  */
 #if CFG_TIME_TO_TICK_EN > 0
-StatusType  CoTimeToTick(U8 hour,U8 minute,U8 sec,U16 millsec,U32* ticks) {
+StatusType  CoTimeToTick(U8 hour,U8 minute,U8 sec,U16 millsec,U32* ticks)
+{
 #if CFG_PAR_CHECKOUT_EN >0
     /* Validate arguments to be within range */
     if((minute > 59)||(sec > 59)||(millsec > 999))
@@ -70,7 +78,7 @@ StatusType  CoTimeToTick(U8 hour,U8 minute,U8 sec,U16 millsec,U32* ticks) {
 
     /* Convert time to ticks */
     *ticks = ((hour*3600) + (minute*60) + (sec)) * (CFG_SYSTICK_FREQ)\
-             + (millsec*CFG_SYSTICK_FREQ + 500)/1000;
+            + (millsec*CFG_SYSTICK_FREQ + 500)/1000;
     return E_OK;
 }
 #endif    /* CFG_TIME_TO_TICK_EN  */

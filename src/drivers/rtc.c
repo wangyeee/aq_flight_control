@@ -14,7 +14,7 @@
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
     Copyright (c) 2011-2014  Bill Nesbitt
-*/
+ */
 
 #include "aq.h"
 #include "rcc.h"
@@ -24,7 +24,7 @@
 #include <stdio.h>
 #include <string.h>
 
-rtcStruct_t rtcData __attribute__((section(".ccm")));
+rtcStruct_t rtcData CCM_RAM;
 
 // Sakamoto's algorithm (modified)
 // return Day of Week, 1 == Monday, 7 == Sunday
@@ -43,22 +43,21 @@ uint8_t rtcByteToBcd2(uint8_t Value) {
         Value -= 10;
     }
 
-    return  ((uint8_t)(bcdhigh << 4) | Value);
+    return ((uint8_t)(bcdhigh << 4) | Value);
 }
 
-int rtcSetDataTime(int year, int month, int day, int hour, int minute, int second) {
+int rtcSetDateTime(int year, int month, int day, int hour, int minute, int second) {
     // if RTC is not in Initialization mode
     if ((RTC->ISR & RTC_ISR_INITF) == (uint32_t)RESET) {
         RTC_WriteProtectionCmd(DISABLE);
 
-// set init mode (which takes a while)
+        // set init mode (which takes a while)
         RTC->ISR = (uint32_t)RTC_INIT_MASK;
 
-// don't wait around, instead return failure this time
+        // don't wait around, instead return failure this time
         return 0;
-    }
-    // otherwise set the clock
-    else {
+    } else {
+        // otherwise set the clock
         RTC_TimeTypeDef time;
         RTC_DateTypeDef date;
         uint32_t tmpreg;
@@ -67,12 +66,12 @@ int rtcSetDataTime(int year, int month, int day, int hour, int minute, int secon
         date.RTC_Month = month;
         date.RTC_Date = day;
         date.RTC_WeekDay = rtcDow(2000+date.RTC_Year, date.RTC_Month, date.RTC_Date);
-// RTC_SetDate(RTC_Format_BIN, &date);
+        // RTC_SetDate(RTC_Format_BIN, &date);
 
         tmpreg = (((uint32_t)rtcByteToBcd2(date.RTC_Year) << 16) | \
-                  ((uint32_t)rtcByteToBcd2(date.RTC_Month) << 8) | \
-                  ((uint32_t)rtcByteToBcd2(date.RTC_Date)) | \
-                  ((uint32_t)date.RTC_WeekDay << 13));
+                ((uint32_t)rtcByteToBcd2(date.RTC_Month) << 8) | \
+                ((uint32_t)rtcByteToBcd2(date.RTC_Date)) | \
+                ((uint32_t)date.RTC_WeekDay << 13));
 
         RTC->DR = (uint32_t)(tmpreg & RTC_DR_RESERVED_MASK);
 
@@ -80,23 +79,22 @@ int rtcSetDataTime(int year, int month, int day, int hour, int minute, int secon
         time.RTC_Minutes = minute;
         time.RTC_Seconds = second;
         time.RTC_H12 = 0x00;
-// RTC_SetTime(RTC_Format_BIN, &time);
+        // RTC_SetTime(RTC_Format_BIN, &time);
 
         tmpreg = (uint32_t)(((uint32_t)rtcByteToBcd2(time.RTC_Hours) << 16) | \
-                            ((uint32_t)rtcByteToBcd2(time.RTC_Minutes) << 8) | \
-                            ((uint32_t)rtcByteToBcd2(time.RTC_Seconds)) | \
-                            (((uint32_t)time.RTC_H12) << 16));
+                ((uint32_t)rtcByteToBcd2(time.RTC_Minutes) << 8) | \
+                ((uint32_t)rtcByteToBcd2(time.RTC_Seconds)) | \
+                (((uint32_t)time.RTC_H12) << 16));
 
         RTC->TR = (uint32_t)(tmpreg & RTC_TR_RESERVED_MASK);
 
-// allow clock to run, don't wait for synchronization
+        // allow clock to run, don't wait for synchronization
         RTC_ExitInitMode();
         RTC_WriteProtectionCmd(ENABLE);
 
-        AQ_PRINTF("RTC set: %d-%02d-%02d %02d:%02d:%02d UTC\n", date.RTC_Year+2000, date.RTC_Month, date.RTC_Date, time.RTC_Hours, time.RTC_Minutes,
-                  time.RTC_Seconds);
+        AQ_PRINTF("RTC set: %d-%02d-%02d %02d:%02d:%02d UTC\n", date.RTC_Year+2000, date.RTC_Month, date.RTC_Date, time.RTC_Hours, time.RTC_Minutes, time.RTC_Seconds);
 
-// return success
+        // return success
         return 1;
     }
 }
@@ -125,11 +123,11 @@ unsigned long rtcGetDateTime(void) {
     RTC_GetTime(RTC_Format_BIN, &time);
 
     return ((unsigned long)date.RTC_Year + 2000 - 1980)<<25 |
-           ((unsigned long)date.RTC_Month)<<21 |
-           ((unsigned long)date.RTC_Date)<<16 |
-           ((unsigned long)time.RTC_Hours)<<11 |
-           ((unsigned long)time.RTC_Minutes)<<5 |
-           ((unsigned long)time.RTC_Seconds)>>1;
+            ((unsigned long)date.RTC_Month)<<21 |
+            ((unsigned long)date.RTC_Date)<<16 |
+            ((unsigned long)time.RTC_Hours)<<11 |
+            ((unsigned long)time.RTC_Minutes)<<5 |
+            ((unsigned long)time.RTC_Seconds)>>1;
 }
 
 void rtcInit(void) {
@@ -142,7 +140,8 @@ void rtcInit(void) {
     memset((void *)&rtcData, 0, sizeof(rtcData));
 
     // Enable the PWR clock
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
+    //RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
+    RCC->APB1ENR |= RCC_APB1Periph_PWR;
 
     // Allow access to RTC
     PWR_BackupAccessCmd(ENABLE);
@@ -162,7 +161,8 @@ void rtcInit(void) {
     RTC_WaitForSynchro();
 
     // EXTI configuration
-    EXTI_ClearITPendingBit(EXTI_Line22);
+    //EXTI_ClearITPendingBit(EXTI_Line22);
+    EXTI->PR = EXTI_Line22;
     EXTI_InitStructure.EXTI_Line = EXTI_Line22;
     EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
     EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
@@ -194,13 +194,17 @@ void rtcInit(void) {
     // The Rising edge is used as active edge,
     // The TIM5 CCR4 is used to compute the frequency value
 
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM5, ENABLE);
+    //RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM5, ENABLE);
+    RCC->APB1ENR |= RCC_APB1Periph_TIM5;
 
     // Connect internally the TIM5_CH4 Input Capture to the LSI clock output
-    TIM_RemapConfig(TIM5, TIM5_LSI);
+    //TIM_RemapConfig(TIM5, TIM5_LSI);
+    TIM5->OR = TIM5_LSI;
 
     // Configure TIM5 presclaer
-    TIM_PrescalerConfig(TIM5, 0, TIM_PSCReloadMode_Immediate);
+    //TIM_PrescalerConfig(TIM5, 0, TIM_PSCReloadMode_Immediate);
+    TIM5->PSC = 0;
+    TIM5->EGR = TIM_PSCReloadMode_Immediate;
 
     TIM_ICInitStructure.TIM_Channel = TIM_Channel_4;
     TIM_ICInitStructure.TIM_ICPolarity = TIM_ICPolarity_Rising;
@@ -217,13 +221,15 @@ void rtcInit(void) {
     NVIC_Init(&NVIC_InitStructure);
 
     // go...
-    TIM_Cmd(TIM5, ENABLE);
+    //TIM_Cmd(TIM5, ENABLE);
+    TIM5->CR1 |= TIM_CR1_CEN;
 
     // Reset the flags
     TIM5->SR = 0;
 
     // Enable the CC4 Interrupt Request
-    TIM_ITConfig(TIM5, TIM_IT_CC4, ENABLE);
+    //TIM_ITConfig(TIM5, TIM_IT_CC4, ENABLE);
+    TIM5->DIER |= TIM_IT_CC4;
 
     // wait
     while (rtcData.captureNumber < 2)
@@ -254,20 +260,8 @@ void rtcInit(void) {
 
 void RTC_WKUP_IRQHandler(void) {
     if (RTC_GetITStatus(RTC_IT_WUT) != RESET) {
-// nothing at the moment
-
+        // nothing at the moment
         RTC_ClearITPendingBit(RTC_IT_WUT);
         EXTI_ClearITPendingBit(EXTI_Line22);
     }
 }
-
-// only used for calibration at startup
-//void TIM5_IRQHandler(void) {
-//    if (TIM_GetITStatus(TIM5, TIM_IT_CC4) != RESET) {
-// // Get the Input Capture value
-// rtcData.captureLSI[rtcData.captureNumber++] = TIM_GetCapture4(TIM5);
-//
-// // Clear CC4 Interrupt pending bit
-// TIM_ClearITPendingBit(TIM5, TIM_IT_CC4);
-//    }
-//}

@@ -42,6 +42,8 @@
 #define DIMU_ORIENT_MAG_X     (-in[0])
 #define DIMU_ORIENT_MAG_Y     (+in[1])
 #define DIMU_ORIENT_MAG_Z     (-in[2])
+
+
 #define DIMU_EEPROM_SPI      SPI2
 #define DIMU_EEPROM_CS_PORT     GPIOD
 #define DIMU_EEPROM_CS_PIN     GPIO_Pin_3

@@ -14,7 +14,7 @@
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
     Copyright (c) 2011-2014  Bill Nesbitt
-*/
+ */
 
 #include "aq.h"
 #include "ublox.h"
@@ -30,7 +30,7 @@
 #include <CoOS.h>
 #include <string.h>
 
-ubloxStruct_t ubloxData __attribute__((section(".ccm")));
+ubloxStruct_t ubloxData CCM_RAM;
 
 static void ubloxTxChecksumReset(void) {
     ubloxData.ubloxTxCK_A = 0;
@@ -247,12 +247,14 @@ static void ubloxVersionSpecific(int ver) {
     if (ver > 7) {
         // 5Hz for ver 8 using multiple GNSS
         ubloxSetRate((uint16_t)200);
-    } else if (ver > 6) {
+    }
+    else if (ver > 6) {
         // 10Hz for ver 7
         ubloxSetRate((uint16_t)100);
         // SBAS screwed up on v7 modules w/ v1 firmware
         ubloxSetSBAS(0);                                        // disable SBAS
-    } else {
+    }
+    else {
         // 5Hz
         ubloxSetRate((uint16_t)200);
     }
@@ -344,7 +346,8 @@ unsigned char ubloxPublish(void) {
             // position update
             ret = 1;
         }
-    } else if (ubloxData.class == UBLOX_NAV_CLASS && ubloxData.id == UBLOX_NAV_VALNED) {
+    }
+    else if (ubloxData.class == UBLOX_NAV_CLASS && ubloxData.id == UBLOX_NAV_VALNED) {
         gpsData.iTOW = ubloxData.payload.valned.iTOW;
         gpsData.velN = ubloxData.payload.valned.velN * 0.01f;           // cm => m
         gpsData.velE = ubloxData.payload.valned.velE * 0.01f;           // cm => m
@@ -362,9 +365,11 @@ unsigned char ubloxPublish(void) {
 
         // velocity update
         ret = 2;
-    } else if (ubloxData.class == UBLOX_TIM_CLASS && ubloxData.id == UBLOX_TIM_TP) {
+    }
+    else if (ubloxData.class == UBLOX_TIM_CLASS && ubloxData.id == UBLOX_TIM_TP) {
         gpsData.lastReceivedTPtowMS = ubloxData.payload.tp.towMS;
-    } else if (ubloxData.class == UBLOX_NAV_CLASS && ubloxData.id == UBLOX_NAV_DOP) {
+    }
+    else if (ubloxData.class == UBLOX_NAV_CLASS && ubloxData.id == UBLOX_NAV_DOP) {
         gpsData.pDOP = ubloxData.payload.dop.pDOP * 0.01f;
         gpsData.hDOP = ubloxData.payload.dop.hDOP * 0.01f;
         gpsData.vDOP = ubloxData.payload.dop.vDOP * 0.01f;
@@ -379,10 +384,11 @@ unsigned char ubloxPublish(void) {
 
     if (ubloxData.class == UBLOX_NAV_CLASS && ubloxData.id == UBLOX_NAV_TIMEUTC && (ubloxData.payload.timeutc.valid & 0b100)) {
         // if setting the RTC succeeds, disable the TIMEUTC message
-        if (rtcSetDataTime(ubloxData.payload.timeutc.year, ubloxData.payload.timeutc.month, ubloxData.payload.timeutc.day,
-                           ubloxData.payload.timeutc.hour, ubloxData.payload.timeutc.min, ubloxData.payload.timeutc.sec))
+        if (rtcSetDateTime(ubloxData.payload.timeutc.year, ubloxData.payload.timeutc.month, ubloxData.payload.timeutc.day,
+                ubloxData.payload.timeutc.hour, ubloxData.payload.timeutc.min, ubloxData.payload.timeutc.sec))
             ubloxEnableMessage(UBLOX_NAV_CLASS, UBLOX_NAV_TIMEUTC, 0);
-    } else if (ubloxData.class == UBLOX_MON_CLASS && ubloxData.id == UBLOX_MON_VER) {
+    }
+    else if (ubloxData.class == UBLOX_MON_CLASS && ubloxData.id == UBLOX_MON_VER) {
         ubloxData.hwVer = atoi(ubloxData.payload.ver.hwVersion) / 10000;
         ubloxVersionSpecific(ubloxData.hwVer);
     }
@@ -409,33 +415,22 @@ unsigned char ubloxPublish(void) {
             ubloxTxChecksumReset();
 
             i = ubloxData.length + 8;
-            *ptr = (i & 0xff);
-            ubloxTxChecksum(*ptr++);
-            *ptr = ((i & 0xff00) >> 8);
-            ubloxTxChecksum(*ptr++);
+            *ptr = (i & 0xff); ubloxTxChecksum(*ptr++);
+            *ptr = ((i & 0xff00) >> 8); ubloxTxChecksum(*ptr++);
 
-            *ptr = (UBLOX_SYNC1);
-            ubloxTxChecksum(*ptr++);
-            *ptr = (UBLOX_SYNC2);
-            ubloxTxChecksum(*ptr++);
-            *ptr = (ubloxData.class);
-            ubloxTxChecksum(*ptr++);
-            *ptr = (ubloxData.id);
-            ubloxTxChecksum(*ptr++);
-            *ptr = (ubloxData.length & 0xff);
-            ubloxTxChecksum(*ptr++);
-            *ptr = ((ubloxData.length & 0xff00) >> 8);
-            ubloxTxChecksum(*ptr++);
+            *ptr = (UBLOX_SYNC1); ubloxTxChecksum(*ptr++);
+            *ptr = (UBLOX_SYNC2); ubloxTxChecksum(*ptr++);
+            *ptr = (ubloxData.class); ubloxTxChecksum(*ptr++);
+            *ptr = (ubloxData.id); ubloxTxChecksum(*ptr++);
+            *ptr = (ubloxData.length & 0xff); ubloxTxChecksum(*ptr++);
+            *ptr = ((ubloxData.length & 0xff00) >> 8); ubloxTxChecksum(*ptr++);
 
             for (i = 0; i < ubloxData.length; i++) {
-                *ptr = (*((char *)&ubloxData.payload + i));
-                ubloxTxChecksum(*ptr++);
+                *ptr = (*((char *)&ubloxData.payload + i)); ubloxTxChecksum(*ptr++);
             }
 
-            *ptr = (ubloxData.ubloxRxCK_A);
-            ubloxTxChecksum(*ptr++);
-            *ptr = (ubloxData.ubloxRxCK_B);
-            ubloxTxChecksum(*ptr++);
+            *ptr = (ubloxData.ubloxRxCK_A); ubloxTxChecksum(*ptr++);
+            *ptr = (ubloxData.ubloxRxCK_B); ubloxTxChecksum(*ptr++);
 
             *ptr++ = ubloxData.ubloxTxCK_A;
             *ptr++ = ubloxData.ubloxTxCK_B;
@@ -491,7 +486,8 @@ unsigned char ubloxCharIn(unsigned char c) {
         } else if (ubloxData.length > 0) {
             ubloxData.count = 0;
             ubloxData.state = UBLOX_PAYLOAD;
-        } else {
+        }
+        else {
             ubloxData.state = UBLOX_CHECK1;
         }
         break;
@@ -506,7 +502,8 @@ unsigned char ubloxCharIn(unsigned char c) {
     case UBLOX_CHECK1:
         if (c == ubloxData.ubloxRxCK_A) {
             ubloxData.state = UBLOX_CHECK2;
-        } else {
+        }
+        else {
             ubloxData.state = UBLOX_WAIT_SYNC1;
             ubloxData.checksumErrors++;
         }
@@ -516,7 +513,8 @@ unsigned char ubloxCharIn(unsigned char c) {
         ubloxData.state = UBLOX_WAIT_SYNC1;
         if (c == ubloxData.ubloxRxCK_B) {
             return ubloxPublish();
-        } else {
+        }
+        else {
             ubloxData.checksumErrors++;
         }
         break;

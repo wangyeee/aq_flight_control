@@ -24,15 +24,20 @@
 #define  TASK_RUNNING   1               /*!< Running status of task.          */
 #define  TASK_WAITING   2               /*!< Waitting status of task.         */
 #define  TASK_DORMANT   3               /*!< Dormant status of task.          */
+
+
 #define  INVALID_ID     (U8)0xff
 #define  INVALID_VALUE  (U32)0xffffffff
 #define  MAGIC_WORD     (U32)0x5a5aa5a5
+
+
 /**
  * @struct  TCB  task.h
  * @brief   Task control blcok.
  * @details This struct use to manage task.
  */
-typedef  struct TCB {
+typedef  struct TCB
+{
     OS_STK      *stkPtr;                /*!< The current point of task.       */
     U8          prio;                   /*!< Task priority.                   */
     U8          state;                  /*!< TaSk status.                     */
@@ -61,9 +66,11 @@ typedef  struct TCB {
 #endif
 
 #if CFG_TASK_SCHEDULE_EN == 0
-    FUNCPtr     taskFuc;
-    OS_STK      *taskStk;
+ FUNCPtr     taskFuc;
+ OS_STK      *taskStk;
 #endif
+
+
 #if CFG_FLAG_EN > 0
     void*       pnode;                  /*!< Pointer to node of event flag.   */
 #endif
@@ -74,7 +81,9 @@ typedef  struct TCB {
     struct TCB  *TCBnext;               /*!< The pointer to next TCB.         */
     struct TCB  *TCBprev;               /*!< The pointer to prev TCB.         */
 
-} OSTCB,*P_OSTCB;
+}OSTCB,*P_OSTCB;
+
+
 /*---------------------------- Variable declare ------------------------------*/
 // save tcb ptr that created
 extern P_OSTCB  FreeTCB;      /*!< A pointer to free TCB.                     */
@@ -88,6 +97,8 @@ extern volatile U8   OSIntNesting; /*!< Use to indicate interrupt nesting level.
 extern volatile U8   OSSchedLock;  /*!< Schedule is lock(LOCK) or unlock(UN_LOCK).*/
 extern volatile BOOL TaskSchedReq;
 extern OS_STK   idle_stk[CFG_IDLE_STACK_SIZE];
+
+
 void  Schedule(void);         /*!< Schedule function                          */
 void  IdleTask(void* pdata);  /*!< IDLE task code                             */
 void  InsertToTCBRdyList  (P_OSTCB tcbInser);

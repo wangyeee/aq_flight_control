@@ -30,7 +30,8 @@ U64     OSTickCnt = 0;                  /*!< Current system tick counter      */
  *             task being created.
  ******************************************************************************
  */
-OS_STK *InitTaskContext(FUNCPtr task,void *param,OS_STK *pstk) {
+OS_STK *InitTaskContext(FUNCPtr task,void *param,OS_STK *pstk)
+{
     OS_STK *context;
     context  = pstk;
     *(context--) = (U32)0x01000000L;      /* xPSR         */
@@ -46,6 +47,8 @@ OS_STK *InitTaskContext(FUNCPtr task,void *param,OS_STK *pstk) {
     return (context);                   /* Returns location of new stack top. */
 }
 
+
+
 /**
  *******************************************************************************
  * @brief      System tick interrupt handler.
@@ -58,14 +61,19 @@ OS_STK *InitTaskContext(FUNCPtr task,void *param,OS_STK *pstk) {
  * @note       CoOS may schedule when exiting this ISR.
  *******************************************************************************
  */
-void SysTick_Handler(void) {
+void SysTick_Handler(void)
+{
     OSSchedLock++;                  /* Lock scheduler.                        */
     OSTickCnt++;                    /* Increment systerm time.                */
 #if CFG_TASK_WAITTING_EN >0
-    if(DlyList != Co_NULL) {           /* Have task in delay list?               */
-        if(DlyList->delayTick > 1) { /* Delay time > 1?                        */
+    if(DlyList != Co_NULL)             /* Have task in delay list?               */
+    {
+        if(DlyList->delayTick > 1)  /* Delay time > 1?                        */
+        {
             DlyList->delayTick--;   /* Decrease delay time of the list head.  */
-        } else {
+        }
+        else
+        {
             DlyList->delayTick = 0;
             isr_TimeDispose();       /* Call hander for delay time list        */
         }
@@ -73,10 +81,14 @@ void SysTick_Handler(void) {
 #endif
 
 #if CFG_TMR_EN > 0
-    if(TmrList != Co_NULL) {           /* Have timer in working?                 */
-        if(TmrList->tmrCnt > 1) {   /* Timer time > 1?                        */
+    if(TmrList != Co_NULL)             /* Have timer in working?                 */
+    {
+        if(TmrList->tmrCnt > 1)     /* Timer time > 1?                        */
+        {
             TmrList->tmrCnt--;      /* Decrease timer time of the list head.  */
-        } else {
+        }
+        else
+        {
             TmrList->tmrCnt = 0;
             isr_TmrDispose();         /* Call hander for timer list             */
         }

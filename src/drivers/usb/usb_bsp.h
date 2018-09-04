@@ -41,18 +41,24 @@
   * @brief This file is the
   * @{
   */
+
+
 /** @defgroup USB_BSP_Exported_Defines
   * @{
   */
 /**
   * @}
   */
+
+
 /** @defgroup USB_BSP_Exported_Types
   * @{
   */
 /**
   * @}
   */
+
+
 /** @defgroup USB_BSP_Exported_Macros
   * @{
   */

@@ -231,6 +231,8 @@ enum pwmPorts {
 #define PWM_IRQ_TIM2_CH4 11
 #define PWM_IRQ_TIM10_CH1 12
 #define PWM_IRQ_TIM11_CH1 13
+
+
 #define RC1_UART  UART4
 
 #define SUPERVISOR_READY_PORT GPIOA
@@ -249,6 +251,8 @@ enum pwmPorts {
 #define GPS_TP_IRQ  EXTI1_IRQn
 #define GPS_TP_HANDLER  EXTI1_IRQHandler
 #define GPS_TP_EXTI_LINE EXTI_Line1
+
+
 #define ADC_PRESSURE_3V3
 
 #define ADC_DMA_STREAM     DMA2_Stream4
@@ -259,6 +263,8 @@ enum pwmPorts {
 #define ADC_DMA_CR     DMA2->HIFCR
 #define ADC_DMA_IRQ     DMA2_Stream4_IRQn
 #define ADC_DMA_HANDLER     DMA2_Stream4_IRQHandler
+
+
 #define CANx       CAN1
 #define CAN_CLK       RCC_APB1Periph_CAN1
 #define CAN_RX_PIN      GPIO_Pin_0
@@ -315,8 +321,12 @@ enum pwmPorts {
 #define SPI_SPI2_DMA_TX      DMA1_Stream4
 #define SPI_SPI2_DMA_TX_CHANNEL     DMA_Channel_0
 #define SPI_SPI2_DMA_TX_FLAGS     (DMA_IT_TEIF4 | DMA_IT_DMEIF4 | DMA_IT_FEIF4 | DMA_IT_TCIF4 | DMA_IT_HTIF4)
+
+
 #define COMM_PORT1      USART1     // front FTDI interface
 #define COMM_PORT2      USART2     // expansion header
+
+
 #define SERIAL_UART1_PORT GPIOA
 #define SERIAL_UART1_RX_PIN GPIO_Pin_10
 #define SERIAL_UART1_TX_PIN GPIO_Pin_9
@@ -464,6 +474,8 @@ enum pwmPorts {
 #define SERIAL_UART6_TX_TE_FLAG DMA_FLAG_TEIF6
 #define SERIAL_UART6_TX_DM_FLAG DMA_FLAG_DMEIF6
 #define SERIAL_UART6_TX_FE_FLAG DMA_FLAG_FEIF6
+
+
 #define UKF_VEL_Q               +3.2545e-02     // +0.032544903471       0.000000350530 +0.000037342305
 #define UKF_VEL_ALT_Q           +1.4483e-01     // +0.144827254833       0.000000347510 -0.000055111229
 #define UKF_POS_Q               +7.1562e+03     // +7156.240473309331    0.000000352142 +2.727925965284749
@@ -491,6 +503,8 @@ enum pwmPorts {
 #define UKF_MAG_N               +5.2355e-01     // +0.523549973965       0.000000500000 +0.000000000000
 #define UKF_POS_DELAY           +2.1923e+03     // +2192.300048828125    0.000000500000 +0.000000000000125
 #define UKF_VEL_DELAY           -1.0182e+05     // -101820.000000000000  0.000000500000 +0.00000000000000000
+
+
 #define HAS_AIMU
 
 #define ANALOG_VIN_RTOP            4.7f   // first run beta boards were 4.7K, second run are 8.45K

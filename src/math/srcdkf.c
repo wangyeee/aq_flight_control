@@ -14,7 +14,7 @@
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
     Copyright (c) 2011-2014  Bill Nesbitt
-*/
+ */
 
 #include "srcdkf.h"
 #include "aq_math.h"
@@ -33,17 +33,17 @@ void srcdkfSetVariance(srcdkf_t *f, float32_t *q, float32_t *v, float32_t *n, in
     float32_t *Sn = f->Sn.pData;
     int i;
 
-// state variance
+    // state variance
     if (q)
         for (i = 0; i < f->S; i++)
             Sx[i*f->S + i] = __sqrtf(fabsf(q[i]));
 
-// process noise
+    // process noise
     if (v)
         for (i = 0; i < f->V; i++)
             Sv[i*f->V + i] = __sqrtf(fabsf(v[i]));
 
-// observation noise
+    // observation noise
     if (n && nn) {
         // resize Sn
         f->Sn.numRows = nn;
@@ -58,7 +58,7 @@ void srcdkfGetVariance(srcdkf_t *f, float32_t *q) {
     float32_t *Sx = f->Sx.pData;
     int i;
 
-// state variance
+    // state variance
     if (q)
         for (i = 0; i < f->S; i++) {
             q[i] = Sx[i*f->S + i];
@@ -109,7 +109,7 @@ srcdkf_t *srcdkfInit(int s, int m, int v, int n, SRCDKFTimeUpdate_t *timeUpdate)
 
     f->h = SRCDKF_H;
     f->hh = f->h*f->h;
-// f->w0m = (f->hh - (float32_t)s) / f->hh; // calculated in process
+    // f->w0m = (f->hh - (float32_t)s) / f->hh; // calculated in process
     f->wim = 1.0f / (2.0f * f->hh);
     f->wic1 = __sqrtf(1.0f / (4.0f * f->hh));
     f->wic2 = __sqrtf((f->hh - 1.0f) / (4.0f * f->hh*f->hh));
@@ -130,20 +130,20 @@ static void srcdkfCalcSigmaPoints(srcdkf_t *f, arm_matrix_instance_f32 *Sn) {
     float32_t *Xa = f->Xa.pData; // augmented sigma points
     int i, j;
 
-// set the number of sigma points
+    // set the number of sigma points
     f->L = L;
 
-// resize output matrix
+    // resize output matrix
     f->Xa.numRows = A;
     f->Xa.numCols = L;
 
-// -    -
-// Sa = | Sx 0  |
-// | 0 Sn |
-// -    -
-// xa = [ x  0  ]
-// Xa = [ xa  (xa + h*Sa)  (xa - h*Sa) ]
-//
+    // -    -
+    // Sa = | Sx 0  |
+    // | 0 Sn |
+    // -    -
+    // xa = [ x  0  ]
+    // Xa = [ xa  (xa + h*Sa)  (xa - h*Sa) ]
+    //
     for (i = 0; i < A; i++) {
         int rOffset = i*L;
         float32_t base = (i < S) ? x[i] : 0.0f;
@@ -171,31 +171,31 @@ void srcdkfTimeUpdate(srcdkf_t *f, float32_t *u, float32_t dt) {
     int L;    // number of sigma points
     float32_t *x = f->x.pData; // state estimate
     float32_t *Xa = f->Xa.pData; // augmented sigma points
-// float32_t *xIn = f->xIn; // callback buffer
-// float32_t *xOut = f->xOut; // callback buffer
-// float32_t *xNoise = f->xNoise; // callback buffer
+    // float32_t *xIn = f->xIn; // callback buffer
+    // float32_t *xOut = f->xOut; // callback buffer
+    // float32_t *xNoise = f->xNoise; // callback buffer
     float32_t *qrTempS = f->qrTempS.pData;
     int i, j;
 
     srcdkfCalcSigmaPoints(f, &f->Sv);
     L = f->L;
 
-// Xa = f(Xx, Xv, u, dt)
-// for (i = 0; i < L; i++) {
-//  for (j = 0; j < S; j++)
-//   xIn[j] = Xa[j*L + i];
-//
-//  for (j = 0; j < V; j++)
-//   xNoise[j] = Xa[(S+j)*L + i];
-//
-//  f->timeUpdate(xIn, xNoise, xOut, u, dt);
-//
-//  for (j = 0; j < S; j++)
-//   Xa[j*L + i] = xOut[j];
-// }
+    // Xa = f(Xx, Xv, u, dt)
+    // for (i = 0; i < L; i++) {
+    //  for (j = 0; j < S; j++)
+    //   xIn[j] = Xa[j*L + i];
+    //
+    //  for (j = 0; j < V; j++)
+    //   xNoise[j] = Xa[(S+j)*L + i];
+    //
+    //  f->timeUpdate(xIn, xNoise, xOut, u, dt);
+    //
+    //  for (j = 0; j < S; j++)
+    //   Xa[j*L + i] = xOut[j];
+    // }
     f->timeUpdate(&Xa[0], &Xa[S*L], &Xa[0], u, dt, L);
 
-// sum weighted resultant sigma points to create estimated state
+    // sum weighted resultant sigma points to create estimated state
     f->w0m = (f->hh - (float32_t)(S+V)) / f->hh;
     for (i = 0; i < S; i++) {
         int rOffset = i*L;
@@ -206,7 +206,7 @@ void srcdkfTimeUpdate(srcdkf_t *f, float32_t *u, float32_t dt) {
             x[i] += Xa[rOffset + j] * f->wim;
     }
 
-// update state covariance
+    // update state covariance
     for (i = 0; i < S; i++) {
         int rOffset = i*(S+V)*2;
 
@@ -243,7 +243,7 @@ void srcdkfMeasurementUpdate(srcdkf_t *f, float32_t *u, float32_t *ym, int M, in
     int L;     // number of sigma points
     int i, j;
 
-// make measurement noise matrix if provided
+    // make measurement noise matrix if provided
     if (noise) {
         f->Sn.numRows = N;
         f->Sn.numCols = N;
@@ -252,11 +252,11 @@ void srcdkfMeasurementUpdate(srcdkf_t *f, float32_t *u, float32_t *ym, int M, in
             arm_sqrt_f32(fabsf(noise[i]), &Sn[i*N + i]);
     }
 
-// generate sigma points
+    // generate sigma points
     srcdkfCalcSigmaPoints(f, &f->Sn);
     L = f->L;
 
-// resize all N and M based storage as they can change each iteration
+    // resize all N and M based storage as they can change each iteration
     f->y.numRows = M;
     f->Y.numRows = M;
     f->Y.numCols = L;
@@ -279,7 +279,7 @@ void srcdkfMeasurementUpdate(srcdkf_t *f, float32_t *u, float32_t *ym, int M, in
     f->inov.numRows = M;
     f->qrFinal.numCols = 2*S + 2*N;
 
-// Y = h(Xa, Xn)
+    // Y = h(Xa, Xn)
     for (i = 0; i < L; i++) {
         for (j = 0; j < S; j++)
             xIn[j] = Xa[j*L + i];
@@ -293,7 +293,7 @@ void srcdkfMeasurementUpdate(srcdkf_t *f, float32_t *u, float32_t *ym, int M, in
             Y[j*L + i] = xOut[j];
     }
 
-// sum weighted resultant sigma points to create estimated measurement
+    // sum weighted resultant sigma points to create estimated measurement
     f->w0m = (f->hh - (float32_t)(S+N)) / f->hh;
     for (i = 0; i < M; i++) {
         int rOffset = i*L;
@@ -304,7 +304,7 @@ void srcdkfMeasurementUpdate(srcdkf_t *f, float32_t *u, float32_t *ym, int M, in
             y[i] += Y[rOffset + j] * f->wim;
     }
 
-// calculate measurement covariance components
+    // calculate measurement covariance components
     for (i = 0; i < M; i++) {
         int rOffset = i*(S+N)*2;
 
@@ -321,7 +321,8 @@ void srcdkfMeasurementUpdate(srcdkf_t *f, float32_t *u, float32_t *ym, int M, in
             if (j < S) {
                 C1[i*S + j] = c;
                 C1T[j*M + i] = c;
-            } else {
+            }
+            else {
                 C2[i*N + (j-S)] = c;
             }
             D[i*(S+N) + j] = d;
@@ -333,14 +334,14 @@ void srcdkfMeasurementUpdate(srcdkf_t *f, float32_t *u, float32_t *ym, int M, in
     arm_mat_trans_f32(&f->SyT, &f->Sy);
     arm_mat_trans_f32(&f->SyT, &f->SyC);  // make copy as later Div is destructive
 
-// create Pxy
+    // create Pxy
     arm_mat_mult_f32(&f->Sx, &f->C1T, &f->Pxy);
 
-// K = (Pxy / SyT) / Sy
+    // K = (Pxy / SyT) / Sy
     matrixDiv_f32(&f->K, &f->Pxy, &f->SyT, &f->Q, &f->R, &f->AQ);
     matrixDiv_f32(&f->K, &f->K, &f->Sy, &f->Q, &f->R, &f->AQ);
 
-// x = x + k(ym - y)
+    // x = x + k(ym - y)
     for (i = 0; i < M; i++)
         inov[i] = ym[i] - y[i];
     arm_mat_mult_f32(&f->K, &f->inov, &f->xUpdate);
@@ -348,10 +349,10 @@ void srcdkfMeasurementUpdate(srcdkf_t *f, float32_t *u, float32_t *ym, int M, in
     for (i = 0; i < S; i++)
         x[i] += xUpdate[i];
 
-// build final QR matrix
-// rows = s
-// cols = s + n + s + n
-// use Q as temporary result storage
+    // build final QR matrix
+    // rows = s
+    // cols = s + n + s + n
+    // use Q as temporary result storage
 
     f->Q.numRows = S;
     f->Q.numCols = S;
@@ -383,8 +384,8 @@ void srcdkfMeasurementUpdate(srcdkf_t *f, float32_t *u, float32_t *ym, int M, in
             qrFinal[rOffset + S+N+j] = Q[i*(S+N) + j];
     }
 
-// Sx = qr([Sx-K*C1 K*C2 K*D]')
-// this method is not susceptable to numeric instability like the Cholesky is
+    // Sx = qr([Sx-K*C1 K*C2 K*D]')
+    // this method is not susceptable to numeric instability like the Cholesky is
     qrDecompositionT_f32(&f->qrFinal, NULL, &f->SxT); // with transposition
     arm_mat_trans_f32(&f->SxT, &f->Sx);
 }
@@ -404,7 +405,7 @@ void paramsrcdkfGetVariance(srcdkf_t *f, float32_t *v, float32_t *n) {
     float32_t *Sn = f->Sn.pData;
     int i;
 
-// artificial parameter variance
+    // artificial parameter variance
     if (v)
         for (i = 0; i < f->S; i++) {
             v[i] = Sx[i*f->S + i];

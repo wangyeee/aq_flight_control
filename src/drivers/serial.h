@@ -20,6 +20,7 @@
 #define _serial_h
 
 #include "stm32f4xx.h"
+#include "stm32f4xx_usart.h"
 #include <CoOS.h>
 
 #define SERIAL_DEFAULT_RX_BUFSIZE 128

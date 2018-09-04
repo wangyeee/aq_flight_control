@@ -19,16 +19,16 @@
 #ifndef _timer_h
 #define _timer_h
 
-#define TIMER_TIM   TIM5 // can only use 32bit timers TIM2 or TIM5
-#define TIMER_CLOCK   (rccClocks.PCLK1_Frequency * 2)
-#define TIMER_EN   RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM5, ENABLE)
-#define TIMER_IRQ_CH  TIM5_IRQn
-#define TIMER_ISR   TIM5_IRQHandler
-#define TIMER_CORE_HALT  DBGMCU_TIM5_STOP
+#define TIMER_TIM       TIM5 // can only use 32bit timers TIM2 or TIM5, must be same with rtc.c
+#define TIMER_CLOCK    (rccClocks.PCLK1_Frequency * 2)
+#define TIMER_EN        RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM5, ENABLE)
+#define TIMER_IRQ_CH    TIM5_IRQn
+#define TIMER_ISR       TIM5_IRQHandler
+#define TIMER_CORE_HALT DBGMCU_TIM5_STOP
 
-#define timerMicros()  TIMER_TIM->CNT
+#define timerMicros() TIMER_TIM->CNT
 #define timerStart()  timerData.timerStart = timerMicros()
-#define timerStop()   (timerMicros() - timerData.timerStart)
+#define timerStop()  (timerMicros() - timerData.timerStart)
 
 typedef void timerCallback_t(int);
 

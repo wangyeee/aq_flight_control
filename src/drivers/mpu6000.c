@@ -14,7 +14,7 @@
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
     Copyright (c) 2011-2014  Bill Nesbitt
-*/
+ */
 
 #include "config.h"
 #if defined(HAS_DIGITAL_IMU) && defined(DIMU_HAVE_MPU6000)
@@ -34,7 +34,7 @@ static void mpu6000TransferComplete(int unused) {
     mpu6000Data.slot = (mpu6000Data.slot + 1) % MPU6000_SLOTS;
 }
 
-void mpu6600InitialBias(void) {
+void mpu6000InitialBias(void) {
     uint32_t lastUpdate = mpu6000Data.lastUpdate;
     float tempSum;
     int i;
@@ -103,12 +103,9 @@ static void mpu6000CalibGyo(float *in, volatile float *out) {
     float x, y, z;
 
     // bias
-    a = +(in[0] + mpu6000Data.gyoOffset[0] + p[IMU_GYO_BIAS_X] + p[IMU_GYO_BIAS1_X]*dImuData.dTemp + p[IMU_GYO_BIAS2_X]*dImuData.dTemp2 +
-          p[IMU_GYO_BIAS3_X]*dImuData.dTemp3);
-    b = -(in[1] + mpu6000Data.gyoOffset[1] + p[IMU_GYO_BIAS_Y] + p[IMU_GYO_BIAS1_Y]*dImuData.dTemp + p[IMU_GYO_BIAS2_Y]*dImuData.dTemp2 +
-          p[IMU_GYO_BIAS3_Y]*dImuData.dTemp3);
-    c = -(in[2] + mpu6000Data.gyoOffset[2] + p[IMU_GYO_BIAS_Z] + p[IMU_GYO_BIAS1_Z]*dImuData.dTemp + p[IMU_GYO_BIAS2_Z]*dImuData.dTemp2 +
-          p[IMU_GYO_BIAS3_Z]*dImuData.dTemp3);
+    a = +(in[0] + mpu6000Data.gyoOffset[0] + p[IMU_GYO_BIAS_X] + p[IMU_GYO_BIAS1_X]*dImuData.dTemp + p[IMU_GYO_BIAS2_X]*dImuData.dTemp2 + p[IMU_GYO_BIAS3_X]*dImuData.dTemp3);
+    b = -(in[1] + mpu6000Data.gyoOffset[1] + p[IMU_GYO_BIAS_Y] + p[IMU_GYO_BIAS1_Y]*dImuData.dTemp + p[IMU_GYO_BIAS2_Y]*dImuData.dTemp2 + p[IMU_GYO_BIAS3_Y]*dImuData.dTemp3);
+    c = -(in[2] + mpu6000Data.gyoOffset[2] + p[IMU_GYO_BIAS_Z] + p[IMU_GYO_BIAS1_Z]*dImuData.dTemp + p[IMU_GYO_BIAS2_Z]*dImuData.dTemp2 + p[IMU_GYO_BIAS3_Z]*dImuData.dTemp3);
 
     // misalignment
     x = a + b*p[IMU_GYO_ALGN_XY] + c*p[IMU_GYO_ALGN_XZ];
@@ -147,7 +144,8 @@ void mpu6000DrateDecode(void) {
             // check if we are in the middle of a transaction for this slot
             if (s == mpu6000Data.slot && mpu6000Data.spiFlag == 0) {
                 divisor -= 1.0f;
-            } else {
+            }
+            else {
                 gyo[0] += (int16_t)__rev16(*(uint16_t *)&d[j+9]);
                 gyo[1] += (int16_t)__rev16(*(uint16_t *)&d[j+11]);
                 gyo[2] += (int16_t)__rev16(*(uint16_t *)&d[j+13]);
@@ -180,10 +178,11 @@ void mpu6000Decode(void) {
     for (i = 0; i < MPU6000_SLOTS; i++) {
         int j = i*MPU6000_SLOT_SIZE;
 
-// check if we are in the middle of a transaction for this slot
+        // check if we are in the middle of a transaction for this slot
         if (i == mpu6000Data.slot && mpu6000Data.spiFlag == 0) {
             divisor -= 1.0f;
-        } else {
+        }
+        else {
             acc[0] += (int16_t)__rev16(*(uint16_t *)&d[j+1]);
             acc[1] += (int16_t)__rev16(*(uint16_t *)&d[j+3]);
             acc[2] += (int16_t)__rev16(*(uint16_t *)&d[j+5]);
@@ -305,7 +304,8 @@ void mpu6000Init(void) {
     mpu6000ReliablySetReg(106, 0b010000);
 
     // wait for a valid response
-    while (mpu6000GetReg(117) != 0x68)
+    // while (mpu6000GetReg(117) != 0x68)
+    while (mpu6000GetReg(117) != MPU6000_WHO_AM_I)
         delay(10);
 
     // GYO scale
@@ -355,6 +355,5 @@ void mpu6000Init(void) {
 
     // External Interrupt line for data ready
     extRegisterCallback(DIMU_MPU6000_INT_PORT, DIMU_MPU6000_INT_PIN, EXTI_Trigger_Rising, 1, GPIO_PuPd_NOPULL, mpu6000IntHandler);
-
 }
 #endif

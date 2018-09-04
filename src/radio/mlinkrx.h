@@ -33,7 +33,7 @@ typedef struct {
     unsigned char framebuf[MLINKRX_FRAMESIZE];
     uint16_t crc_rx;
     uint16_t crc_calc;
-} CC_ALIGNED mlinkrxStruct_t;
+} mlinkrxStruct_t;
 
 extern void mlinkrxInit(radioInstance_t *r, USART_TypeDef *uart);
 extern unsigned char mlinkrxCharIn(radioInstance_t *r, uint8_t c);

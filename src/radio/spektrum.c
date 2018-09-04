@@ -14,7 +14,7 @@
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
     Copyright (c) 2011-2014  Bill Nesbitt
-*/
+ */
 
 #include "aq.h"
 #include "spektrum.h"
@@ -26,7 +26,7 @@
 #include <string.h>
 #include <CoOS.h>
 
-spektrumStruct_t spektrumData __attribute__((section(".ccm")));
+spektrumStruct_t spektrumData CCM_RAM;
 
 uint8_t spektrumDecode(radioInstance_t *r) {
     uint8_t *buf = spektrumData.rawBuf;
@@ -91,7 +91,8 @@ uint8_t spektrumDecode(radioInstance_t *r) {
             // valid data?
             if ((buf[1] & 0x80) == 0)
                 return 0;
-        } else {
+        }
+        else {
             r->errorCount = (buf[0]<<8) | buf[1];
         }
 
@@ -138,7 +139,8 @@ uint8_t spektrumCharIn(radioInstance_t *r, int c) {
     if (++spektrumData.state == 16) {
         spektrumData.state = 0;
         return spektrumDecode(r);
-    } else {
+    }
+    else {
         return 0;
     }
 }

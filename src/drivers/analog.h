@@ -21,10 +21,13 @@
 
 #include "aq.h"
 #ifdef HAS_AIMU
-#include "adc.h"
+    #include "adc.h"
 #endif
 
+#ifndef ANALOG_CHANNELS
 #define ANALOG_CHANNELS      7
+#endif
+
 #define ANALOG_SAMPLES      32
 #define ANALOG_SAMPLE_TIME     ADC_SampleTime_480Cycles
 #define ANALOG_DIVISOR      ((double)ANALOG_REF_VOLTAGE / (double)4096.0 / (double)ANALOG_SAMPLES)

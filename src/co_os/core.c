@@ -1,17 +1,17 @@
 /**
-*******************************************************************************
-* @file       core.c
-* @version   V1.1.4
-* @date      2011.04.20
-* @brief      Core implementation code of CooCox CoOS kernel.
-*******************************************************************************
-* @copy
-*
-* INTERNAL FILE,DON'T PUBLIC.
-*
-* <h2><center>&copy; COPYRIGHT 2009 CooCox </center></h2>
-*******************************************************************************
-*/
+ *******************************************************************************
+ * @file       core.c
+ * @version   V1.1.4
+ * @date      2011.04.20
+ * @brief      Core implementation code of CooCox CoOS kernel.
+ *******************************************************************************
+ * @copy
+ *
+ * INTERNAL FILE,DON'T PUBLIC.
+ *
+ * <h2><center>&copy; COPYRIGHT 2009 CooCox </center></h2>
+ *******************************************************************************
+ */
 
 /*---------------------------- Include ---------------------------------------*/
 #include <coocox.h>
@@ -20,6 +20,8 @@
 volatile U8     OSIntNesting  = 0;         /*!< Use to indicate interrupt nesting level*/
 volatile U8     OSSchedLock   = 0;         /*!< Task Switch lock.                      */
 volatile BOOL   TaskSchedReq  = Co_FALSE;
+
+
 /**
  *******************************************************************************
  * @brief      Enter a ISR.
@@ -35,9 +37,12 @@ volatile BOOL   TaskSchedReq  = Co_FALSE;
  *             code and before exiting from ISR.
  *******************************************************************************
  */
-void CoEnterISR(void) {
+void CoEnterISR(void)
+{
     Inc8(&OSIntNesting);                /* OSIntNesting increment             */
 }
+
+
 /**
  *******************************************************************************
  * @brief      Exit a ISR.
@@ -51,16 +56,21 @@ void CoEnterISR(void) {
  * @note
  *******************************************************************************
  */
-void CoExitISR(void) {
+void CoExitISR(void)
+{
     Dec8(&OSIntNesting);                /* OSIntNesting decrease              */
-    if( OSIntNesting == 0) {            /* Is OSIntNesting == 0?              */
-        if(TaskSchedReq == Co_TRUE) {
+    if( OSIntNesting == 0)              /* Is OSIntNesting == 0?              */
+    {
+        if(TaskSchedReq == Co_TRUE)
+        {
             OSSchedLock++;
             Schedule();                 /* Call task schedule                 */
             OSSchedLock--;
         }
     }
 }
+
+
 
 /**
  *******************************************************************************
@@ -75,25 +85,33 @@ void CoExitISR(void) {
  * @note
  *******************************************************************************
  */
-void OsSchedUnlock(void) {
-    if(OSSchedLock == 1) {              /* Is OSSchedLock == 0?               */
-//__asm volatile ( "CPSID   F\n"); // NEZ
+void OsSchedUnlock(void)
+{
+    if(OSSchedLock == 1)                /* Is OSSchedLock == 0?               */
+    {
+        //__asm volatile ( "CPSID   F\n"); // NEZ
 
 #if CFG_TASK_WAITTING_EN > 0
-        if(IsrReq == Co_TRUE) {
+        if(IsrReq == Co_TRUE)
+        {
             RespondSRQ();               /* Respond service request            */
         }
 #endif
         /* Judge task state change or higher PRI task coming in               */
-        if(TaskSchedReq == Co_TRUE) {
+        if(TaskSchedReq == Co_TRUE)
+        {
             Schedule();                 /* Call task schedule                 */
         }
         OSSchedLock = 0;
-//__asm volatile ( "CPSIE   F\n"); // NEZ
-    } else {
+        //__asm volatile ( "CPSIE   F\n"); // NEZ
+    }
+    else
+    {
         OSSchedLock--;
     }
 }
+
+
 /**
  *******************************************************************************
  * @brief      Lock schedule
@@ -107,9 +125,12 @@ void OsSchedUnlock(void) {
  * @note
  *******************************************************************************
  */
-void CoSchedLock(void) {
+void CoSchedLock(void)
+{
     OsSchedLock();                      /* Lock schedule                      */
 }
+
+
 /**
  *******************************************************************************
  * @brief      Unlock schedule
@@ -123,9 +144,12 @@ void CoSchedLock(void) {
  * @note
  *******************************************************************************
  */
-void CoSchedUnlock(void) {
+void CoSchedUnlock(void)
+{
     OsSchedUnlock();                    /* Unlock schedule                    */
 }
+
+
 /**
  *******************************************************************************
  * @brief      Initialize OS
@@ -149,7 +173,8 @@ void CoSchedUnlock(void) {
  * @endcode
  *******************************************************************************
  */
-void CoInitOS(void) {
+void CoInitOS(void)
+{
     InitSysTick();                /* Initialize system tick.                  */
     InitInt();                    /* Initialize PendSV,SVC,SysTick interrupt  */
     CreateTCBList();              /* Create TCB list.                         */
@@ -162,14 +187,16 @@ void CoInitOS(void) {
     OsSchedLock();                /* Lock Schedule                            */
     /* Create first task -- IDLE task.          */
     CoCreateTask(                      CoIdleTask,
-                                       Co_NULL,
-                                       CFG_LOWEST_PRIO,
-                                       &idle_stk[CFG_IDLE_STACK_SIZE-1],
-                                       CFG_IDLE_STACK_SIZE
-                );
+            Co_NULL,
+            CFG_LOWEST_PRIO,
+            &idle_stk[CFG_IDLE_STACK_SIZE-1],
+            CFG_IDLE_STACK_SIZE
+    );
     /* Set PSP for CoIdleTask coming in */
     SetEnvironment(&idle_stk[CFG_IDLE_STACK_SIZE-1]);
 }
+
+
 /**
  *******************************************************************************
  * @brief      Start multitask
@@ -184,13 +211,16 @@ void CoInitOS(void) {
  *             call after CoOsInit().
  *******************************************************************************
  */
-void CoStartOS(void) {
+void CoStartOS(void)
+{
     TCBRunning  = &TCBTbl[0];           /* Get running task                     */
     TCBNext     = TCBRunning;           /* Set next scheduled task as running task */
     TCBRunning->state = TASK_RUNNING;   /* Set running task status to RUNNING   */
     RemoveFromTCBRdyList(TCBRunning);   /* Remove running task from READY list  */
     OsSchedUnlock();     /* Enable Schedule,call task schedule   */
 }
+
+
 /**
  *******************************************************************************
  * @brief      Get OS version
@@ -204,7 +234,8 @@ void CoStartOS(void) {
  *             by 100. In other words, version 1.02 would be returned as 102.
  *******************************************************************************
  */
-OS_VER CoGetOSVersion(void) {
+OS_VER CoGetOSVersion(void)
+{
     return OS_VERSION;                  /* Get CooCox CoOS version            */
 }
 

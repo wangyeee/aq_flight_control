@@ -14,7 +14,7 @@
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
     Copyright (c) 2011-2014  Bill Nesbitt
-*/
+ */
 
 /*
     This module handles the coordination of multiple SPI clients which may be
@@ -27,7 +27,7 @@
 
     The Ethernet periphreal's interrupt lines are stolen for the SPI scheduler.
     If Ethernet is one day needed, this must be changed.
-*/
+ */
 
 #include "spi.h"
 #include "aq_timer.h"
@@ -58,7 +58,7 @@ void spi1Init(uint8_t invert) {
     DMA_InitTypeDef DMA_InitStructure;
 
     if (!spiData[0].initialized) {
-// SPI interface
+        // SPI interface
         RCC_APB2PeriphClockCmd(SPI_SPI1_CLOCK, ENABLE);
 
         GPIO_StructInit(&GPIO_InitStructure);
@@ -70,7 +70,7 @@ void spi1Init(uint8_t invert) {
         else
             GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
 
-// SPI SCK / MOSI / MISO pin configuration
+        // SPI SCK / MOSI / MISO pin configuration
         GPIO_InitStructure.GPIO_Pin = SPI_SPI1_SCK_PIN;
         GPIO_Init(SPI_SPI1_SCK_PORT, &GPIO_InitStructure);
 
@@ -80,12 +80,12 @@ void spi1Init(uint8_t invert) {
         GPIO_InitStructure.GPIO_Pin = SPI_SPI1_MOSI_PIN;
         GPIO_Init(SPI_SPI1_MOSI_PORT, &GPIO_InitStructure);
 
-// Connect SPI pins to Alternate Function
+        // Connect SPI pins to Alternate Function
         GPIO_PinAFConfig(SPI_SPI1_SCK_PORT,SPI_SPI1_SCK_SOURCE, SPI_SPI1_AF);
         GPIO_PinAFConfig(SPI_SPI1_MISO_PORT, SPI_SPI1_MISO_SOURCE, SPI_SPI1_AF);
         GPIO_PinAFConfig(SPI_SPI1_MOSI_PORT, SPI_SPI1_MOSI_SOURCE, SPI_SPI1_AF);
 
-// SPI configuration
+        // SPI configuration
         SPI_I2S_DeInit(SPI1);
         SPI_InitStructure.SPI_Mode = SPI_Mode_Master;
         SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
@@ -93,7 +93,8 @@ void spi1Init(uint8_t invert) {
         if (invert) {
             SPI_InitStructure.SPI_CPOL = SPI_CPOL_Low;
             SPI_InitStructure.SPI_CPHA = SPI_CPHA_1Edge;
-        } else {
+        }
+        else {
             SPI_InitStructure.SPI_CPOL = SPI_CPOL_High;
             SPI_InitStructure.SPI_CPHA = SPI_CPHA_2Edge;
         }
@@ -105,7 +106,7 @@ void spi1Init(uint8_t invert) {
 
         SPI_I2S_DMACmd(SPI1, SPI_I2S_DMAReq_Rx | SPI_I2S_DMAReq_Tx, ENABLE);
 
-// RX DMA
+        // RX DMA
         DMA_DeInit(SPI_SPI1_DMA_RX);
         DMA_StructInit(&DMA_InitStructure);
         DMA_InitStructure.DMA_Channel = SPI_SPI1_DMA_RX_CHANNEL;
@@ -125,20 +126,20 @@ void spi1Init(uint8_t invert) {
         DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
         DMA_Init(SPI_SPI1_DMA_RX, &DMA_InitStructure);
 
-// store flags for later use
+        // store flags for later use
         spiData[0].intRxFlags = SPI_SPI1_DMA_RX_FLAGS;
 
         DMA_ClearITPendingBit(SPI_SPI1_DMA_RX, spiData[0].intRxFlags);
         DMA_ITConfig(SPI_SPI1_DMA_RX, DMA_IT_TC, ENABLE);
 
-// Enable RX DMA global Interrupt
+        // Enable RX DMA global Interrupt
         NVIC_InitStructure.NVIC_IRQChannel = SPI_SPI1_DMA_RX_IRQ;
         NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
         NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
         NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
         NVIC_Init(&NVIC_InitStructure);
 
-// TX DMA - one shot
+        // TX DMA - one shot
         DMA_DeInit(SPI_SPI1_DMA_TX);
         DMA_StructInit(&DMA_InitStructure);
         DMA_InitStructure.DMA_Channel = SPI_SPI1_DMA_TX_CHANNEL;
@@ -157,7 +158,7 @@ void spi1Init(uint8_t invert) {
         DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
         DMA_Init(SPI_SPI1_DMA_TX, &DMA_InitStructure);
 
-// store flags for later use
+        // store flags for later use
         spiData[0].intTxFlags = SPI_SPI1_DMA_TX_FLAGS;
 
         DMA_ClearITPendingBit(SPI_SPI1_DMA_TX, spiData[0].intTxFlags);
@@ -167,7 +168,7 @@ void spi1Init(uint8_t invert) {
         spiData[0].txDMAStream = SPI_SPI1_DMA_TX;
         spiData[0].initialized = 1;
 
-// Enable Ethernet Interrupt (for our stack management)
+        // Enable Ethernet Interrupt (for our stack management)
         NVIC_InitStructure.NVIC_IRQChannel = ETH_IRQn;
         NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
         NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
@@ -185,7 +186,7 @@ void spi2Init(uint8_t invert) {
     DMA_InitTypeDef DMA_InitStructure;
 
     if (!spiData[1].initialized) {
-// SPI interface
+        // SPI interface
         RCC_APB1PeriphClockCmd(SPI_SPI2_CLOCK, ENABLE);
 
         GPIO_StructInit(&GPIO_InitStructure);
@@ -197,7 +198,7 @@ void spi2Init(uint8_t invert) {
         else
             GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
 
-// SPI SCK / MOSI / MISO pin configuration
+        // SPI SCK / MOSI / MISO pin configuration
         GPIO_InitStructure.GPIO_Pin = SPI_SPI2_SCK_PIN;
         GPIO_Init(SPI_SPI2_SCK_PORT, &GPIO_InitStructure);
 
@@ -207,12 +208,12 @@ void spi2Init(uint8_t invert) {
         GPIO_InitStructure.GPIO_Pin = SPI_SPI2_MOSI_PIN;
         GPIO_Init(SPI_SPI2_MOSI_PORT, &GPIO_InitStructure);
 
-// Connect SPI pins to AF6
+        // Connect SPI pins to AF6
         GPIO_PinAFConfig(SPI_SPI2_SCK_PORT,SPI_SPI2_SCK_SOURCE, SPI_SPI2_AF);
         GPIO_PinAFConfig(SPI_SPI2_MISO_PORT, SPI_SPI2_MISO_SOURCE, SPI_SPI2_AF);
         GPIO_PinAFConfig(SPI_SPI2_MOSI_PORT, SPI_SPI2_MOSI_SOURCE, SPI_SPI2_AF);
 
-// SPI configuration
+        // SPI configuration
         SPI_I2S_DeInit(SPI2);
         SPI_InitStructure.SPI_Mode = SPI_Mode_Master;
         SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
@@ -220,7 +221,8 @@ void spi2Init(uint8_t invert) {
         if (invert) {
             SPI_InitStructure.SPI_CPOL = SPI_CPOL_Low;
             SPI_InitStructure.SPI_CPHA = SPI_CPHA_1Edge;
-        } else {
+        }
+        else {
             SPI_InitStructure.SPI_CPOL = SPI_CPOL_High;
             SPI_InitStructure.SPI_CPHA = SPI_CPHA_2Edge;
         }
@@ -232,7 +234,7 @@ void spi2Init(uint8_t invert) {
 
         SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Rx | SPI_I2S_DMAReq_Tx, ENABLE);
 
-// RX DMA
+        // RX DMA
         DMA_DeInit(SPI_SPI2_DMA_RX);
         DMA_StructInit(&DMA_InitStructure);
         DMA_InitStructure.DMA_Channel = SPI_SPI2_DMA_RX_CHANNEL;
@@ -252,20 +254,20 @@ void spi2Init(uint8_t invert) {
         DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
         DMA_Init(SPI_SPI2_DMA_RX, &DMA_InitStructure);
 
-// store flags for later use
+        // store flags for later use
         spiData[1].intRxFlags = SPI_SPI2_DMA_RX_FLAGS;
 
         DMA_ClearITPendingBit(SPI_SPI2_DMA_RX, spiData[1].intRxFlags);
         DMA_ITConfig(SPI_SPI2_DMA_RX, DMA_IT_TC, ENABLE);
 
-// Enable RX DMA global Interrupt
+        // Enable RX DMA global Interrupt
         NVIC_InitStructure.NVIC_IRQChannel = SPI_SPI2_DMA_RX_IRQ;
         NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
         NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
         NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
         NVIC_Init(&NVIC_InitStructure);
 
-// TX DMA - one shot
+        // TX DMA - one shot
         DMA_DeInit(SPI_SPI2_DMA_TX);
         DMA_StructInit(&DMA_InitStructure);
         DMA_InitStructure.DMA_Channel = SPI_SPI2_DMA_TX_CHANNEL;
@@ -284,7 +286,7 @@ void spi2Init(uint8_t invert) {
         DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
         DMA_Init(SPI_SPI2_DMA_TX, &DMA_InitStructure);
 
-// store flags for later use
+        // store flags for later use
         spiData[1].intTxFlags = SPI_SPI2_DMA_TX_FLAGS;
         DMA_ClearITPendingBit(SPI_SPI2_DMA_TX, spiData[1].intTxFlags);
 
@@ -293,7 +295,7 @@ void spi2Init(uint8_t invert) {
         spiData[1].txDMAStream = SPI_SPI2_DMA_TX;
         spiData[1].initialized = 1;
 
-// Enable Ethernet Interrupt (for our stack management)
+        // Enable Ethernet Interrupt (for our stack management)
         NVIC_InitStructure.NVIC_IRQChannel = ETH_WKUP_IRQn;
         NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
         NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
@@ -311,7 +313,7 @@ void spi3Init(uint8_t invert) {
     DMA_InitTypeDef DMA_InitStructure;
 
     if (!spiData[2].initialized) {
-// SPI interface
+        // SPI interface
         RCC_APB1PeriphClockCmd(SPI_SPI3_CLOCK, ENABLE);
 
         GPIO_StructInit(&GPIO_InitStructure);
@@ -323,7 +325,7 @@ void spi3Init(uint8_t invert) {
         else
             GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
 
-// SPI SCK / MOSI / MISO pin configuration
+        // SPI SCK / MOSI / MISO pin configuration
         GPIO_InitStructure.GPIO_Pin = SPI_SPI3_SCK_PIN;
         GPIO_Init(SPI_SPI3_SCK_PORT, &GPIO_InitStructure);
 
@@ -333,12 +335,12 @@ void spi3Init(uint8_t invert) {
         GPIO_InitStructure.GPIO_Pin = SPI_SPI3_MOSI_PIN;
         GPIO_Init(SPI_SPI3_MOSI_PORT, &GPIO_InitStructure);
 
-// Connect SPI pins to AF6
+        // Connect SPI pins to AF6
         GPIO_PinAFConfig(SPI_SPI3_SCK_PORT, SPI_SPI3_SCK_SOURCE, SPI_SPI3_AF);
         GPIO_PinAFConfig(SPI_SPI3_MISO_PORT, SPI_SPI3_MISO_SOURCE, SPI_SPI3_AF);
         GPIO_PinAFConfig(SPI_SPI3_MOSI_PORT, SPI_SPI3_MOSI_SOURCE, SPI_SPI3_AF);
 
-// SPI configuration
+        // SPI configuration
         SPI_I2S_DeInit(SPI3);
         SPI_InitStructure.SPI_Mode = SPI_Mode_Master;
         SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
@@ -346,7 +348,8 @@ void spi3Init(uint8_t invert) {
         if (invert) {
             SPI_InitStructure.SPI_CPOL = SPI_CPOL_Low;
             SPI_InitStructure.SPI_CPHA = SPI_CPHA_1Edge;
-        } else {
+        }
+        else {
             SPI_InitStructure.SPI_CPOL = SPI_CPOL_High;
             SPI_InitStructure.SPI_CPHA = SPI_CPHA_2Edge;
         }
@@ -358,7 +361,7 @@ void spi3Init(uint8_t invert) {
 
         SPI_I2S_DMACmd(SPI3, SPI_I2S_DMAReq_Rx | SPI_I2S_DMAReq_Tx, ENABLE);
 
-// RX DMA
+        // RX DMA
         DMA_DeInit(SPI_SPI3_DMA_RX);
         DMA_StructInit(&DMA_InitStructure);
         DMA_InitStructure.DMA_Channel = SPI_SPI3_DMA_RX_CHANNEL;
@@ -378,20 +381,20 @@ void spi3Init(uint8_t invert) {
         DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
         DMA_Init(SPI_SPI3_DMA_RX, &DMA_InitStructure);
 
-// store flags for later use
+        // store flags for later use
         spiData[2].intRxFlags = SPI_SPI3_DMA_RX_FLAGS;
 
         DMA_ClearITPendingBit(SPI_SPI3_DMA_RX, spiData[2].intRxFlags);
         DMA_ITConfig(SPI_SPI3_DMA_RX, DMA_IT_TC, ENABLE);
 
-// Enable RX DMA global Interrupt
+        // Enable RX DMA global Interrupt
         NVIC_InitStructure.NVIC_IRQChannel = SPI_SPI3_DMA_RX_IRQ;
         NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
         NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
         NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
         NVIC_Init(&NVIC_InitStructure);
 
-// TX DMA - one shot
+        // TX DMA - one shot
         DMA_DeInit(SPI_SPI3_DMA_TX);
         DMA_StructInit(&DMA_InitStructure);
         DMA_InitStructure.DMA_Channel = SPI_SPI3_DMA_TX_CHANNEL;
@@ -410,7 +413,7 @@ void spi3Init(uint8_t invert) {
         DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
         DMA_Init(SPI_SPI3_DMA_TX, &DMA_InitStructure);
 
-// store flags for later use
+        // store flags for later use
         spiData[2].intTxFlags = SPI_SPI3_DMA_TX_FLAGS;
         DMA_ClearITPendingBit(SPI_SPI3_DMA_TX, spiData[2].intTxFlags);
 
@@ -419,7 +422,7 @@ void spi3Init(uint8_t invert) {
         spiData[2].txDMAStream = SPI_SPI3_DMA_TX;
         spiData[2].initialized = 1;
 
-// Enable Ethernet Interrupt (for our stack management)
+        // Enable Ethernet Interrupt (for our stack management)
         NVIC_InitStructure.NVIC_IRQChannel = DCMI_IRQn;
         NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
         NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
@@ -486,17 +489,17 @@ static void spiStartTxn(spiStruct_t *interface) {
         interface->txRunning = 1;
         interface->txnStart = timerMicros();
 
-// set baud rate
+        // set baud rate
         tmp = interface->spi->CR1 & SPI_BAUD_MASK;
         tmp |= client->baud;
         interface->spi->CR1 = tmp;
 
-// clear DR
+        // clear DR
         SPI_I2S_ReceiveData(interface->spi);
 
         spiSelect(client);
 
-// specify "in transaction"
+        // specify "in transaction"
         if (client->flag)
             *client->flag = 0;
 
@@ -578,8 +581,7 @@ void spiTransaction(spiClient_t *client, volatile void *rxBuf, void *txBuf, uint
     spiTriggerSchedule(client->interface);
 }
 
-spiClient_t *spiClientInit(SPI_TypeDef *spi, uint16_t baud, uint8_t invert, GPIO_TypeDef *csPort, uint16_t csPin, volatile uint32_t *flag,
-                           spiCallback_t *callback) {
+spiClient_t *spiClientInit(SPI_TypeDef *spi, uint16_t baud, uint8_t invert, GPIO_TypeDef *csPort, uint16_t csPin, volatile uint32_t *flag, spiCallback_t *callback) {
     spiClient_t *client;
 
     client = (spiClient_t *)aqCalloc(1, sizeof(spiClient_t));

@@ -57,10 +57,10 @@ typedef struct {
     uint32_t lastCharReceived;
 
     union {
-        uint8_t rawBuf[23];
-        futabaChannelStruct_t channels;
+ uint8_t rawBuf[23];
+ futabaChannelStruct_t channels;
     } u;
-} CC_ALIGNED futabaStruct_t;
+} futabaStruct_t;
 
 extern futabaStruct_t futabaData;
 

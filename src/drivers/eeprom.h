@@ -19,12 +19,21 @@
 #ifndef _eeprom_h
 #define _eeprom_h
 
+
 #include "spi.h"
 
 #define DIMU_EEPROM_SPI_BAUD     SPI_BaudRatePrescaler_4 // 10.5 MHz
 
-#define DIMU_EEPROM_SIZE     0x8000
+#ifdef I2C_EEPROM
+#include "i2c.h"
+
+// AT24C512
+#define DIMU_EEPROM_BLOCK_SIZE     0x40 // 0x80, test
+#else
 #define DIMU_EEPROM_BLOCK_SIZE     0x40
+#endif  /* DIMU_EEPROM_SPI */
+
+#define DIMU_EEPROM_SIZE     0x8000
 #define DIMU_EEPROM_MASK     0x7fff
 //#define DIUM_EEPROM_SIZE      0x10000
 //#define DIUM_EEPROM_BLOCK_SIZE     0x80
@@ -59,6 +68,9 @@ typedef struct {
 typedef struct {
     spiClient_t *spi;
     volatile uint32_t spiFlag;
+#ifdef I2C_EEPROM
+    i2cSlave_t *i2cBus;
+#endif  /* DIMU_EEPROM_SPI */
     eepromBuf_t buf;
     eepromHeader_t header;
     uint16_t readPointer;

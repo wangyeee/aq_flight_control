@@ -14,7 +14,7 @@
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
     Copyright (c) 2011-2014  Bill Nesbitt
-*/
+ */
 
 #include "gps.h"
 #include "telemetry.h"
@@ -33,7 +33,7 @@
 #include <CoOS.h>
 #include <string.h>
 
-gpsStruct_t gpsData __attribute__((section(".ccm")));
+gpsStruct_t gpsData CCM_RAM;
 
 OS_STK *gpsTaskStack;
 

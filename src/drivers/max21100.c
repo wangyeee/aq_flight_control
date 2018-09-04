@@ -43,7 +43,7 @@ void max21100InitialBias(void) {
 
     for (i = 0; i < 50; i++) {
         while (lastUpdate == max21100Data.lastUpdate)
-            delay(1);
+        delay(1);
         lastUpdate = max21100Data.lastUpdate;
 
         tempSum += max21100Data.rawTemp;
@@ -103,12 +103,9 @@ static void max21100CalibGyo(float *in, volatile float *out) {
     float x, y, z;
 
     // bias
-    a = +(in[0] + max21100Data.gyoOffset[0] + p[IMU_GYO_BIAS_X] + p[IMU_GYO_BIAS1_X]*dImuData.dTemp + p[IMU_GYO_BIAS2_X]*dImuData.dTemp2 +
-          p[IMU_GYO_BIAS3_X]*dImuData.dTemp3);
-    b = -(in[1] + max21100Data.gyoOffset[1] + p[IMU_GYO_BIAS_Y] + p[IMU_GYO_BIAS1_Y]*dImuData.dTemp + p[IMU_GYO_BIAS2_Y]*dImuData.dTemp2 +
-          p[IMU_GYO_BIAS3_Y]*dImuData.dTemp3);
-    c = -(in[2] + max21100Data.gyoOffset[2] + p[IMU_GYO_BIAS_Z] + p[IMU_GYO_BIAS1_Z]*dImuData.dTemp + p[IMU_GYO_BIAS2_Z]*dImuData.dTemp2 +
-          p[IMU_GYO_BIAS3_Z]*dImuData.dTemp3);
+    a = +(in[0] + max21100Data.gyoOffset[0] + p[IMU_GYO_BIAS_X] + p[IMU_GYO_BIAS1_X]*dImuData.dTemp + p[IMU_GYO_BIAS2_X]*dImuData.dTemp2 + p[IMU_GYO_BIAS3_X]*dImuData.dTemp3);
+    b = -(in[1] + max21100Data.gyoOffset[1] + p[IMU_GYO_BIAS_Y] + p[IMU_GYO_BIAS1_Y]*dImuData.dTemp + p[IMU_GYO_BIAS2_Y]*dImuData.dTemp2 + p[IMU_GYO_BIAS3_Y]*dImuData.dTemp3);
+    c = -(in[2] + max21100Data.gyoOffset[2] + p[IMU_GYO_BIAS_Z] + p[IMU_GYO_BIAS1_Z]*dImuData.dTemp + p[IMU_GYO_BIAS2_Z]*dImuData.dTemp2 + p[IMU_GYO_BIAS3_Z]*dImuData.dTemp3);
 
     // misalignment
     x = a + b*p[IMU_GYO_ALGN_XY] + c*p[IMU_GYO_ALGN_XZ];
@@ -147,7 +144,8 @@ void max21100DrateDecode(void) {
             // check if we are in the middle of a transaction for this slot
             if (s == max21100Data.slot && max21100Data.spiFlag == 0) {
                 divisor -= 1.0f;
-            } else {
+            }
+            else {
                 gyo[0] += (int16_t)__rev16(*(uint16_t *)&d[j+1]);
                 gyo[1] += (int16_t)__rev16(*(uint16_t *)&d[j+3]);
                 gyo[2] += (int16_t)__rev16(*(uint16_t *)&d[j+5]);
@@ -183,7 +181,8 @@ void max21100Decode(void) {
         // check if we are in the middle of a transaction for this slot
         if (i == max21100Data.slot && max21100Data.spiFlag == 0) {
             divisor -= 1.0f;
-        } else {
+        }
+        else {
             gyo[0] += (int16_t)__rev16(*(uint16_t *)&d[j+1]);
             gyo[1] += (int16_t)__rev16(*(uint16_t *)&d[j+3]);
             gyo[2] += (int16_t)__rev16(*(uint16_t *)&d[j+5]);
@@ -265,33 +264,33 @@ void max21100PreInit(void) {
 
 void max21100Init(void) {
     switch ((int)p[IMU_FLIP]) {
-    case 1:
-        max21100Data.accSign[0] =  1.0f;
-        max21100Data.accSign[1] = -1.0f;
-        max21100Data.accSign[2] = -1.0f;
-        max21100Data.gyoSign[0] =  1.0f;
-        max21100Data.gyoSign[1] = -1.0f;
-        max21100Data.gyoSign[2] = -1.0f;
-        break;
+        case 1:
+            max21100Data.accSign[0] =  1.0f;
+            max21100Data.accSign[1] = -1.0f;
+            max21100Data.accSign[2] = -1.0f;
+            max21100Data.gyoSign[0] =  1.0f;
+            max21100Data.gyoSign[1] = -1.0f;
+            max21100Data.gyoSign[2] = -1.0f;
+            break;
 
-    case 2:
-        max21100Data.accSign[0] = -1.0f;
-        max21100Data.accSign[1] =  1.0f;
-        max21100Data.accSign[2] = -1.0f;
-        max21100Data.gyoSign[0] = -1.0f;
-        max21100Data.gyoSign[1] =  1.0f;
-        max21100Data.gyoSign[2] = -1.0f;
-        break;
+        case 2:
+            max21100Data.accSign[0] = -1.0f;
+            max21100Data.accSign[1] =  1.0f;
+            max21100Data.accSign[2] = -1.0f;
+            max21100Data.gyoSign[0] = -1.0f;
+            max21100Data.gyoSign[1] =  1.0f;
+            max21100Data.gyoSign[2] = -1.0f;
+            break;
 
-    case 0:
-    default:
-        max21100Data.accSign[0] = 1.0f;
-        max21100Data.accSign[1] = 1.0f;
-        max21100Data.accSign[2] = 1.0f;
-        max21100Data.gyoSign[0] = 1.0f;
-        max21100Data.gyoSign[1] = 1.0f;
-        max21100Data.gyoSign[2] = 1.0f;
-        break;
+        case 0:
+        default:
+            max21100Data.accSign[0] = 1.0f;
+            max21100Data.accSign[1] = 1.0f;
+            max21100Data.accSign[2] = 1.0f;
+            max21100Data.gyoSign[0] = 1.0f;
+            max21100Data.gyoSign[1] = 1.0f;
+            max21100Data.gyoSign[2] = 1.0f;
+            break;
     }
 
     utilFilterInit(&max21100Data.tempFilter, DIMU_OUTER_DT, DIMU_TEMP_TAU, IMU_ROOM_TEMP);

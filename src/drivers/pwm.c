@@ -14,7 +14,7 @@
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
     Copyright (c) 2011-2014  Bill Nesbitt
-*/
+ */
 
 #include "aq.h"
 #include "pwm.h"
@@ -23,7 +23,7 @@
 #include "util.h"
 #include <stdio.h>
 
-pwmPortStruct_t pwmData[PWM_NUM_PORTS] __attribute__((section(".ccm")));
+pwmPortStruct_t pwmData[PWM_NUM_PORTS] CCM_RAM;
 
 // these are defined in the board header file
 PWM_TIMERS;
@@ -49,7 +49,7 @@ void pwmTimeBase(const TIM_TypeDef *tim, uint32_t period, uint16_t prescaler) {
 }
 
 void pwmOCInit(const TIM_TypeDef *tim, uint16_t channel, uint32_t inititalValue) {
-    TIM_OCInitTypeDef  TIM_OCInitStructure;
+    TIM_OCInitTypeDef TIM_OCInitStructure;
 
     TIM_OCStructInit(&TIM_OCInitStructure);
     TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
@@ -75,7 +75,7 @@ void pwmOCInit(const TIM_TypeDef *tim, uint16_t channel, uint32_t inititalValue)
 }
 
 void pwmICInit(const TIM_TypeDef *tim, uint16_t channel, uint16_t polarity) {
-    TIM_ICInitTypeDef  TIM_ICInitStructure;
+    TIM_ICInitTypeDef TIM_ICInitStructure;
 
     TIM_ICStructInit(&TIM_ICInitStructure);
     TIM_ICInitStructure.TIM_Channel = channel;
@@ -115,11 +115,14 @@ int pwmValidatePort(uint8_t pwmPort, uint32_t period) {
 
     if (pwmPort >= PWM_NUM_PORTS) {
         AQ_NOTICE("pwm: faliure: invalid pwm port number!\n");
-    } else if (pwmData[pwmPort].direction != 0) {
+    }
+    else if (pwmData[pwmPort].direction != 0) {
         AQ_NOTICE("pwm: faliure: cannot re-allocate port!\n");
-    } else if (period && pwmData[pwmPort].period && pwmData[pwmPort].period != period) {
+    }
+    else if (period && pwmData[pwmPort].period && pwmData[pwmPort].period != period) {
         AQ_NOTICE("pwm: faliure: pwm frequency mis-match!\n");
-    } else {
+    }
+    else {
         ret = 1;
     }
 
@@ -151,7 +154,7 @@ pwmPortStruct_t *pwmInitOut(uint8_t pwmPort, uint32_t resolution, uint32_t freq,
 
         pwmTimeBase(pwmTimers[pwmPort], period, pwmClocks[pwmPort] / resolution);
 
-// set ESC32 mode via 1-wire protocol if necessary before activating PWM output
+        // set ESC32 mode via 1-wire protocol if necessary before activating PWM output
         if (ESC32Mode > -1)
             esc32SetupOw(pwmPorts[pwmPort], pwmPins[pwmPort], ESC32Mode);
 
@@ -182,13 +185,14 @@ pwmPortStruct_t *pwmInitOut(uint8_t pwmPort, uint32_t resolution, uint32_t freq,
 
         p->cnt = (volatile uint32_t *)&pwmTimers[pwmPort]->CNT;
 
-// finally allow the timer access to the port
+        // finally allow the timer access to the port
         GPIO_PinAFConfig((GPIO_TypeDef *)pwmPorts[pwmPort], pwmPinSources[pwmPort], pwmAFs[pwmPort]);
         pwmGPIOInit(pwmPorts[pwmPort], pwmPins[pwmPort], GPIO_Mode_AF);
     }
 
     return p;
 }
+
 pwmPortStruct_t *pwmInitDigitalOut(uint8_t pwmPort) {
     pwmPortStruct_t *p = 0;
 
@@ -264,6 +268,7 @@ pwmPortStruct_t *pwmInitIn(uint8_t pwmPort, int16_t polarity, uint32_t period, p
     return p;
 }
 
+#if BOARD_VERSION != 9
 void TIM1_CC_IRQHandler(void) {
 #ifdef PWM_IRQ_TIM1_CH1
     if (TIM_GetITStatus(TIM1, TIM_IT_CC1) == SET) {
@@ -294,6 +299,7 @@ void TIM1_CC_IRQHandler(void) {
     }
 #endif
 }
+#endif /* BOARD_VERSION != 9 */
 
 void TIM4_IRQHandler(void) {
 #ifdef PWM_IRQ_TIM4_CH1
@@ -308,14 +314,14 @@ void TIM4_IRQHandler(void) {
         int8_t pwmPort = PWM_IRQ_TIM4_CH2;
         TIM_ClearITPendingBit(TIM4, TIM_IT_CC2);
         pwmData[pwmPort].callback(TIM_GetCapture2(TIM4), GPIO_ReadInputDataBit((GPIO_TypeDef *)pwmPorts[pwmPort], (uint16_t)pwmPins[pwmPort]));
-    } else
+    }
 #endif
 #ifdef PWM_IRQ_TIM4_CH3
-        if (TIM_GetITStatus(TIM4, TIM_IT_CC3) == SET) {
-            int8_t pwmPort = PWM_IRQ_TIM4_CH3;
-            TIM_ClearITPendingBit(TIM4, TIM_IT_CC3);
-            pwmData[pwmPort].callback(TIM_GetCapture3(TIM4), GPIO_ReadInputDataBit((GPIO_TypeDef *)pwmPorts[pwmPort], (uint16_t)pwmPins[pwmPort]));
-        }
+    if (TIM_GetITStatus(TIM4, TIM_IT_CC3) == SET) {
+        int8_t pwmPort = PWM_IRQ_TIM4_CH3;
+        TIM_ClearITPendingBit(TIM4, TIM_IT_CC3);
+        pwmData[pwmPort].callback(TIM_GetCapture3(TIM4), GPIO_ReadInputDataBit((GPIO_TypeDef *)pwmPorts[pwmPort], (uint16_t)pwmPins[pwmPort]));
+    }
 #endif
 #ifdef PWM_IRQ_TIM4_CH4
     if (TIM_GetITStatus(TIM4, TIM_IT_CC4) == SET) {
@@ -351,7 +357,8 @@ void TIM2_IRQHandler(void) {
         pwmPort = PWM_IRQ_TIM2_CH3;
         TIM_ClearITPendingBit(TIM2, TIM_IT_CC3);
         pwmData[pwmPort].callback(TIM_GetCapture3(TIM2), GPIO_ReadInputDataBit((GPIO_TypeDef *)pwmPorts[pwmPort], (uint16_t)pwmPins[pwmPort]));
-    } else if (TIM_GetITStatus(TIM2, TIM_IT_CC4) == SET) {
+    }
+    else if (TIM_GetITStatus(TIM2, TIM_IT_CC4) == SET) {
         pwmPort = PWM_IRQ_TIM2_CH4;
         TIM_ClearITPendingBit(TIM2, TIM_IT_CC4);
         pwmData[pwmPort].callback(TIM_GetCapture4(TIM2), GPIO_ReadInputDataBit((GPIO_TypeDef *)pwmPorts[pwmPort], (uint16_t)pwmPins[pwmPort]));
@@ -381,4 +388,20 @@ void TIM1_TRG_COM_TIM11_IRQHandler(void) {
         pwmData[pwmPort].callback(TIM_GetCapture1(TIM11), GPIO_ReadInputDataBit((GPIO_TypeDef *)pwmPorts[pwmPort], (uint16_t)pwmPins[pwmPort]));
     }
 }
+#endif
+
+#if defined(PWM_IRQ_TIM12_CH1) || defined(PWM_IRQ_TIM12_CH2)
+/*void TIM8_BRK_TIM12_IRQHandler(void) {
+    int8_t pwmPort;
+
+    if (TIM_GetITStatus(TIM12, TIM_IT_CC1) == SET) {
+        pwmPort = PWM_IRQ_TIM12_CH1;
+        TIM_ClearITPendingBit(TIM12, TIM_IT_CC1);
+        pwmData[pwmPort].callback(TIM_GetCapture1(TIM12), GPIO_ReadInputDataBit((GPIO_TypeDef *)pwmPorts[pwmPort], (uint16_t)pwmPins[pwmPort]));
+    } else if (TIM_GetITStatus(TIM12, TIM_IT_CC2) == SET) {
+        pwmPort = PWM_IRQ_TIM12_CH2;
+        TIM_ClearITPendingBit(TIM12, TIM_IT_CC2);
+        pwmData[pwmPort].callback(TIM_GetCapture2(TIM12), GPIO_ReadInputDataBit((GPIO_TypeDef *)pwmPorts[pwmPort], (uint16_t)pwmPins[pwmPort]));
+    }
+}*/
 #endif

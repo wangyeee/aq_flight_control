@@ -13,8 +13,8 @@
     You should have received a copy of the GNU General Public License
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright (c) 2011-2014  Bill Nesbitt
-*/
+    Copyright (c) 2011-2014 Bill Nesbitt
+ */
 
 #include "aq.h"
 #include "config.h"
@@ -30,7 +30,7 @@
 
 OS_STK *commTaskStack;
 
-commStruct_t commData __attribute__((section(".ccm")));
+commStruct_t commData CCM_RAM;
 
 #ifdef COMM_LOG_FNAME
 char commLog[COMM_LOG_BUF_SIZE];
@@ -158,7 +158,7 @@ commTxBuf_t *commGetTxBuf(uint8_t streamType, uint16_t maxSize) {
 
         CoEnterMutexSection(commData.txBufferMutex);
 
-commTopOfSearch:
+        commTopOfSearch:
 
         // not too big?
         if (i < COMM_TX_NUM_SIZES) {
@@ -204,8 +204,7 @@ static void _commSchedule(uint8_t port) {
     if (commData.txStackHeads[port] != tail)
         switch (commData.portTypes[port]) {
         case COMM_PORT_TYPE_SERIAL:
-            if (!((serialPort_t *)(commData.portHandles[port]))->txDmaRunning
-                    && _serialStartTxDMA(commData.portHandles[port], stack->memory, stack->size, commTxFinished, stack))
+            if (!((serialPort_t *)(commData.portHandles[port]))->txDmaRunning && _serialStartTxDMA(commData.portHandles[port], stack->memory, stack->size, commTxFinished, stack))
                 commData.txStackTails[port] = (tail + 1) % COMM_STACK_DEPTH;
             break;
 
@@ -265,7 +264,8 @@ void commSendTxBuf(commTxBuf_t *txBuf, uint16_t size) {
                 if (newHeads[i] == commData.txStackTails[i]) {
                     // record incident
                     commData.txStackOverruns[i]++;
-                } else {
+                }
+                else {
                     txBuf->status++;
 
                     // prepare to send
@@ -287,7 +287,8 @@ void commSendTxBuf(commTxBuf_t *txBuf, uint16_t size) {
         if (!sent) {
             // release buffer
             txBuf->status = COMM_TX_BUF_FREE;
-        } else {
+        }
+        else {
             for (i = 0; i < COMM_NUM_PORTS; i++) {
                 if (toBeScheduled[i])
                     commData.txStackHeads[i] = newHeads[i];
@@ -392,7 +393,6 @@ void commSetStreamType(uint8_t port, uint8_t type) {
 }
 
 void commNoticesInit(void) {
-
     memset((void *)&commData, 0, sizeof(commData));
 
     // notice queue

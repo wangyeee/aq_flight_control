@@ -14,7 +14,7 @@
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
     Copyright (c) 2011-2014  Bill Nesbitt
-*/
+ */
 
 #include "signaling.h"
 #include "analog.h"
@@ -24,47 +24,49 @@
 #include "util.h"
 #include "comm.h"
 #include <string.h>
+
+
 // Led/Beeper patterns: 0=Off, 1=On, every 0.1s (10Hz) the position in the array is chosen and used to control the LED/beeper.
 // Last column is PWM pulse width to output for given event.
 
 const uint16_t sig_pattern[SIG_EVENT_ENUM_END][31] = {
-//         led 1                 led 2               Beeper           pwm
-//  0 1 2 3 4 5 6 7 8 9   0 1 2 3 4 5 6 7 8 9   0 1 2 3 4 5 6 7 8 9       counter position
-// ongoing events
-    { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000 },       // 0 (All-Off)   L1: Off, L2: Off
-    { 1,1,0,0,1,1,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1025 },       // 1 (Disarmed - no GPS fix) L1: 3 200ms flashes, L2: Off;
-    { 1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1075 },       // 2 (Disarmed - GPS fix) L1: slow flashing (1Hz), L2: off;
-    { 1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1125 },       // 3 (Armed)   L1: On, L2: Off;
-    { 1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1175 },       // 4 (Flying)   L1: On, L2: Off
-    { 1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1575 },       // 5 (Flying HeadingFree) L1: .8s on/.2s off, L2: off;
-    { 1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1225 },       // 6 (Alt hold)   L1: On, L2: slow flashing (2Hz)
-    { 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1275 },       // 7 (Pos hold)   L1: On, L2: On
-    { 1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1325 },       // 8 (Mission)   L1: On, L2: slow flashing (1Hz)
-    { 1,1,1,1,1,1,1,1,1,1,0,1,0,1,0,1,0,1,0,1,0,0,0,0,0,0,0,0,0,0,1375 },       // 9 (DVH)   L1: On, L2: fast flashing (5Hz)
-    { 1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,1,0,0,0,0,0,0,1425 },       // 10 (Low batt 1)  L1 & L2 alternating slow flashing (1Hz); 2x100ms beeps per sec
-    { 0,1,0,0,1,1,0,0,1,0,1,0,0,1,0,0,1,0,0,0,1,1,0,0,0,0,1,1,0,0,1475 },      // 11 (Radio loss 1/Low batt 2) L1 & L2 alternating fast flashing (5Hz); 2x200ms beeps per sec
-    { 0,1,0,0,1,1,0,0,1,0,1,0,0,1,0,0,1,0,0,0,1,1,0,1,0,1,1,0,1,0,1525 },      // 12 (Radio loss 2)  L1 & L2 alternating fast flashing (5Hz); 2x200ms 1x100ms beep per sec
-// one-time events
-    { 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1800 },       // 13 (Arming)   L1: On, L2: 500ms; 1x100ms beep
-    { 1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,1,1,1,1,1,0,0,1,0,1,0,0,0,0,0,1825 },       // 14 (Disarming)  L1: On, L2: 500ms; 2x100ms beeps
-    { 1,1,0,0,1,1,0,0,1,1,0,0,1,1,0,0,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1850 },       // 15 (HeadingFree ref. set) L1 & L2 alternating 200ms flashes; 1s beep
-    { 0,0,1,1,0,0,1,1,0,0,0,0,1,1,0,0,1,1,0,0,1,1,0,0,1,1,0,0,1,1,1875 },       // 16 (Waypoint reached) L1 & L2 simultaneous 200ms flashes @ 3Hz; 200ms beeps @ 3Hz
-    { 0,0,0,1,1,1,1,0,0,0,0,0,0,1,1,1,1,0,0,0,1,1,1,0,0,0,0,1,1,1,1900 },       // 17 (Waypoint recorded) L1 & L2 simultaneous 400ms flash @ 1Hz; 2x300ms beeps
-    { 1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1925 },       // 18 (Waypoints cleared) L1 & L2 simultaneous 100ms flashes @ 5hz; 100ms beeps @ 5hz
+        //         led 1                 led 2               Beeper           pwm
+        //  0 1 2 3 4 5 6 7 8 9   0 1 2 3 4 5 6 7 8 9   0 1 2 3 4 5 6 7 8 9       counter position
+        // ongoing events
+        { 0,0,0,0,0,0,0,0,0,0  ,0,0,0,0,0,0,0,0,0,0  ,0,0,0,0,0,0,0,0,0,0 ,1000 },  // 0 (All-Off)   L1: Off, L2: Off
+        { 1,1,0,0,1,1,0,0,1,1  ,0,0,0,0,0,0,0,0,0,0  ,0,0,0,0,0,0,0,0,0,0 ,1025 },  // 1 (Disarmed - no GPS fix) L1: 3 200ms flashes, L2: Off;
+        { 1,1,1,1,1,0,0,0,0,0  ,0,0,0,0,0,0,0,0,0,0  ,0,0,0,0,0,0,0,0,0,0 ,1075 },  // 2 (Disarmed - GPS fix) L1: slow flashing (1Hz), L2: off;
+        { 1,1,1,1,1,1,1,1,1,1  ,0,0,0,0,0,0,0,0,0,0  ,0,0,0,0,0,0,0,0,0,0 ,1125 },  // 3 (Armed)   L1: On, L2: Off;
+        { 1,1,1,1,1,1,1,1,1,1  ,0,0,0,0,0,0,0,0,0,0  ,0,0,0,0,0,0,0,0,0,0 ,1175 },  // 4 (Flying)   L1: On, L2: Off
+        { 1,1,1,1,1,1,1,1,0,0  ,0,0,0,0,0,0,0,0,0,0  ,0,0,0,0,0,0,0,0,0,0 ,1575 },  // 5 (Flying HeadingFree) L1: .8s on/.2s off, L2: off;
+        { 1,1,1,1,1,1,1,1,1,1  ,1,0,0,0,0,1,0,0,0,0  ,0,0,0,0,0,0,0,0,0,0 ,1225 },  // 6 (Alt hold)   L1: On, L2: slow flashing (2Hz)
+        { 1,1,1,1,1,1,1,1,1,1  ,1,1,1,1,1,1,1,1,1,1  ,0,0,0,0,0,0,0,0,0,0 ,1275 },  // 7 (Pos hold)   L1: On, L2: On
+        { 1,1,1,1,1,1,1,1,1,1  ,0,0,0,0,0,1,0,0,0,0  ,0,0,0,0,0,0,0,0,0,0 ,1325 },  // 8 (Mission)   L1: On, L2: slow flashing (1Hz)
+        { 1,1,1,1,1,1,1,1,1,1  ,0,1,0,1,0,1,0,1,0,1  ,0,0,0,0,0,0,0,0,0,0 ,1375 },  // 9 (DVH)   L1: On, L2: fast flashing (5Hz)
+        { 1,1,0,0,0,0,0,0,0,0  ,0,0,0,0,0,0,0,0,1,1  ,1,0,0,1,0,0,0,0,0,0 ,1425 },  // 10 (Low batt 1)  L1 & L2 alternating slow flashing (1Hz); 2x100ms beeps per sec
+        { 0,1,0,0,1,1,0,0,1,0  ,1,0,0,1,0,0,1,0,0,0  ,1,1,0,0,0,0,1,1,0,0 ,1475 }, // 11 (Radio loss 1/Low batt 2) L1 & L2 alternating fast flashing (5Hz); 2x200ms beeps per sec
+        { 0,1,0,0,1,1,0,0,1,0  ,1,0,0,1,0,0,1,0,0,0  ,1,1,0,1,0,1,1,0,1,0 ,1525 }, // 12 (Radio loss 2)  L1 & L2 alternating fast flashing (5Hz); 2x200ms 1x100ms beep per sec
+        // one-time events
+        { 1,1,1,1,1,1,1,1,1,1  ,1,1,1,1,1,0,0,0,0,0  ,0,0,1,0,0,0,0,0,0,0 ,1800 },  // 13 (Arming)   L1: On, L2: 500ms; 1x100ms beep
+        { 1,1,1,1,1,1,1,1,1,1  ,0,0,0,0,0,1,1,1,1,1  ,0,0,1,0,1,0,0,0,0,0 ,1825 },  // 14 (Disarming)  L1: On, L2: 500ms; 2x100ms beeps
+        { 1,1,0,0,1,1,0,0,1,1  ,0,0,1,1,0,0,1,1,0,0  ,1,1,1,1,1,1,1,1,1,1 ,1850 },  // 15 (HeadingFree ref. set) L1 & L2 alternating 200ms flashes; 1s beep
+        { 0,0,1,1,0,0,1,1,0,0  ,0,0,1,1,0,0,1,1,0,0  ,1,1,0,0,1,1,0,0,1,1 ,1875 },  // 16 (Waypoint reached) L1 & L2 simultaneous 200ms flashes @ 3Hz; 200ms beeps @ 3Hz
+        { 0,0,0,1,1,1,1,0,0,0  ,0,0,0,1,1,1,1,0,0,0  ,1,1,1,0,0,0,0,1,1,1 ,1900 },  // 17 (Waypoint recorded) L1 & L2 simultaneous 400ms flash @ 1Hz; 2x300ms beeps
+        { 1,0,1,0,1,0,1,0,1,0  ,1,0,1,0,1,0,1,0,1,0  ,1,0,1,0,1,0,1,0,1,0 ,1925 },  // 18 (Waypoints cleared) L1 & L2 simultaneous 100ms flashes @ 5hz; 100ms beeps @ 5hz
 };
 
-sigStruct_t sigData __attribute__((section(".ccm")));
+sigStruct_t sigData CCM_RAM;
 
 // warning: this is a blocking event, only call it when not flying or from a non-critical process
 void signalingBeep(unsigned long hz, unsigned long ms) {
     if (sigData.beeperPort && ms) {
-// using a piezo speaker
+        // using a piezo speaker
         if (sigData.beeperType) {
             *sigData.beeperPort->ccr = SIG_SPEAKER_PULSE_LEN;
             delay(ms);
             *sigData.beeperPort->ccr = 0;
         }
-// piezo buzzer with its own oscillator, or LED
+        // piezo buzzer with its own oscillator, or LED
         else {
             pwmDigitalHi(sigData.beeperPort);
             delay(ms);
@@ -91,12 +93,12 @@ void signalingWriteOutput(int eventType) {
     if (sigData.beeperPort) {
         if (sigData.beeperType) {  // speaker
             *sigData.beeperPort->ccr = sig_pattern[eventType][sigData.patPos + sigData.patLen * 2] * SIG_SPEAKER_PULSE_LEN;
-        } else { // buzzer
+        }
+        else {  // buzzer
             if (sig_pattern[eventType][sigData.patPos + sigData.patLen * 2]) {
-                pwmDigitalHi(sigData.beeperPort);
-            } else {
-                pwmDigitalLo(sigData.beeperPort);
-            }
+                pwmDigitalHi(sigData.beeperPort); }
+            else {
+                pwmDigitalLo(sigData.beeperPort); }
         }
     }
     if (sigData.pwmPort) {
@@ -131,7 +133,8 @@ void signalingInit(void) {
         if (p[SIG_BEEP_PRT] > 0) {  // piezo buzzer
             sigData.beeperPort = pwmInitDigitalOut(abs(p[SIG_BEEP_PRT])-1);
             sigData.beeperType = 0;
-        } else { // piezo speaker
+        }
+        else { // piezo speaker
             sigData.beeperPort = pwmInitOut(abs(p[SIG_BEEP_PRT])-1, PWM_RESOLUTION, SIG_SPEAKER_FREQ, 0, -1);
             sigData.beeperType = 1;
         }
@@ -222,53 +225,53 @@ void signalingEvent() {
 
     case STATE_FLYING:
     case STATE_ARMED | STATE_FLYING:
-        switch (navData.mode) {
-        case NAV_STATUS_ALTHOLD:
-            signalingWriteOutput(SIG_EVENT_ALTHOLD);
-            break;
-        case NAV_STATUS_POSHOLD:
-            signalingWriteOutput(SIG_EVENT_POSHOLD);
-            break;
-        case NAV_STATUS_MISSION:
-            signalingWriteOutput(SIG_EVENT_MISSION);
-            break;
-        case NAV_STATUS_DVH:
-            signalingWriteOutput(SIG_EVENT_DVH);
-            break;
-        default:
-            if (navData.headFreeMode > NAV_HEADFREE_OFF)
-                signalingWriteOutput(SIG_EVENT_FLYING_HF);
-            else
-                signalingWriteOutput(SIG_EVENT_FLYING);
-            break;
-        }
+    switch (navData.mode) {
+    case NAV_STATUS_ALTHOLD:
+        signalingWriteOutput(SIG_EVENT_ALTHOLD);
         break;
+    case NAV_STATUS_POSHOLD:
+        signalingWriteOutput(SIG_EVENT_POSHOLD);
+        break;
+    case NAV_STATUS_MISSION:
+        signalingWriteOutput(SIG_EVENT_MISSION);
+        break;
+    case NAV_STATUS_DVH:
+        signalingWriteOutput(SIG_EVENT_DVH);
+        break;
+    default:
+        if (navData.headFreeMode > NAV_HEADFREE_OFF)
+            signalingWriteOutput(SIG_EVENT_FLYING_HF);
+        else
+            signalingWriteOutput(SIG_EVENT_FLYING);
+        break;
+    }
+    break;
 
     case STATE_ARMED | STATE_FLYING | STATE_RADIO_LOSS1:
-        signalingWriteOutput(SIG_EVENT_RADIOLOSS);
-        break;
+    signalingWriteOutput(SIG_EVENT_RADIOLOSS);
+    break;
 
     case STATE_ARMED | STATE_FLYING | STATE_RADIO_LOSS1 | STATE_RADIO_LOSS2:
-        signalingWriteOutput(SIG_EVENT_RADIOLOSS2);
-        break;
+    signalingWriteOutput(SIG_EVENT_RADIOLOSS2);
+    break;
 
     case STATE_ARMED | STATE_LOW_BATTERY1:
     case STATE_ARMED | STATE_FLYING | STATE_LOW_BATTERY1:
-        signalingWriteOutput(SIG_EVENT_LOWBATT);
-        break;
+    signalingWriteOutput(SIG_EVENT_LOWBATT);
+    break;
 
     case STATE_DISARMED | STATE_LOW_BATTERY1:
-        signalingWriteOutput(SIG_EVENT_LOWBATT);
-        break;
+    signalingWriteOutput(SIG_EVENT_LOWBATT);
+    break;
 
     case STATE_ARMED | STATE_LOW_BATTERY1 | STATE_LOW_BATTERY2:
     case STATE_ARMED | STATE_FLYING | STATE_LOW_BATTERY1 | STATE_LOW_BATTERY2:
-        signalingWriteOutput(SIG_EVENT_RADIOLOSS);
-        break;
+    signalingWriteOutput(SIG_EVENT_RADIOLOSS);
+    break;
 
     case STATE_DISARMED | STATE_LOW_BATTERY1 | STATE_LOW_BATTERY2:
-        signalingWriteOutput(SIG_EVENT_RADIOLOSS);
-        break;
+    signalingWriteOutput(SIG_EVENT_RADIOLOSS);
+    break;
 
     default:
         signalingWriteOutput(SIG_EVENT_NONE);
@@ -277,5 +280,4 @@ void signalingEvent() {
 
     if (++sigData.patPos == sigData.patLen)
         sigData.patPos = 0;
-
 }

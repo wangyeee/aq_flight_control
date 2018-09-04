@@ -21,39 +21,37 @@
 
 #include <CoOS.h>
 
-#define COMMAND_SYNC1      'A'
-#define COMMAND_SYNC2      'q'
-#define COMMAND_COMMAND      'C'
-#define COMMAND_FLOAT_DUMP     'F'
-
-#define COMMAND_WAIT_SYNC1     0x00
-#define COMMAND_WAIT_SYNC2     0x01
-#define COMMAND_WAIT_SYNC3     0x02
-#define COMMAND_WAIT_RQID1     0x03
-#define COMMAND_WAIT_RQID2     0x04
-#define COMMAND_WAIT_RQID3     0x05
-#define COMMAND_WAIT_RQID4     0x06
-#define COMMAND_WAIT_LEN     0x07
-#define COMMAND_PAYLOAD      0x08
-#define COMMAND_WAIT_ROWS     0x09
-#define COMMAND_WAIT_FLOATS     0x0a
-#define COMMAND_CHECK1      0xfe
-#define COMMAND_CHECK2      0xff
-
-#define COMMAND_ID_GPS_PASSTHROUGH  0x01
-#define COMMAND_CONFIG_PARAM_READ   0x07
-#define COMMAND_CONFIG_PARAM_WRITE  0x08
-#define COMMAND_CONFIG_FLASH_READ   0x09
-#define COMMAND_CONFIG_FLASH_WRITE  0x0a
+#define COMMAND_SYNC1               'A'
+#define COMMAND_SYNC2               'q'
+#define COMMAND_COMMAND             'C'
+#define COMMAND_FLOAT_DUMP          'F'
+#define COMMAND_WAIT_SYNC1           0x00
+#define COMMAND_WAIT_SYNC2           0x01
+#define COMMAND_WAIT_SYNC3           0x02
+#define COMMAND_WAIT_RQID1           0x03
+#define COMMAND_WAIT_RQID2           0x04
+#define COMMAND_WAIT_RQID3           0x05
+#define COMMAND_WAIT_RQID4           0x06
+#define COMMAND_WAIT_LEN             0x07
+#define COMMAND_PAYLOAD              0x08
+#define COMMAND_WAIT_ROWS            0x09
+#define COMMAND_WAIT_FLOATS          0x0a
+#define COMMAND_CHECK1               0xfe
+#define COMMAND_CHECK2               0xff
+#define COMMAND_ID_GPS_PASSTHROUGH   0x01
+#define COMMAND_CONFIG_PARAM_READ    0x07
+#define COMMAND_CONFIG_PARAM_WRITE   0x08
+#define COMMAND_CONFIG_FLASH_READ    0x09
+#define COMMAND_CONFIG_FLASH_WRITE   0x0a
 #define COMMAND_CONFIG_FACTORY_RESET 0x0b
-#define COMMAND_TELEMETRY_ENABLE    0x0c
-#define COMMAND_TELEMETRY_DISABLE   0x0d
-#define COMMAND_PID_START_DUMP     0x0e
-#define COMMAND_PID_STOP_DUMP     0x0f
-#define COMMAND_GPS_PACKET     0x10
-#define COMMAND_ACC_IN      0x11
-#define COMMAND_ID_ACK      0xfe
-#define COMMAND_ID_NACK      0xff
+#define COMMAND_TELEMETRY_ENABLE     0x0c
+#define COMMAND_TELEMETRY_DISABLE    0x0d
+#define COMMAND_PID_START_DUMP       0x0e
+#define COMMAND_PID_STOP_DUMP        0x0f
+#define COMMAND_GPS_PACKET           0x10
+#define COMMAND_ACC_IN               0x11
+#define COMMAND_ID_ACK               0xfe
+#define COMMAND_ID_NACK              0xff
 
 typedef struct {
     unsigned char commandId;
@@ -70,7 +68,7 @@ typedef struct {
     unsigned char len;
     unsigned char checkA, checkB;
     unsigned long checksumErrors;
-} CC_ALIGNED commandStruct_t;
+} commandStruct_t;
 
 extern commandStruct_t commandData;
 

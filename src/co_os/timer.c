@@ -13,6 +13,8 @@
  *******************************************************************************
  */
 
+
+
 /*---------------------------- Include ---------------------------------------*/
 #include <coocox.h>
 
@@ -22,6 +24,8 @@
 TmrCtrl    TmrTbl[CFG_MAX_TMR]= {{0}};/*!< Table which save timer control block.*/
 P_TmrCtrl  TmrList     = Co_NULL;      /*!< The header of the TmrCtrl list.      */
 U32        TmrIDVessel = 0;         /*!< Timer ID container.                  */
+
+
 /**
  *******************************************************************************
  * @brief      Insert a timer into the timer list
@@ -34,35 +38,45 @@ U32        TmrIDVessel = 0;         /*!< Timer ID container.                  */
  * @details    This function is called to insert a timer into the timer list.
  *******************************************************************************
  */
-static void InsertTmrList(OS_TCID tmrID) {
+static void InsertTmrList(OS_TCID tmrID)
+{
     P_TmrCtrl pTmr;
     S32 deltaTicks;
     U32 tmrCnt;
     tmrCnt = TmrTbl[tmrID].tmrCnt;      /* Get timer time                     */
 
-    if(tmrCnt == 0) {                   /* Is timer time==0?                  */
+    if(tmrCnt == 0)                     /* Is timer time==0?                  */
+    {
         return;                         /* Do nothing,return                  */
     }
 
     OsSchedLock();                      /* Lock schedule                      */
-    if(TmrList == Co_NULL) {               /* Is no item in timer list?          */
+    if(TmrList == Co_NULL)                 /* Is no item in timer list?          */
+    {
         TmrList = &TmrTbl[tmrID];       /* Yes,set this as first item         */
-    } else {              /* No,find correct place ,and insert inserted timer */
+    }
+    else                  /* No,find correct place ,and insert inserted timer */
+    {
         pTmr       = TmrList;
         deltaTicks = tmrCnt;            /* Get timer tick                     */
 
         /* find correct place */
-        while(pTmr != Co_NULL) {
+        while(pTmr != Co_NULL)
+        {
             deltaTicks -= pTmr->tmrCnt; /* Get ticks with previous item       */
-            if(deltaTicks < 0) {        /* Is delta ticks<0?                  */
+            if(deltaTicks < 0)          /* Is delta ticks<0?                  */
+            {
                 /* Yes,get correct place */
-                if(pTmr->tmrPrev!= Co_NULL) { /* Is head item of timer list?        */
+                if(pTmr->tmrPrev!= Co_NULL)/* Is head item of timer list?        */
+                {
                     /* No,insert into */
                     pTmr->tmrPrev->tmrNext = &TmrTbl[tmrID];
                     TmrTbl[tmrID].tmrPrev  = pTmr->tmrPrev;
                     TmrTbl[tmrID].tmrNext  = pTmr;
                     pTmr->tmrPrev          = &TmrTbl[tmrID];
-                } else {                /* Yes,set task as first item         */
+                }
+                else                    /* Yes,set task as first item         */
+                {
                     TmrTbl[tmrID].tmrNext = TmrList;
                     TmrList->tmrPrev      = &TmrTbl[tmrID];
                     TmrList               = &TmrTbl[tmrID];
@@ -72,7 +86,8 @@ static void InsertTmrList(OS_TCID tmrID) {
                 break;
             }
             /* Is last item in list? */
-            else if((deltaTicks >= 0) && (pTmr->tmrNext == Co_NULL)) {
+            else if((deltaTicks >= 0) && (pTmr->tmrNext == Co_NULL))
+            {
                 /* Yes,insert into */
                 TmrTbl[tmrID].tmrPrev = pTmr;
                 pTmr->tmrNext         = &TmrTbl[tmrID];
@@ -84,6 +99,8 @@ static void InsertTmrList(OS_TCID tmrID) {
     }
     OsSchedUnlock();                    /* Unlock schedule                    */
 }
+
+
 /**
  *******************************************************************************
  * @brief      Remove a timer from the timer list
@@ -95,7 +112,8 @@ static void InsertTmrList(OS_TCID tmrID) {
  * @details    This function is called to remove a timer from the timer list.
  *******************************************************************************
  */
-static void RemoveTmrList(OS_TCID tmrID) {
+static void RemoveTmrList(OS_TCID tmrID)
+{
     P_TmrCtrl pTmr;
 
     pTmr = &TmrTbl[tmrID];
@@ -103,19 +121,25 @@ static void RemoveTmrList(OS_TCID tmrID) {
     OsSchedLock();                      /* Lock schedule                      */
 
     /* Is there only one item in timer list?                                  */
-    if((pTmr->tmrPrev == Co_NULL) && (pTmr->tmrNext == Co_NULL)) {
+    if((pTmr->tmrPrev == Co_NULL) && (pTmr->tmrNext == Co_NULL))
+    {
         TmrList = Co_NULL;                 /* Yes,set timer list as Co_NULL         */
-    } else if(pTmr->tmrPrev == Co_NULL) {  /* Is the first item in timer list?   */
-        /* Yes,remove timer from list,and reset timer list                    */
+    }
+    else if(pTmr->tmrPrev == Co_NULL)      /* Is the first item in timer list?   */
+    {   /* Yes,remove timer from list,and reset timer list                    */
         TmrList  = pTmr->tmrNext;
         TmrList->tmrPrev = Co_NULL;
         pTmr->tmrNext->tmrCnt += pTmr->tmrCnt;
         pTmr->tmrNext    = Co_NULL;
-    } else if(pTmr->tmrNext == Co_NULL) {  /* Is the last item in timer list?    */
+    }
+    else if(pTmr->tmrNext == Co_NULL)      /* Is the last item in timer list?    */
+    {
         /* Yes,remove timer form list */
         pTmr->tmrPrev->tmrNext = Co_NULL;
         pTmr->tmrPrev = Co_NULL;
-    } else {                            /* No, remove timer from list         */
+    }
+    else                                /* No, remove timer from list         */
+    {
         pTmr->tmrPrev->tmrNext  =  pTmr->tmrNext;
         pTmr->tmrNext->tmrPrev  =  pTmr->tmrPrev;
         pTmr->tmrNext->tmrCnt  += pTmr->tmrCnt;
@@ -124,6 +148,8 @@ static void RemoveTmrList(OS_TCID tmrID) {
     }
     OsSchedUnlock();                    /* Unlock schedule                    */
 }
+
+
 /**
  *******************************************************************************
  * @brief      Create a timer
@@ -139,19 +165,24 @@ static void RemoveTmrList(OS_TCID tmrID) {
  * @details    This function is called to create a timer.
  *******************************************************************************
  */
-OS_TCID CoCreateTmr(U8 tmrType, U32 tmrCnt, U32 tmrReload, vFUNCPtr func) {
+OS_TCID CoCreateTmr(U8 tmrType, U32 tmrCnt, U32 tmrReload, vFUNCPtr func)
+{
     U8 i;
 #if CFG_PAR_CHECKOUT_EN >0              /* Check validity of parameter        */
-    if((tmrType != TMR_TYPE_ONE_SHOT) && (tmrType != TMR_TYPE_PERIODIC)) {
+    if((tmrType != TMR_TYPE_ONE_SHOT) && (tmrType != TMR_TYPE_PERIODIC))
+    {
         return E_CREATE_FAIL;
     }
-    if(func == Co_NULL) {
+    if(func == Co_NULL)
+    {
         return E_CREATE_FAIL;
     }
 #endif
     OsSchedLock();                        /* Lock schedule                    */
-    for(i = 0; i < CFG_MAX_TMR; i++) {
-        if((TmrIDVessel & (1 << i)) == 0) { /* Is free timer ID?                */
+    for(i = 0; i < CFG_MAX_TMR; i++)
+    {
+        if((TmrIDVessel & (1 << i)) == 0) /* Is free timer ID?                */
+        {
             TmrIDVessel |= (1<<i);        /* Yes,assign ID to this timer      */
             OsSchedUnlock();              /* Unlock schedule                  */
             TmrTbl[i].tmrID     = i;      /* Initialize timer as user set     */
@@ -168,6 +199,8 @@ OS_TCID CoCreateTmr(U8 tmrType, U32 tmrCnt, U32 tmrReload, vFUNCPtr func) {
     OsSchedUnlock();                      /* Unlock schedule                  */
     return E_CREATE_FAIL;                 /* Error return                     */
 }
+
+
 /**
  *******************************************************************************
  * @brief      Start counter
@@ -180,17 +213,21 @@ OS_TCID CoCreateTmr(U8 tmrType, U32 tmrCnt, U32 tmrReload, vFUNCPtr func) {
  * @details    This function is called to make a timer start countering.
  *******************************************************************************
  */
-StatusType CoStartTmr(OS_TCID tmrID) {
+StatusType CoStartTmr(OS_TCID tmrID)
+{
 #if CFG_PAR_CHECKOUT_EN >0              /* Check validity of parameter        */
-    if(tmrID >= CFG_MAX_TMR) {
+    if(tmrID >= CFG_MAX_TMR)
+    {
         return E_INVALID_ID;
     }
-    if( (TmrIDVessel & (1<<tmrID)) == 0) {
+    if( (TmrIDVessel & (1<<tmrID)) == 0)
+    {
         return E_INVALID_ID;
     }
 #endif
 
-    if(TmrTbl[tmrID].tmrState == TMR_STATE_RUNNING) { /* Is timer running?    */
+    if(TmrTbl[tmrID].tmrState == TMR_STATE_RUNNING)   /* Is timer running?    */
+    {
         return E_OK;                              /* Yes,do nothing,return OK */
     }
 
@@ -199,6 +236,8 @@ StatusType CoStartTmr(OS_TCID tmrID) {
     InsertTmrList(tmrID);               /* Insert this timer into timer list  */
     return E_OK;                        /* Return OK                          */
 }
+
+
 
 /**
  *******************************************************************************
@@ -212,16 +251,22 @@ StatusType CoStartTmr(OS_TCID tmrID) {
  * @details    This function is called to stop a timer from counting.
  *******************************************************************************
  */
-StatusType CoStopTmr(OS_TCID tmrID) {
+StatusType CoStopTmr(OS_TCID tmrID)
+{
 #if CFG_PAR_CHECKOUT_EN >0              /* Check validity of parameter        */
-    if(tmrID >= CFG_MAX_TMR) {
+    if(tmrID >= CFG_MAX_TMR)
+    {
         return E_INVALID_ID;
     }
-    if((TmrIDVessel & (1<<tmrID)) == 0) {
+    if((TmrIDVessel & (1<<tmrID)) == 0)
+    {
         return E_INVALID_ID;
     }
 #endif
-    if(TmrTbl[tmrID].tmrState == TMR_STATE_STOPPED) { /* Does timer stop running?*/
+
+
+    if(TmrTbl[tmrID].tmrState == TMR_STATE_STOPPED)/* Does timer stop running?*/
+    {
         return E_OK;                    /* Yes,do nothing,return OK           */
     }
     RemoveTmrList(tmrID);             /* No,remove this timer from timer list */
@@ -230,6 +275,8 @@ StatusType CoStopTmr(OS_TCID tmrID) {
     TmrTbl[tmrID].tmrState = TMR_STATE_STOPPED;
     return E_OK;                        /* Return OK                          */
 }
+
+
 /**
  *******************************************************************************
  * @brief      Delete a timer
@@ -242,22 +289,28 @@ StatusType CoStopTmr(OS_TCID tmrID) {
  * @details    This function is called to delete a timer which created before.
  *******************************************************************************
  */
-StatusType CoDelTmr(OS_TCID tmrID) {
+StatusType CoDelTmr(OS_TCID tmrID)
+{
 #if CFG_PAR_CHECKOUT_EN >0              /* Check validity of parameter        */
-    if(tmrID >= CFG_MAX_TMR) {
+    if(tmrID >= CFG_MAX_TMR)
+    {
         return E_INVALID_ID;
     }
-    if( (TmrIDVessel & (1<<tmrID)) == 0) {
+    if( (TmrIDVessel & (1<<tmrID)) == 0)
+    {
         return E_INVALID_ID;
     }
 #endif
 
-    if(TmrTbl[tmrID].tmrState == TMR_STATE_RUNNING) { /* Is timer running?      */
+    if(TmrTbl[tmrID].tmrState == TMR_STATE_RUNNING) /* Is timer running?      */
+    {
         RemoveTmrList(tmrID);         /* Yes,remove this timer from timer list*/
     }
     TmrIDVessel &=~(1<<tmrID);        /* Release resource that this timer hold*/
     return E_OK;                      /* Return OK                            */
 }
+
+
 /**
  *******************************************************************************
  * @brief      Get current counter of specify timer
@@ -270,13 +323,16 @@ StatusType CoDelTmr(OS_TCID tmrID) {
  * @details    This function is called to obtain current counter of specify timer.
  *******************************************************************************
  */
-U32 CoGetCurTmrCnt(OS_TCID tmrID,StatusType* perr) {
+U32 CoGetCurTmrCnt(OS_TCID tmrID,StatusType* perr)
+{
 #if CFG_PAR_CHECKOUT_EN >0              /* Check validity of parameter        */
-    if(tmrID >= CFG_MAX_TMR) {
+    if(tmrID >= CFG_MAX_TMR)
+    {
         *perr = E_INVALID_ID;
         return 0;
     }
-    if((TmrIDVessel & (1<<tmrID)) == 0) {
+    if((TmrIDVessel & (1<<tmrID)) == 0)
+    {
         *perr = E_INVALID_ID;
         return 0;
     }
@@ -284,6 +340,8 @@ U32 CoGetCurTmrCnt(OS_TCID tmrID,StatusType* perr) {
     *perr = E_OK;
     return TmrTbl[tmrID].tmrCnt;        /* Return timer counter               */
 }
+
+
 /**
  *******************************************************************************
  * @brief      Setting for a specify timer
@@ -298,24 +356,30 @@ U32 CoGetCurTmrCnt(OS_TCID tmrID,StatusType* perr) {
  * @details    This function is called to set timer counter and reload value.
  *******************************************************************************
  */
-StatusType CoSetTmrCnt(OS_TCID tmrID,U32 tmrCnt,U32 tmrReload) {
+StatusType CoSetTmrCnt(OS_TCID tmrID,U32 tmrCnt,U32 tmrReload)
+{
 #if CFG_PAR_CHECKOUT_EN >0              /* Check validity of parameter        */
-    if(tmrID >= CFG_MAX_TMR) {
+    if(tmrID >= CFG_MAX_TMR)
+    {
         return E_INVALID_ID;
     }
-    if( (TmrIDVessel & (1<<tmrID)) == 0) {
+    if( (TmrIDVessel & (1<<tmrID)) == 0)
+    {
         return E_INVALID_ID;
     }
 #endif
     TmrTbl[tmrID].tmrCnt    = tmrCnt; /* Reset timer counter and reload value */
     TmrTbl[tmrID].tmrReload = tmrReload;
 
-    if(TmrTbl[tmrID].tmrState == TMR_STATE_RUNNING) { /* Is timer running?    */
+    if(TmrTbl[tmrID].tmrState == TMR_STATE_RUNNING)   /* Is timer running?    */
+    {
         RemoveTmrList(tmrID);           /* Yes,reorder timer in timer list    */
         InsertTmrList(tmrID);
     }
     return E_OK;                        /* Return OK                          */
 }
+
+
 /**
  *******************************************************************************
  * @brief      Timer counter dispose
@@ -327,19 +391,24 @@ StatusType CoSetTmrCnt(OS_TCID tmrID,U32 tmrCnt,U32 tmrReload) {
  * @details    This function is called to dispose timer counter.
  *******************************************************************************
  */
-void TmrDispose(void) {
+void TmrDispose(void)
+{
     P_TmrCtrl pTmr;
 
     pTmr = TmrList;                     /* Get first item of timer list       */
-    while((pTmr != Co_NULL) && (pTmr->tmrCnt == 0) ) {
-        if(pTmr->tmrType == TMR_TYPE_ONE_SHOT) {  /* Is a One-shot timer?     */
+    while((pTmr != Co_NULL) && (pTmr->tmrCnt == 0) )
+    {
+        if(pTmr->tmrType == TMR_TYPE_ONE_SHOT)    /* Is a One-shot timer?     */
+        {
             /* Yes,remove this timer from timer list                          */
             RemoveTmrList(pTmr->tmrID);
 
             /* Set timer status as TMR_STATE_STOPPED                          */
             pTmr->tmrState = TMR_STATE_STOPPED;
             (pTmr->tmrCallBack)();          /* Call timer callback function   */
-        } else if(pTmr->tmrType == TMR_TYPE_PERIODIC) { /* Is a periodic timer? */
+        }
+        else if(pTmr->tmrType == TMR_TYPE_PERIODIC)   /* Is a periodic timer? */
+        {
             /* Yes,remove this timer from timer list                          */
             RemoveTmrList(pTmr->tmrID);
             pTmr->tmrCnt = pTmr->tmrReload;   /* Reset timer tick             */
@@ -349,6 +418,8 @@ void TmrDispose(void) {
         pTmr = TmrList;                       /* Get first item of timer list */
     }
 }
+
+
 /**
  *******************************************************************************
  * @brief      Timer counter dispose in ISR
@@ -360,11 +431,15 @@ void TmrDispose(void) {
  * @details    This function is called to dispose timer counter.
  *******************************************************************************
  */
-void isr_TmrDispose(void) {
-    if(OSSchedLock > 1) {               /* Is schedule lock?                  */
+void isr_TmrDispose(void)
+{
+    if(OSSchedLock > 1)                 /* Is schedule lock?                  */
+    {
         IsrReq = Co_TRUE;
         TimerReq  = Co_TRUE;               /* Yes,set timer request true         */
-    } else {
+    }
+    else
+    {
         TmrDispose();                   /* No,call handler                    */
     }
 }

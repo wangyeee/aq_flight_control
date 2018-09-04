@@ -23,7 +23,13 @@
 #include "util.h"
 
 #define MPU6000_SPI_REG_BAUD     SPI_BaudRatePrescaler_64 // initial setup only
+#ifdef ICM20689
+#define MPU6000_SPI_RUN_BAUD     SPI_BaudRatePrescaler_8
+#define MPU6000_WHO_AM_I 0x98
+#else
 #define MPU6000_SPI_RUN_BAUD     SPI_BaudRatePrescaler_4 // 10.5 MHz
+#define MPU6000_WHO_AM_I 0x68
+#endif
 
 #define MPU6000_READ_BIT     (0x01<<7)
 #define MPU6000_WRITE_BIT     (0x00<<7)
@@ -32,18 +38,18 @@
 #define MPU6000_SLOT_SIZE     ((MPU6000_BYTES+sizeof(int)-1) / sizeof(int) * sizeof(int))
 
 #ifndef MPU6000_SLOTS
-#define MPU6000_SLOTS     80          // 100Hz bandwidth
+    #define MPU6000_SLOTS     80          // 100Hz bandwidth
 #endif
 
 #define MPU6000_DRATE_SLOTS_QUATOS (MPU6000_SLOTS * 100.0f * DIMU_INNER_DT * 2.0f) // variable
 #define MPU6000_DRATE_SLOTS_PID  40  // 200Hz
 
 #ifndef MPU6000_DRATE_SLOTS
-#ifdef HAS_QUATOS
-#define MPU6000_DRATE_SLOTS ((int)p[QUATOS_ENABLE] ? MPU6000_DRATE_SLOTS_QUATOS : MPU6000_DRATE_SLOTS_PID)
-#else
-#define MPU6000_DRATE_SLOTS MPU6000_DRATE_SLOTS_PID
-#endif
+    #ifdef HAS_QUATOS
+ #define MPU6000_DRATE_SLOTS ((int)p[QUATOS_ENABLE] ? MPU6000_DRATE_SLOTS_QUATOS : MPU6000_DRATE_SLOTS_PID)
+    #else
+ #define MPU6000_DRATE_SLOTS MPU6000_DRATE_SLOTS_PID
+    #endif
 #endif
 
 typedef struct {
@@ -72,7 +78,7 @@ extern mpu6000Struct_t mpu6000Data;
 
 extern void mpu6000PreInit(void);
 extern void mpu6000Init(void);
-extern void mpu6600InitialBias(void);
+extern void mpu6000InitialBias(void);
 extern void mpu6000Decode(void);
 extern void mpu6000DrateDecode(void);
 extern void mpu6000Enable(void);

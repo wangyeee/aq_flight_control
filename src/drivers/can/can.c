@@ -14,7 +14,7 @@
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
     Copyright (c) 2011-2014  Bill Nesbitt
-*/
+ */
 
 #include "aq.h"
 #include "config.h"
@@ -32,14 +32,14 @@
 canStruct_t canData;
 
 const char *canTypeStrings[] = {
-    "NONE",
-    "ESC",
-    "SERVO",
-    "SENSOR",
-    "SWITCH",
-    "OSD",
-    "UART",
-    "HUB"
+        "NONE",
+        "ESC",
+        "SERVO",
+        "SENSOR",
+        "SWITCH",
+        "OSD",
+        "UART",
+        "HUB"
 };
 
 static uint32_t canGetSeqId(void) {
@@ -87,7 +87,8 @@ static void __canSend(uint32_t id, uint8_t tid, uint8_t seqId, uint8_t n, void *
 
     if ((id & CAN_LCC_MASK) < CAN_LCC_NORMAL) {
         canData.txHeadHi = (canData.txHeadHi + 1) % CAN_BUF_SIZE_HI;
-    } else {
+    }
+    else {
         uint8_t head = (canData.txHeadLo + 1) % CAN_BUF_SIZE_LO;
 
         if (head == canData.txTailLo)
@@ -156,7 +157,8 @@ static uint8_t *canSendWaitResponse(uint32_t extId, uint8_t tid, uint8_t n, uint
     if (timeout == 0) {
         canData.timeouts++;
         return 0;
-    } else if (canData.responses[seqId] != (CAN_FID_NACK>>25)) {
+    }
+    else if (canData.responses[seqId] != (CAN_FID_NACK>>25)) {
         return &canData.responseData[seqId*8];
     }
     // NACK
@@ -194,8 +196,7 @@ int16_t canGetParamIdByName(uint8_t tid, uint8_t *name) {
 
     if (paramId)
         return *paramId;
-    else
-        return -1;
+    return -1;
 }
 
 float canGetParamById(uint8_t tid, uint16_t paramId) {
@@ -205,8 +206,7 @@ float canGetParamById(uint8_t tid, uint16_t paramId) {
 
     if (value)
         return *value;
-    else
-        return NAN;
+    return NAN;
 }
 
 float canGetParamByName(uint8_t tid, uint8_t *name) {
@@ -216,8 +216,7 @@ float canGetParamByName(uint8_t tid, uint8_t *name) {
 
     if (paramId >= 0)
         return canGetParamById(tid, paramId);
-    else
-        return NAN;
+    return NAN;
 }
 
 uint8_t *canSetRunMode(uint32_t tt, uint8_t tid, uint8_t mode) {
@@ -249,8 +248,7 @@ uint8_t *canSetParamByName(uint8_t tid, uint8_t *name, float value) {
 
     if (paramId >= 0)
         return canSetParamById(tid, paramId, value);
-    else
-        return 0;
+    return 0;
 }
 
 uint8_t *canCommandBeep(uint32_t tt, uint8_t tid, uint16_t freq, uint16_t dur) {
@@ -394,7 +392,7 @@ static uint8_t canProcessMessage(canBuf_t *rx) {
         ret = 1;
         break;
 
-    // telemetry callbacks
+        // telemetry callbacks
     case CAN_FID_TELEM:
         if (canData.telemFuncs[canData.nodes[sid-1].type])
             canData.telemFuncs[canData.nodes[sid-1].type](canData.nodes[sid-1].canId, doc, data);

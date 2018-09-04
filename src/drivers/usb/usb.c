@@ -14,7 +14,7 @@
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
     Copyright (c) 2011-2014  Bill Nesbitt
-*/
+ */
 
 #include "usb.h"
 #include "usbd_cdc_msc_core.h"
@@ -31,21 +31,21 @@ static uint16_t usbVcpDataTx   (uint8_t* buf, uint32_t len);
 static uint16_t usbVcpDataRx   (uint8_t* buf, uint32_t len);
 
 CDC_IF_Prop_TypeDef VCP_fops = {
-    usbVcpInit,
-    usbVcpDeInit,
-    usbVcpCtrl,
-    usbVcpDataTx,
-    usbVcpDataRx
+        usbVcpInit,
+        usbVcpDeInit,
+        usbVcpCtrl,
+        usbVcpDataTx,
+        usbVcpDataRx
 };
 
 USBD_Usr_cb_TypeDef USR_cb = {
-    USBD_USR_Init,
-    USBD_USR_DeviceReset,
-    USBD_USR_DeviceConfigured,
-    USBD_USR_DeviceSuspended,
-    USBD_USR_DeviceResumed,
-    USBD_USR_DeviceConnected,
-    USBD_USR_DeviceDisconnected,
+        USBD_USR_Init,
+        USBD_USR_DeviceReset,
+        USBD_USR_DeviceConfigured,
+        USBD_USR_DeviceSuspended,
+        USBD_USR_DeviceResumed,
+        USBD_USR_DeviceConnected,
+        USBD_USR_DeviceDisconnected,
 };
 
 // These are external variables imported from CDC core to be used for IN
@@ -65,18 +65,18 @@ extern uint32_t APP_Rx_ptr_in;     // Increment this pointer or roll it back to
 
 __ALIGN_BEGIN USB_OTG_CORE_HANDLE    USB_OTG_dev __ALIGN_END ;
 
-usbStruct_t usbData __attribute__((section(".ccm")));
+usbStruct_t usbData CCM_RAM;
 
 void usbInit(void) {
     USBD_Init(&USB_OTG_dev,
 #ifdef USE_USB_OTG_HS
-              USB_OTG_HS_CORE_ID,
+            USB_OTG_HS_CORE_ID,
 #else
-              USB_OTG_FS_CORE_ID,
+            USB_OTG_FS_CORE_ID,
 #endif
-              &USR_desc,
-              &USBD_CDC_MSC_cb,
-              &USR_cb);
+            &USR_desc,
+            &USBD_CDC_MSC_cb,
+            &USR_cb);
 }
 
 static uint16_t usbVcpInit(void) {
@@ -116,18 +116,18 @@ static uint16_t usbVcpCtrl(uint32_t Cmd, uint8_t* Buf, uint32_t Len) {
         }
         break;
 
-    case GET_LINE_CODING:
-        Buf[0] = (uint8_t)(usbData.lineCoding.bitrate);
-        Buf[1] = (uint8_t)(usbData.lineCoding.bitrate >> 8);
-        Buf[2] = (uint8_t)(usbData.lineCoding.bitrate >> 16);
-        Buf[3] = (uint8_t)(usbData.lineCoding.bitrate >> 24);
-        Buf[4] = usbData.lineCoding.format;
-        Buf[5] = usbData.lineCoding.parityType;
-        Buf[6] = usbData.lineCoding.dataType;
-        break;
+        case GET_LINE_CODING:
+            Buf[0] = (uint8_t)(usbData.lineCoding.bitrate);
+            Buf[1] = (uint8_t)(usbData.lineCoding.bitrate >> 8);
+            Buf[2] = (uint8_t)(usbData.lineCoding.bitrate >> 16);
+            Buf[3] = (uint8_t)(usbData.lineCoding.bitrate >> 24);
+            Buf[4] = usbData.lineCoding.format;
+            Buf[5] = usbData.lineCoding.parityType;
+            Buf[6] = usbData.lineCoding.dataType;
+            break;
 
-    default:
-        break;
+        default:
+            break;
     }
 
     return USBD_OK;
@@ -160,11 +160,7 @@ static uint16_t usbVcpDataRx(uint8_t* buf, uint32_t len) {
 extern uint8_t  USB_Tx_State;
 extern uint8_t  USB_DTE_Present;
 
-#ifdef __CROSSWORKS_ARM
-// do not include this file when compiling with gcc
-#include <__cross_studio_io.h>
-#endif
-
+//#include <__cross_studio_io.h>
 void USBD_USR_Init(void) {
 }
 

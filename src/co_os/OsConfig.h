@@ -13,8 +13,12 @@
  * <h2><center>&copy; COPYRIGHT 2009 CooCox </center></h2>
  *******************************************************************************
  */
+
+
 #ifndef  _CONFIG_H
 #define  _CONFIG_H
+
+
 /*!<
 Defines chip type,cortex-m3(1),cortex-m0(2)
 */
@@ -59,6 +63,8 @@ If disable(0),CoOS use Binary-Scheduling Algorithm.
 #else
 #define CFG_ORDER_LIST_SCHEDULE_EN  (0)
 #endif
+
+
 /*!<
 Enable(1) or disable(0) Round-Robin Task switching.
 */
@@ -70,6 +76,8 @@ Default slice of task.
 #if CFG_ROBIN_EN > 0
 #define CFG_TIME_SLICE          (10)
 #endif
+
+
 /*----------------------- Schedule model Config -----------------------------*/
 /*!<
 Enable(1) or disable(0) all waiting function.
@@ -89,6 +97,8 @@ If in Static Task Scheduling model(0),mutex module can not be used, as this mode
 support to change task priority while CoOS running.
 */
 #define CFG_TASK_SCHEDULE_EN     (1)
+
+
 /*---------------------- Task Management Config -----------------------------*/
 /*!<
 Enable(1) or disable(0) CoSetPriority() API.
@@ -101,6 +111,8 @@ Enable(1) or disable(0) CoSetPriority() API.
 Enable(1) or disable(0) CoAwakeTask() and CoSuspendTask() API.
 */
 #define CFG_TASK_SUSPEND_EN       (0)
+
+
 /*---------------------- Debug Management Config ----------------------------*/
 /*!<
 Enable(1) or disable(0) parameter checkout .
@@ -111,6 +123,8 @@ Enable(1) or disable(0) parameter checkout .
 Enable(1) or disable(0) stack overflow checkout .
 */
 #define CFG_STK_CHECKOUT_EN     (0)
+
+
 
 /*---------------------- Memory Management Config ----------------------------*/
 /*!<
@@ -125,6 +139,8 @@ Max number of memory.(must be less than 32).
 #define CFG_MAX_MM              (2)
 #endif
 
+
+
 /*-------------------- Kernel heap Management Config -------------------------*/
 /*!<
 Enable(1) or disable(0) kernel heap management.
@@ -138,6 +154,8 @@ Kernel heap size(word).
 #define KHEAP_SIZE              (50)
 #endif
 
+
+
 /*---------------------- Time Management Config -----------------------------*/
 /*!<
 Enable(1) or disable(0) TimeDelay() API.
@@ -145,6 +163,8 @@ Enable(1) or disable(0) TimeDelay() API.
 #if CFG_TASK_WAITTING_EN >0
 #define CFG_TIME_DELAY_EN       (0)
 #endif
+
+
 /*---------------------- Timer Management Config ----------------------------*/
 /*!<
 Enable(1) or disable(0) timer management.
@@ -157,6 +177,8 @@ Specify max number timer.(must be less than 32)
 #if CFG_TMR_EN >0
 #define CFG_MAX_TMR             (2)
 #endif
+
+
 /*---------------------- Event Management Config ----------------------------*/
 /*!<
 Enable(1) or disable(0) events management,
@@ -202,6 +224,8 @@ Max number of queue.(less than CFG_MAX_EVENT).
 
 #endif   // CFG_EVENT_EN
 
+
+
 /*----------------------- Flag Management Config ----------------------------*/
 /*!<
 Enable(1) or disable(0) flag management.
@@ -210,6 +234,8 @@ Max number of flag is 32.
 #if CFG_TASK_WAITTING_EN > 0
 #define  CFG_FLAG_EN           (1)
 #endif
+
+
 /*---------------------- Mutex Management Config ----------------------------*/
 /*!<
 Enable(1) or disable(0) mutex management.
@@ -219,6 +245,8 @@ Enable(1) or disable(0) mutex management.
 #define  CFG_MUTEX_EN           (1)
 #endif
 #endif
+
+
 /*!<
 Max number of mutex.(must be less than 255).
 */
@@ -243,4 +271,6 @@ Enable(1) or disable(0) TimeToTick() utility
 */
 #define CFG_TIME_TO_TICK_EN     (0)
 #endif
+
+
 #endif  // _CONFIG_H

@@ -19,6 +19,9 @@
 #ifndef _rcc_h
 #define _rcc_h
 
+#include "stm32f4xx.h"
+#include "stm32f4xx_rcc.h"
+
 #define RTC_MASK_YEAR (0b1111111<<25)
 #define RTC_MASK_MONTH (0b1111<<21)
 #define RTC_MASK_DAY (0b11111<<16)

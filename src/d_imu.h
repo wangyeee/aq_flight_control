@@ -29,8 +29,9 @@
 #include "hmc5983.h"
 #include "ms5611.h"
 #include "max21100.h"
+#include "mag3110.h"
 
-#define DIMU_STACK_SIZE     384     // must be evenly divisible by 8
+#define DIMU_STACK_SIZE   384 // 248     // must be evenly divisible by 8
 #define DIMU_PRIORITY     11
 
 #define DIMU_OUTER_PERIOD   5000       // us (200 Hz)
@@ -39,14 +40,23 @@
 #define DIMU_INNER_DT     ((float)DIMU_INNER_PERIOD / 1e6f)
 #define DIMU_TEMP_TAU     5.0f
 
+#if BOARD_VERSION == 9 && (BOARD_REVISION == 1 || BOARD_REVISION == 2)
+#define DIMU_TIM        TIM1
+#define DIMU_CLOCK      (rccClocks.PCLK2_Frequency * 2)
+#define DIMU_EN         RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE)
+#define DIMU_IRQ_CH     TIM1_CC_IRQn
+#define DIMU_ISR        TIM1_CC_IRQHandler
+#else
+// TIM12 is used to generate PWM
 #define DIMU_TIM     TIM12
-#define DIMU_CLOCK     (rccClocks.PCLK1_Frequency * 2)
+#define DIMU_CLOCK   (rccClocks.PCLK1_Frequency * 2)
 #define DIMU_EN      RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM12, ENABLE)
-#define DIMU_IRQ_CH     TIM8_BRK_TIM12_IRQn
+#define DIMU_IRQ_CH  TIM8_BRK_TIM12_IRQn
 #define DIMU_ISR     TIM8_BRK_TIM12_IRQHandler
+#endif
 
 #ifndef __rev16
-#define __rev16 __REV16
+    #define __rev16 __REV16
 #endif
 
 typedef void dIMUCallback_t(int);
@@ -65,7 +75,7 @@ typedef struct {
     volatile uint32_t lastUpdate;
 
     uint8_t calibReadWriteFlag;  // 0=no request, 1=read request, 2=write request
-} CC_ALIGNED dImuStruct_t;
+} dImuStruct_t;
 
 extern dImuStruct_t dImuData;
 

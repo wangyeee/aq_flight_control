@@ -14,7 +14,7 @@
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
     Copyright (c) 2011-2014  Bill Nesbitt
-*/
+ */
 
 #include "aq.h"
 #ifdef HAS_AIMU
@@ -29,7 +29,7 @@
 #include <math.h>
 #include <CoOS.h>
 
-adcStruct_t adcData __attribute__((section(".ccm")));
+adcStruct_t adcData CCM_RAM;
 struct {
     uint16_t adc123Raw1[ADC_CHANNELS*3];
     uint16_t adc123Raw2[ADC_CHANNELS*3];
@@ -78,21 +78,21 @@ void adcTaskCode(void *unused) {
     firstAfterFlip = 0;
 
     while (1) {
-// wait for work
+        // wait for work
         CoWaitForSingleFlag(adcData.adcFlag, 0);
 
         loops = adcData.loops;
 
-// sum adc values
+        // sum adc values
         for (i = 0; i < ADC_SENSORS; i++)
             adcData.channelSums[i] += adcData.adcSums[i];
 
-// IDG500 & ISZ500 gyro double rate
+        // IDG500 & ISZ500 gyro double rate
         dRateVoltageX = adcData.adcSums[ADC_VOLTS_RATEX] * ADC_DIVISOR * (1.0 / 4.0);
         dRateVoltageY = adcData.adcSums[ADC_VOLTS_RATEY] * ADC_DIVISOR * (1.0 / 4.0);
         dRateVoltageZ = adcData.adcSums[ADC_VOLTS_RATEZ] * ADC_DIVISOR * (1.0 / 4.0);
 
-// rates
+        // rates
         x = +(dRateVoltageX + adcData.rateBiasX + p[IMU_GYO_BIAS1_X]*dTemp + p[IMU_GYO_BIAS2_X]*dTemp2 + p[IMU_GYO_BIAS3_X]*dTemp3);// / p[IMU_GYO_SCAL_X];
         y = -(dRateVoltageY + adcData.rateBiasY + p[IMU_GYO_BIAS1_Y]*dTemp + p[IMU_GYO_BIAS2_Y]*dTemp2 + p[IMU_GYO_BIAS3_Y]*dTemp3);// / p[IMU_GYO_SCAL_Y];
         z = -(dRateVoltageZ + adcData.rateBiasZ + p[IMU_GYO_BIAS1_Z]*dTemp + p[IMU_GYO_BIAS2_Z]*dTemp2 + p[IMU_GYO_BIAS3_Z]*dTemp3);// / p[IMU_GYO_SCAL_Z];
@@ -108,15 +108,15 @@ void adcTaskCode(void *unused) {
         adcData.dRateX = (adcData.dRateX + a * imuData.cosRot - b * imuData.sinRot) * 0.5f;
         adcData.dRateY = (adcData.dRateY + b * imuData.cosRot + a * imuData.sinRot) * 0.5f;
         adcData.dRateZ = (adcData.dRateZ + c) * 0.5f;
-// adcData.dRateX = a * imuData.cosRot - b * imuData.sinRot;
-// adcData.dRateY = b * imuData.cosRot + a * imuData.sinRot;
-// adcData.dRateZ = c;
+        // adcData.dRateX = a * imuData.cosRot - b * imuData.sinRot;
+        // adcData.dRateY = b * imuData.cosRot + a * imuData.sinRot;
+        // adcData.dRateZ = c;
 
-// notify IMU of double rate GYO readings are ready
+        // notify IMU of double rate GYO readings are ready
         imuAdcDRateReady();
 
-// mags
-// we need to discard frames after mag bias flips
+        // mags
+        // we need to discard frames after mag bias flips
         if (firstAfterFlip) {
             adcData.channelSums[ADC_VOLTS_MAGX] -= adcData.adcSums[ADC_VOLTS_MAGX];
             adcData.channelSums[ADC_VOLTS_MAGY] -= adcData.adcSums[ADC_VOLTS_MAGY];
@@ -151,12 +151,10 @@ void adcTaskCode(void *unused) {
                 adcData.channelSums[i] = 0;
 
             // temperature from IDG500
-            adcData.temp1 = adcData.temp1 * (1.0f - ADC_TEMP_SMOOTH) + (adcIDGVoltsToTemp(adcData.voltages[ADC_VOLTS_TEMP1]) + ADC_TEMP1_OFFSET) *
-                            ADC_TEMP_SMOOTH;
+            adcData.temp1 = adcData.temp1 * (1.0f - ADC_TEMP_SMOOTH) + (adcIDGVoltsToTemp(adcData.voltages[ADC_VOLTS_TEMP1]) + ADC_TEMP1_OFFSET) * ADC_TEMP_SMOOTH;
 
             // temperature from ISZ500
-            adcData.temp2 = adcData.temp2 * (1.0f - ADC_TEMP_SMOOTH) + (adcIDGVoltsToTemp(adcData.voltages[ADC_VOLTS_TEMP2]) + ADC_TEMP2_OFFSET) *
-                            ADC_TEMP_SMOOTH;
+            adcData.temp2 = adcData.temp2 * (1.0f - ADC_TEMP_SMOOTH) + (adcIDGVoltsToTemp(adcData.voltages[ADC_VOLTS_TEMP2]) + ADC_TEMP2_OFFSET) * ADC_TEMP_SMOOTH;
 
             // temperature from T1
             adcData.temp3 = adcData.temp3 * (1.0f - ADC_TEMP_SMOOTH) + (adcT1VoltsToTemp(adcData.voltages[ADC_VOLTS_TEMP3]) + ADC_TEMP3_OFFSET) * ADC_TEMP_SMOOTH;
@@ -169,12 +167,9 @@ void adcTaskCode(void *unused) {
             dTemp3 = dTemp2*dTemp;
 
             // rates
-            x = +(adcData.voltages[ADC_VOLTS_RATEX] + adcData.rateBiasX + p[IMU_GYO_BIAS1_X]*dTemp + p[IMU_GYO_BIAS2_X]*dTemp2 +
-                  p[IMU_GYO_BIAS3_X]*dTemp3);// / p[IMU_GYO_SCAL_X];
-            y = -(adcData.voltages[ADC_VOLTS_RATEY] + adcData.rateBiasY + p[IMU_GYO_BIAS1_Y]*dTemp + p[IMU_GYO_BIAS2_Y]*dTemp2 +
-                  p[IMU_GYO_BIAS3_Y]*dTemp3);// / p[IMU_GYO_SCAL_Y];
-            z = -(adcData.voltages[ADC_VOLTS_RATEZ] + adcData.rateBiasZ + p[IMU_GYO_BIAS1_Z]*dTemp + p[IMU_GYO_BIAS2_Z]*dTemp2 +
-                  p[IMU_GYO_BIAS3_Z]*dTemp3);// / p[IMU_GYO_SCAL_Z];
+            x = +(adcData.voltages[ADC_VOLTS_RATEX] + adcData.rateBiasX + p[IMU_GYO_BIAS1_X]*dTemp + p[IMU_GYO_BIAS2_X]*dTemp2 + p[IMU_GYO_BIAS3_X]*dTemp3);// / p[IMU_GYO_SCAL_X];
+            y = -(adcData.voltages[ADC_VOLTS_RATEY] + adcData.rateBiasY + p[IMU_GYO_BIAS1_Y]*dTemp + p[IMU_GYO_BIAS2_Y]*dTemp2 + p[IMU_GYO_BIAS3_Y]*dTemp3);// / p[IMU_GYO_SCAL_Y];
+            z = -(adcData.voltages[ADC_VOLTS_RATEZ] + adcData.rateBiasZ + p[IMU_GYO_BIAS1_Z]*dTemp + p[IMU_GYO_BIAS2_Z]*dTemp2 + p[IMU_GYO_BIAS3_Z]*dTemp3);// / p[IMU_GYO_SCAL_Z];
 
             a = x + y*p[IMU_GYO_ALGN_XY] + z*p[IMU_GYO_ALGN_XZ];
             b = x*p[IMU_GYO_ALGN_YX] + y + z*p[IMU_GYO_ALGN_YZ];
@@ -212,16 +207,13 @@ void adcTaskCode(void *unused) {
 
 #ifdef ADC_PRESSURE_3V3
             // MP3H61115A
-            adcData.pressure1 = (adcData.pressure1  + ((adcData.voltages[ADC_VOLTS_PRES1] + (0.095f * ADC_REF_VOLTAGE)) * (1000.0f /
-                                 (0.009f * ADC_REF_VOLTAGE)))) * 0.5f;
-            adcData.pressure2 = (adcData.pressure2  + ((adcData.voltages[ADC_VOLTS_PRES2] + (0.095f * ADC_REF_VOLTAGE)) * (1000.0f /
-                                 (0.009f * ADC_REF_VOLTAGE)))) * 0.5f;
+            adcData.pressure1 = (adcData.pressure1  + ((adcData.voltages[ADC_VOLTS_PRES1] + (0.095f * ADC_REF_VOLTAGE)) * (1000.0f / (0.009f * ADC_REF_VOLTAGE)))) * 0.5f;
+            adcData.pressure2 = (adcData.pressure2  + ((adcData.voltages[ADC_VOLTS_PRES2] + (0.095f * ADC_REF_VOLTAGE)) * (1000.0f / (0.009f * ADC_REF_VOLTAGE)))) * 0.5f;
 #endif
 
 #ifdef ADC_PRESSURE_5V
             // MPXH6101A
-            adcData.pressure1 = (adcData.pressure1  + (((ADC_REF_VOLTAGE - adcData.voltages[ADC_VOLTS_PRES1]) * (5.0f / ADC_REF_VOLTAGE)) + 0.54705f) / 0.05295f *
-                                 1000.0f) * 0.5f;
+            adcData.pressure1 = (adcData.pressure1  + (((ADC_REF_VOLTAGE - adcData.voltages[ADC_VOLTS_PRES1]) * (5.0f / ADC_REF_VOLTAGE)) + 0.54705f) / 0.05295f * 1000.0f) * 0.5f;
 #endif
             if (p[IMU_PRESS_SENSE] == 0.0f)
                 adcData.pressure = adcData.pressure1;
@@ -231,12 +223,9 @@ void adcTaskCode(void *unused) {
                 adcData.pressure = (adcData.pressure1 + adcData.pressure2) * 0.5f;
 
             // MAGS: bias
-            x = +((adcData.voltages[ADC_VOLTS_MAGX] - adcData.magBridgeBiasX) * (magSign ? -1 : 1) + p[IMU_MAG_BIAS_X] + p[IMU_MAG_BIAS1_X]*dTemp +
-                  p[IMU_MAG_BIAS2_X]*dTemp2 + p[IMU_MAG_BIAS3_X]*dTemp3);
-            y = +((adcData.voltages[ADC_VOLTS_MAGY] - adcData.magBridgeBiasY) * (magSign ? -1 : 1) + p[IMU_MAG_BIAS_Y] + p[IMU_MAG_BIAS1_Y]*dTemp +
-                  p[IMU_MAG_BIAS2_Y]*dTemp2 + p[IMU_MAG_BIAS3_Y]*dTemp3);
-            z = -((adcData.voltages[ADC_VOLTS_MAGZ] - adcData.magBridgeBiasZ) * (magSign ? -1 : 1) + p[IMU_MAG_BIAS_Z] + p[IMU_MAG_BIAS1_Z]*dTemp +
-                  p[IMU_MAG_BIAS2_Z]*dTemp2 + p[IMU_MAG_BIAS3_Z]*dTemp3);
+            x = +((adcData.voltages[ADC_VOLTS_MAGX] - adcData.magBridgeBiasX) * (magSign ? -1 : 1) + p[IMU_MAG_BIAS_X] + p[IMU_MAG_BIAS1_X]*dTemp + p[IMU_MAG_BIAS2_X]*dTemp2 + p[IMU_MAG_BIAS3_X]*dTemp3);
+            y = +((adcData.voltages[ADC_VOLTS_MAGY] - adcData.magBridgeBiasY) * (magSign ? -1 : 1) + p[IMU_MAG_BIAS_Y] + p[IMU_MAG_BIAS1_Y]*dTemp + p[IMU_MAG_BIAS2_Y]*dTemp2 + p[IMU_MAG_BIAS3_Y]*dTemp3);
+            z = -((adcData.voltages[ADC_VOLTS_MAGZ] - adcData.magBridgeBiasZ) * (magSign ? -1 : 1) + p[IMU_MAG_BIAS_Z] + p[IMU_MAG_BIAS1_Z]*dTemp + p[IMU_MAG_BIAS2_Z]*dTemp2 + p[IMU_MAG_BIAS3_Z]*dTemp3);
 
             // store the mag sign used for this iteration
             adcData.magSign = (magSign ? -1 : 1);
@@ -266,7 +255,7 @@ void adcTaskCode(void *unused) {
             imuAdcSensorReady();
         }
 
-// flip our mag sign and try to refine bridge bias estimate
+        // flip our mag sign and try to refine bridge bias estimate
         if (magSign != ADC_MAG_SIGN) {
             magSign = ADC_MAG_SIGN;
 
@@ -564,7 +553,8 @@ void ADC_DMA_HANDLER(void) {
         if (++adcData.loops & 0x01) {
             if (ADC_MAG_SIGN) {
                 digitalLo(adcData.magSetReset);
-            } else {
+            }
+            else {
                 digitalHi(adcData.magSetReset);
             }
         }

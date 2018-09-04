@@ -14,7 +14,7 @@
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
     Copyright (c) 2011-2014  Bill Nesbitt
-*/
+ */
 
 #include "config.h"
 #ifdef HAS_DIGITAL_IMU
@@ -33,8 +33,7 @@ static void ms5611SendCommand(uint8_t cmd) {
     ms5611Data.spiFlag = 0;
     spiTransaction(ms5611Data.spi, &ms5611RxBuf, &ms5611TxBuf, 1);
 
-    while (!ms5611Data.spiFlag)
-        ;
+    while (!ms5611Data.spiFlag);
 }
 
 static uint32_t ms5611Read(uint8_t reg, uint8_t n) {
@@ -46,8 +45,7 @@ static uint32_t ms5611Read(uint8_t reg, uint8_t n) {
     ms5611Data.spiFlag = 0;
     spiTransaction(ms5611Data.spi, &ms5611RxBuf, &ms5611TxBuf, n+1);
 
-    while (!ms5611Data.spiFlag)
-        ;
+    while (!ms5611Data.spiFlag);
 
     val = 0;
     for (i = 0; i < n; i++)
@@ -86,7 +84,7 @@ static void ms5611Callback(int unused) {
             // temp conversion
             spiTransaction(ms5611Data.spi, &rxBuf[0], &ms5611Data.startTempConv, 1);
             dIMUSetAlarm1(9040, ms5611Callback, 0);
-//  dIMUSetAlarm1(600, ms5611Callback, 0);
+            //  dIMUSetAlarm1(600, ms5611Callback, 0);
             break;
 
         case 1:
@@ -102,7 +100,7 @@ static void ms5611Callback(int unused) {
             // pres conversion
             spiTransaction(ms5611Data.spi, &rxBuf[0], &ms5611Data.startPresConv, 1);
             dIMUSetAlarm1(9040, ms5611Callback, 0);
-//  dIMUSetAlarm1(600, ms5611Callback, 0);
+            //  dIMUSetAlarm1(600, ms5611Callback, 0);
             break;
 
         case 4:
@@ -136,7 +134,8 @@ void ms5611Decode(void) {
             // check if we are in the middle of a transaction for this slot
             if (i == ms5611Data.slot && ms5611Data.spiFlag == 0) {
                 divisor--;
-            } else {
+            }
+            else {
                 ptr = (uint8_t *)&ms5611Data.d2[i];
                 rawTemp += (ptr[1]<<16 | ptr[2]<<8 | ptr[3]);
 
@@ -225,31 +224,33 @@ uint8_t ms5611Init(void) {
 
     j = MS5611_RETRIES;
     do {
-// reset
+        // reset
         ms5611SendCommand(0x1e);
         delay(5);
 
-// read coefficients
+        // read coefficients
         for (i = 0; i < 8; i++) {
             while (ms5611Data.p[i] == 0x0000 || ms5611Data.p[i] == 0xffff) {
                 ms5611Data.p[i] = ms5611Read(0xa0 + i*2, 2);
                 delay(1);
             }
         }
-    } while (--j && ms5611CheckSum() != (ms5611Data.p[7] & 0x000f));
+    }
+    while (--j && ms5611CheckSum() != (ms5611Data.p[7] & 0x000f));
 
     if (j > 0) {
         ms5611Data.adcRead = 0x00;
 
         ms5611Data.startTempConv = 0x58;    // 4096 OSR
-//      ms5611Data.startTempConv = 0x50;    // 256 OSR
+        //      ms5611Data.startTempConv = 0x50;    // 256 OSR
         ms5611Data.startPresConv = 0x48; // 4096 OSR
         //    ms5611Data.startPresConv = 0x40; // 256 OSR
 
         spiChangeCallback(ms5611Data.spi, ms5611Callback);
 
         ms5611Data.initialized = 1;
-    } else {
+    }
+    else {
         ms5611Data.initialized = 0;
     }
 

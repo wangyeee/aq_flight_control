@@ -42,24 +42,32 @@
   * @brief This file is the Header file for usbd_core.c file
   * @{
   */
+
+
 /** @defgroup USBD_CORE_Exported_Defines
   * @{
   */
 
 typedef enum {
-    USBD_OK   = 0,
-    USBD_BUSY,
-    USBD_FAIL,
-} USBD_Status;
+  USBD_OK   = 0,
+  USBD_BUSY,
+  USBD_FAIL,
+}USBD_Status;
 /**
   * @}
   */
+
+
 /** @defgroup USBD_CORE_Exported_TypesDefinitions
   * @{
   */
+
+
 /**
   * @}
   */
+
+
 
 /** @defgroup USBD_CORE_Exported_Macros
   * @{
@@ -107,4 +115,6 @@ USBD_Status USBD_SetCfg(USB_OTG_CORE_HANDLE  *pdev, uint8_t cfgidx);
 */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+
+
 

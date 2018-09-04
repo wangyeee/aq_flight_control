@@ -14,14 +14,14 @@
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
     Copyright (c) 2011-2014  Bill Nesbitt
-*/
+ */
 
 #include "imu.h"
 #include "arm_math.h"
 #include "config.h"
 #include <string.h>
 
-imuStruct_t imuData __attribute__((section(".ccm")));
+imuStruct_t imuData CCM_RAM;
 
 // wait for lack of movement
 void imuQuasiStatic(int n) {
@@ -36,8 +36,7 @@ void imuQuasiStatic(int n) {
     j = 0;
     do {
         lastUpdate = IMU_LASTUPD;
-        while (lastUpdate == IMU_LASTUPD)
-            ;
+        while (lastUpdate == IMU_LASTUPD);
 
         vX[j] = IMU_ACCX;
         vY[j] = IMU_ACCY;

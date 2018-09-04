@@ -44,7 +44,7 @@ typedef struct {
 } cyrfStack_t;
 
 typedef struct {
-    uint32_t irqTime;
+ uint32_t irqTime;
     cyrfCallback_t *isrCallback, *timeoutCallback;
     uint8_t isrCallbackParam, timeoutCallbackParam;
     digitalPin *rst;

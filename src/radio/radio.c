@@ -14,7 +14,7 @@
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
     Copyright (c) 2011-2014  Bill Nesbitt
-*/
+ */
 
 #include "aq.h"
 #include "config.h"
@@ -30,7 +30,7 @@
 #include "comm.h"
 #include <string.h>
 
-radioStruct_t radioData __attribute__((section(".ccm")));
+radioStruct_t radioData CCM_RAM;
 
 OS_STK *radioTaskStack;
 
@@ -112,7 +112,7 @@ void radioTaskCode(void *unused) {
     AQ_NOTICE("Radio task started\n");
 
     while (1) {
-// wait for data
+        // wait for data
         yield(2); // 2ms
 
         for (i = 0; i < RADIO_NUM; i++) {

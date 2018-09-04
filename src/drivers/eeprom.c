@@ -1,20 +1,20 @@
 /*
-    This file is part of AutoQuad.
+  This file is part of AutoQuad.
 
-    AutoQuad is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  AutoQuad is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    AutoQuad is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-    You should have received a copy of the GNU General Public License
-    along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
+  AutoQuad is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+  You should have received a copy of the GNU General Public License
+  along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright (c) 2011-2014  Bill Nesbitt
-*/
+  Copyright (c) 2011-2014  Bill Nesbitt
+ */
 
 #include "config.h"
 #ifdef HAS_DIGITAL_IMU
@@ -25,9 +25,15 @@
 eepromStruct_t eepromData;
 
 void eepromPreInit(void) {
+#ifdef DIMU_EEPROM_SPI
     eepromData.spi = spiClientInit(DIMU_EEPROM_SPI, DIMU_EEPROM_SPI_BAUD, 0, DIMU_EEPROM_CS_PORT, DIMU_EEPROM_CS_PIN, &eepromData.spiFlag, 0);
+#endif  /* DIMU_EEPROM_SPI */
+#ifdef I2C_EEPROM
+    eepromData.i2cBus = i2cRegisterSlaveDevice(DIMU_EEPROM_I2C, DIMU_EEPROM_I2C_ADDR, NULL);
+#endif
 }
 
+#ifndef I2C_EEPROM
 void eepromWriteStatus(int8_t status) {
     eepromData.buf.cmd = EEPROM_WRSR;
     *(uint8_t *)&eepromData.buf.addr = status;
@@ -64,7 +70,7 @@ void eepromReadBlock(uint16_t address, int size) {
     while (!eepromData.spiFlag)
         yield(1);
 
-//debug_printf("read %x, %x %c %c %c %c\n", address, size, eepromData.buf.data[0], eepromData.buf.data[1], eepromData.buf.data[2], eepromData.buf.data[3]);
+    //debug_printf("read %x, %x %c %c %c %c\n", address, size, eepromData.buf.data[0], eepromData.buf.data[1], eepromData.buf.data[2], eepromData.buf.data[3]);
 }
 
 void eepromWriteEnable(void) {
@@ -83,7 +89,7 @@ void eepromWriteBlock(uint16_t address, int size) {
     eepromData.buf.cmd = EEPROM_WRITE;
     eepromData.buf.addr[1] = (address&0xff);
     eepromData.buf.addr[0] = (address>>8);
-//debug_printf("write %x, %x %c %c %c %c\n", address, size, eepromData.buf.data[0], eepromData.buf.data[1], eepromData.buf.data[2], eepromData.buf.data[3]);
+    //debug_printf("write %x, %x %c %c %c %c\n", address, size, eepromData.buf.data[0], eepromData.buf.data[1], eepromData.buf.data[2], eepromData.buf.data[3]);
     eepromData.spiFlag = 0;
     spiTransaction(eepromData.spi, &eepromData.buf, &eepromData.buf, size+3);
 
@@ -96,11 +102,28 @@ void eepromWriteBlock(uint16_t address, int size) {
     } while (eepromData.status & 0b01);
 }
 
-void eepromChecksum(void *memory, int size) {
-    uint8_t *p;
-    int i;
+#else /* I2C_EEPROM */
 
-    p = (uint8_t *)memory;
+void eepromReadBlock(uint16_t addr, int length) {
+    i2cReadBlock(eepromData.i2cBus, 1, addr, length, eepromData.buf.data);
+    while (i2cData[eepromData.i2cBus->interface].dmaRunning)
+        yield(1);
+}
+
+void eepromWriteBlock(uint16_t WriteAddr, uint16_t NumByteToWrite) {
+    //eepromWritePage(eepromData.buf.data, WriteAddr, NumByteToWrite);
+    i2cWriteBlock(eepromData.i2cBus, 1, WriteAddr, NumByteToWrite, eepromData.buf.data);
+    // wait for DMA txn to complete
+    while (i2cData[eepromData.i2cBus->interface].dmaRunning)
+        yield(1);
+    // wait for EEPROM to finish writing
+    i2cWaitStandbyState(eepromData.i2cBus);
+}
+#endif /* I2C_EEPROM */
+
+void eepromChecksum(void *memory, int size) {
+    int i;
+    uint8_t *p = (uint8_t*) memory;
     for (i = 0; i < size; i++) {
         eepromData.ck[0] += *p++;
         eepromData.ck[1] += eepromData.ck[0];
@@ -108,7 +131,7 @@ void eepromChecksum(void *memory, int size) {
 }
 
 uint32_t eepromReadHeader(void) {
-    uint32_t seq = 0;
+    //uint32_t seq = 0;
 
     eepromReadBlock(0x0000, sizeof(eepromHeader_t));
     memcpy(&eepromData.header, &eepromData.buf.data, sizeof(eepromHeader_t));
@@ -118,11 +141,10 @@ uint32_t eepromReadHeader(void) {
     eepromChecksum(&eepromData.header, sizeof(eepromHeader_t)-2);
 
     // is eepromData header valid
-    if (eepromData.header.signature == EEPROM_SIGNATURE && eepromData.header.headerCk[0] == eepromData.ck[0]
-            && eepromData.header.headerCk[1] == eepromData.ck[1])
-        seq = eepromData.header.seq;
+    if (eepromData.header.signature == EEPROM_SIGNATURE && eepromData.header.headerCk[0] == eepromData.ck[0] && eepromData.header.headerCk[1] == eepromData.ck[1])
+        return eepromData.header.seq;
 
-    return seq;
+    return 0;
 }
 
 void eepromWriteHeader(void) {
@@ -149,8 +171,7 @@ uint8_t eepromFormat(void) {
 
     if (eepromData.header.seq == 0x01)
         return 1;
-    else
-        return 0;
+    return 0;
 }
 
 uint8_t *eepromOpenWrite(void) {
@@ -228,6 +249,7 @@ void eepromClose(void) {
 }
 
 void eepromInit(void) {
+    // eepromFormat();
     if (eepromReadHeader() == 0 || eepromData.header.version < EEPROM_VERSION)
         eepromFormat();
 }

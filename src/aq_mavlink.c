@@ -15,31 +15,33 @@
 
     Copyright (c) 2011-2014  Bill Nesbitt
     Copyright 2013-2016 Maxim Paperno
-*/
+ */
 
 #include "aq.h"
 #ifdef USE_MAVLINK
 #include "aq_mavlink.h"
-#include "mavlink.h"
-#include "config.h"
+
+#include "alt_ukf.h"
+#include "analog.h"
 #include "aq_timer.h"
+#include "comm.h"
+#include "config.h"
+#include "control.h"
+#include "d_imu.h"
+#include "flash.h"
+#include "gimbal.h"
+#include "gps.h"
 #include "imu.h"
+#include "motors.h"
+#include "nav.h"
+#include "nav_ukf.h"
 #include "radio.h"
 #include "rc.h"
-#include "gps.h"
-#include "flash.h"
-#include "motors.h"
-#include "control.h"
-#include "nav.h"
-#include "util.h"
 #include "rcc.h"
-#include "supervisor.h"
-#include "nav_ukf.h"
-#include "analog.h"
-#include "comm.h"
-#include "gimbal.h"
-#include "d_imu.h"
 #include "run.h"
+#include "supervisor.h"
+#include "util.h"
+
 #include <CoOS.h>
 #include <math.h>
 #include <string.h>
@@ -79,18 +81,46 @@ void mavlinkWpSendCount(void) {
 
 // send new home position coordinates
 void mavlinkAnnounceHome(void) {
-    mavlink_msg_gps_global_origin_send(MAVLINK_COMM_0, navData.homeLeg.targetLat*(double)1e7f, navData.homeLeg.targetLon*(double)1e7,
-                                       (navData.homeLeg.targetAlt + navData.presAltOffset)*1e3);
+    mavlink_msg_gps_global_origin_send(MAVLINK_COMM_0, navData.homeLeg.targetLat*(double)1e7f, navData.homeLeg.targetLon*(double)1e7, (navData.homeLeg.targetAlt + navData.presAltOffset)*1e3);
     // announce ceiling altitude if any
     float ca = navData.ceilingAlt;
     if (ca)
-// convert to GPS altitude
+        // convert to GPS altitude
         ca += navData.presAltOffset;
     mavlink_msg_safety_allowed_area_send(MAVLINK_COMM_0, MAV_FRAME_GLOBAL, 0, 0, ca, 0, 0, 0);
 }
 
 void mavlinkSendNotice(const char *s) {
     mavlink_msg_statustext_send(MAVLINK_COMM_0, MAV_SEVERITY_INFO, (const char *)s);
+}
+
+static uint8_t mavlinkConvertDataTypeAQ2MAV(uint8_t typ) {
+    switch (typ) {
+    case AQ_TYPE_DBL:
+        return MAV_PARAM_TYPE_REAL64;
+    case AQ_TYPE_U32:
+        return MAV_PARAM_TYPE_UINT32;
+    case AQ_TYPE_S32:
+        return MAV_PARAM_TYPE_INT32;
+    case AQ_TYPE_U16:
+        return MAV_PARAM_TYPE_UINT16;
+    case AQ_TYPE_S16:
+        return MAV_PARAM_TYPE_INT16;
+    case AQ_TYPE_U8:
+        return MAV_PARAM_TYPE_UINT8;
+    case AQ_TYPE_S8:
+        return MAV_PARAM_TYPE_INT8;
+    case AQ_TYPE_FLT:
+    default:
+        return MAV_PARAM_TYPE_REAL32;
+    }
+}
+
+static void mavlinkSendParamValue(uint16_t id, uint16_t ttl, bool raw) {
+    mavlink_system.compid = mavlinkData.paramCompId;
+    mavlink_msg_param_value_send(MAVLINK_COMM_0, configGetParamName(id), raw ? configGetParamValueRaw(id) : configGetParamValueForSave(id),
+            mavlinkConvertDataTypeAQ2MAV(configGetParamDataType(id)), ttl, id);
+    mavlink_system.compid = AQMAVLINK_DEFAULT_COMP_ID;
 }
 
 static void mavlinkToggleStreams(uint8_t enable) {
@@ -121,7 +151,8 @@ static void mavlinkSetSystemData(void) {
             if (navData.mode == NAV_STATUS_DVH)
                 mavlinkData.sys_mode |= MAV_MODE_FLAG_GUIDED_ENABLED;
         }
-    } else
+    }
+    else
         mavlinkData.sys_mode = MAV_MODE_FLAG_MANUAL_INPUT_ENABLED;
 
     if (supervisorData.state & STATE_ARMED)
@@ -151,8 +182,7 @@ void mavlinkDo(void) {
     // heartbeat
     if (mavlinkData.nextHeartbeat < micros) {
         mavlinkSetSystemData();
-        mavlink_msg_heartbeat_send(MAVLINK_COMM_0, mavlinkData.sys_type, MAV_AUTOPILOT_AUTOQUAD, mavlinkData.sys_mode, supervisorData.systemStatus,
-                                   mavlinkData.sys_state);
+        mavlink_msg_heartbeat_send(MAVLINK_COMM_0, mavlinkData.sys_type, MAV_AUTOPILOT_AUTOQUAD, mavlinkData.sys_mode, supervisorData.systemStatus, mavlinkData.sys_state);
         mavlinkData.nextHeartbeat = micros + AQMAVLINK_HEARTBEAT_INTERVAL;
     }
 
@@ -163,30 +193,27 @@ void mavlinkDo(void) {
         mavlinkData.streams[MAV_DATA_STREAM_ALL].next = micros + mavlinkData.streams[MAV_DATA_STREAM_ALL].interval;
 
     // status
-    if (streamAll || (mavlinkData.streams[MAV_DATA_STREAM_EXTENDED_STATUS].enable
-                      && mavlinkData.streams[MAV_DATA_STREAM_EXTENDED_STATUS].next < micros)) {
+    if (streamAll || (mavlinkData.streams[MAV_DATA_STREAM_EXTENDED_STATUS].enable && mavlinkData.streams[MAV_DATA_STREAM_EXTENDED_STATUS].next < micros)) {
         currDraw = (supervisorData.aOutLPF == SUPERVISOR_INVALID_AMPSOUT_VALUE) ? -1 : supervisorData.aOutLPF * 100;
 
-        mavlink_msg_sys_status_send(MAVLINK_COMM_0, 0, 0, 0, (uint16_t)(1000L - LROUNDF(supervisorData.idlePercent * 10.0f)), supervisorData.vInLPF * 1000,
-                                    currDraw,
-                                    supervisorData.battRemainingPrct, 0, mavlinkData.packetDrops, 0, 0, 0, 0);
+        mavlink_msg_sys_status_send(MAVLINK_COMM_0, 0, 0, 0, (uint16_t)(1000L - LROUNDF(supervisorData.idlePercent * 10.0f)), supervisorData.vInLPF * 1000, currDraw,
+                supervisorData.battRemainingPrct, 0, mavlinkData.packetDrops, 0, 0, 0, 0);
         mavlink_msg_radio_status_send(MAVLINK_COMM_0, RADIO_QUALITY, 0, 0, 0, 0, RADIO_ERROR_COUNT, 0);
 
         mavlinkData.streams[MAV_DATA_STREAM_EXTENDED_STATUS].next = micros + mavlinkData.streams[MAV_DATA_STREAM_EXTENDED_STATUS].interval;
     }
     // raw sensors
     if (streamAll || (mavlinkData.streams[MAV_DATA_STREAM_RAW_SENSORS].enable && mavlinkData.streams[MAV_DATA_STREAM_RAW_SENSORS].next < micros)) {
-        mavlink_msg_scaled_imu_send(MAVLINK_COMM_0, micros, IMU_ACCX*1000.0f, IMU_ACCY*1000.0f, IMU_ACCZ*1000.0f, IMU_RATEX*1000.0f, IMU_RATEY*1000.0f,
-                                    IMU_RATEZ*1000.0f,
-                                    IMU_MAGX*1000.0f, IMU_MAGY*1000.0f, IMU_MAGZ*1000.0f);
+        mavlink_msg_scaled_imu_send(MAVLINK_COMM_0, micros, IMU_ACCX*1000.0f, IMU_ACCY*1000.0f, IMU_ACCZ*1000.0f, IMU_RATEX*1000.0f, IMU_RATEY*1000.0f, IMU_RATEZ*1000.0f,
+                IMU_MAGX*1000.0f, IMU_MAGY*1000.0f, IMU_MAGZ*1000.0f);
         mavlink_msg_scaled_pressure_send(MAVLINK_COMM_0, micros, AQ_PRESSURE*0.01f, 0.0f, IMU_TEMP*100);
         mavlinkData.streams[MAV_DATA_STREAM_RAW_SENSORS].next = micros + mavlinkData.streams[MAV_DATA_STREAM_RAW_SENSORS].interval;
     }
     // position -- gps and ukf
     if (streamAll || (mavlinkData.streams[MAV_DATA_STREAM_POSITION].enable && mavlinkData.streams[MAV_DATA_STREAM_POSITION].next < micros)) {
         mavlink_msg_gps_raw_int_send(MAVLINK_COMM_0, micros, navData.fixType, gpsData.lat*(double)1e7, gpsData.lon*(double)1e7, gpsData.height*1e3,
-                                     gpsData.hAcc*100, gpsData.vAcc*100, gpsData.speed*100, gpsData.heading, 255);
-        mavlink_msg_local_position_ned_send(MAVLINK_COMM_0, micros, UKF_POSN, UKF_POSE, -UKF_POSD, UKF_VELN, UKF_VELE, -VELOCITYD);
+                gpsData.hAcc*100, gpsData.vAcc*100, gpsData.speed*100, gpsData.heading, 255);
+        mavlink_msg_local_position_ned_send(MAVLINK_COMM_0, micros, UKF_POSN, UKF_POSE, ALTITUDE, UKF_VELN, UKF_VELE, -VELOCITYD);
         mavlinkData.streams[MAV_DATA_STREAM_POSITION].next = micros + mavlinkData.streams[MAV_DATA_STREAM_POSITION].interval;
     }
     // radio channels
@@ -203,17 +230,15 @@ void mavlinkDo(void) {
                 mavlinkData.indexPort = 0;
         }
         uint8_t ci = mavlinkData.indexPort * 8;
-        mavlink_msg_rc_channels_raw_send(MAVLINK_COMM_0, micros, mavlinkData.indexPort, rc[ci]+1024, rc[ci+1]+1024, rc[ci+2]+1024, rc[ci+3]+1024,
-                                         rc[ci+4]+1024, rc[ci+5]+1024, rc[ci+6]+1024, rc[ci+7]+1024, RADIO_QUALITY);
+        mavlink_msg_rc_channels_raw_send(MAVLINK_COMM_0, micros, mavlinkData.indexPort, rc[ci]+1024, rc[ci+1]+1024, rc[ci+2]+1024, rc[ci+3]+1024, rc[ci+4]+1024, rc[ci+5]+1024, rc[ci+6]+1024, rc[ci+7]+1024, RADIO_QUALITY);
         mavlinkData.streams[MAV_DATA_STREAM_RC_CHANNELS].next = micros + mavlinkData.streams[MAV_DATA_STREAM_RC_CHANNELS].interval;
     }
     // raw controller -- attitude and nav data
     if (streamAll || (mavlinkData.streams[MAV_DATA_STREAM_RAW_CONTROLLER].enable && mavlinkData.streams[MAV_DATA_STREAM_RAW_CONTROLLER].next < micros)) {
-        mavlink_msg_attitude_send(MAVLINK_COMM_0, micros, AQ_ROLL*DEG_TO_RAD, AQ_PITCH*DEG_TO_RAD, AQ_YAW*DEG_TO_RAD,
-                                  -(IMU_RATEX - UKF_GYO_BIAS_X)*DEG_TO_RAD,
-                                  (IMU_RATEY - UKF_GYO_BIAS_Y)*DEG_TO_RAD, (IMU_RATEZ - UKF_GYO_BIAS_Z)*DEG_TO_RAD);
-        mavlink_msg_nav_controller_output_send(MAVLINK_COMM_0, navData.holdTiltE, navData.holdTiltN, navData.holdHeading*100, navData.holdCourse*100,
-                                               navData.holdDistance*100, navData.holdAlt, 0, 0);
+        mavlink_msg_attitude_send(MAVLINK_COMM_0, micros, AQ_ROLL*DEG_TO_RAD, AQ_PITCH*DEG_TO_RAD, AQ_YAW*DEG_TO_RAD, -(IMU_RATEX - UKF_GYO_BIAS_X)*DEG_TO_RAD,
+                (IMU_RATEY - UKF_GYO_BIAS_Y)*DEG_TO_RAD, (IMU_RATEZ - UKF_GYO_BIAS_Z)*DEG_TO_RAD);
+        mavlink_msg_nav_controller_output_send(MAVLINK_COMM_0, navData.holdTiltE, navData.holdTiltN, navData.holdHeading*100, navData.holdCourse*100, navData.holdDistance*100, navData.holdAlt, 0, 0);
+
         mavlinkData.streams[MAV_DATA_STREAM_RAW_CONTROLLER].next = micros + mavlinkData.streams[MAV_DATA_STREAM_RAW_CONTROLLER].interval;
     }
 #ifdef MAVLINK_MSG_ID_AQ_ESC_TELEMETRY
@@ -254,74 +279,70 @@ void mavlinkDo(void) {
             switch(i) {
             case AQMAV_DATASET_GPS :
                 mavlink_msg_aq_telemetry_f_send(MAVLINK_COMM_0, i, gpsData.pDOP, gpsData.tDOP, gpsData.sAcc, gpsData.cAcc, gpsData.velN, gpsData.velE, gpsData.velD,
-                                                gpsData.lastPosUpdate, gpsData.lastMessage, gpsData.vAcc, gpsData.lat, gpsData.lon, gpsData.hAcc, gpsData.heading, gpsData.height, gpsData.iTOW, 0,0,
-                                                0,0);
+                        micros - gpsData.lastPosUpdate, micros - gpsData.lastMessage, gpsData.vAcc, gpsData.lat, gpsData.lon, gpsData.hAcc, gpsData.heading, gpsData.height, gpsData.iTOW, 0,0,0,0);
                 break;
             case AQMAV_DATASET_UKF :
-                mavlink_msg_aq_telemetry_f_send(MAVLINK_COMM_0, i, UKF_GYO_BIAS_X, UKF_GYO_BIAS_Y, UKF_GYO_BIAS_Z, UKF_ACC_BIAS_X, UKF_ACC_BIAS_Y, UKF_ACC_BIAS_Z,
-                                                UKF_Q1, UKF_Q2, UKF_Q3, UKF_Q4,
-                                                ALTITUDE, UKF_POSN, UKF_POSE, UKF_POSD, UKF_VELN, UKF_VELE, VELOCITYD, 0,0,0);
+                mavlink_msg_aq_telemetry_f_send(MAVLINK_COMM_0, i, UKF_GYO_BIAS_X, UKF_GYO_BIAS_Y, UKF_GYO_BIAS_Z, UKF_ACC_BIAS_X, UKF_ACC_BIAS_Y, UKF_ACC_BIAS_Z, UKF_Q1, UKF_Q2, UKF_Q3, UKF_Q4,
+                        UKF_ALTITUDE, UKF_POSN, UKF_POSE, UKF_POSD, UKF_VELN, UKF_VELE, UKF_VELD, UKF_PRES_ALT, ALT_POS, ALT_VEL);
                 break;
             case AQMAV_DATASET_SUPERVISOR :
                 mavlink_msg_aq_telemetry_f_send(MAVLINK_COMM_0, i, supervisorData.state, supervisorData.flightTime, 0, 0,
-                                                supervisorData.vInLPF, 0, supervisorData.lastGoodRadioMicros, supervisorData.idlePercent, 0,0,0,0,0,0,0,0, commData.txBufStarved, analogData.vIn,
-                                                RADIO_QUALITY, RADIO_ERROR_COUNT);
+                        supervisorData.vInLPF, 0, supervisorData.lastGoodRadioMicros, supervisorData.idlePercent, 0,0,0,0,0,0,0,0, commData.txBufStarved, analogData.vIn, RADIO_QUALITY, RADIO_ERROR_COUNT);
                 break;
             case AQMAV_DATASET_STACKSFREE :
-                mavlink_msg_aq_telemetry_f_send(MAVLINK_COMM_0, i, utilGetStackFree("INIT"), utilGetStackFree("FILER"), utilGetStackFree("SUPERVISOR"),
-                                                utilGetStackFree("ADC"),
-                                                utilGetStackFree("RADIO"), utilGetStackFree("CONTROL"), utilGetStackFree("GPS"), utilGetStackFree("RUN"), utilGetStackFree("COMM"),
-                                                utilGetStackFree("DIMU"),
-                                                0,0,0,0,0,0,0, heapUsed, heapHighWater, dataSramUsed);
+                mavlink_msg_aq_telemetry_f_send(MAVLINK_COMM_0, i, utilGetStackFree("INIT"), utilGetStackFree("FILER"), utilGetStackFree("SUPERVISOR"), utilGetStackFree("ADC"),
+                        utilGetStackFree("RADIO"), utilGetStackFree("CONTROL"), utilGetStackFree("GPS"), utilGetStackFree("RUN"), utilGetStackFree("COMM"), utilGetStackFree("DIMU"),
+                        utilGetStackFree("CYRF"), 0,0,0,0,0,0, heapUsed, heapHighWater, dataSramUsed * 4);
                 break;
             case AQMAV_DATASET_GIMBAL :
-                mavlink_msg_aq_telemetry_f_send(MAVLINK_COMM_0, i, *gimbalData.pitchPort->ccr, *gimbalData.tiltPort->ccr, *gimbalData.rollPort->ccr,
-                                                *gimbalData.triggerPort->ccr,
-                                                *gimbalData.passthroughPort->ccr, gimbalData.tilt, gimbalData.trigger, gimbalData.triggerLastTime, gimbalData.triggerLastLat,
-                                                gimbalData.triggerLastLon,
-                                                gimbalData.triggerCount, 0,0,0,0,0,0,0,0,0);
+                mavlink_msg_aq_telemetry_f_send(MAVLINK_COMM_0, i, *gimbalData.pitchPort->ccr, *gimbalData.tiltPort->ccr, *gimbalData.rollPort->ccr, *gimbalData.triggerPort->ccr,
+                        *gimbalData.passthroughPort->ccr, gimbalData.tilt, gimbalData.trigger, gimbalData.triggerLastTime, gimbalData.triggerLastLat, gimbalData.triggerLastLon,
+                        gimbalData.triggerCount, 0,0,0,0,0,0,0,0,0);
                 break;
             case AQMAV_DATASET_MOTORS :
                 mavlink_msg_aq_telemetry_f_send(MAVLINK_COMM_0, i,
-                                                motorsData.value[0], motorsData.value[1], motorsData.value[2], motorsData.value[3], motorsData.value[4], motorsData.value[5], motorsData.value[6],
-                                                motorsData.value[7],
-                                                motorsData.value[8], motorsData.value[9], motorsData.value[10], motorsData.value[11], motorsData.value[12], motorsData.value[13],
-                                                motorsData.value[14], motorsData.value[15],
-                                                motorsData.throttle, motorsData.pitch, motorsData.roll, motorsData.yaw);
+                        motorsData.value[0], motorsData.value[1], motorsData.value[2], motorsData.value[3], motorsData.value[4], motorsData.value[5], motorsData.value[6], motorsData.value[7],
+                        motorsData.value[8], motorsData.value[9], motorsData.value[10], motorsData.value[11], motorsData.value[12], motorsData.value[13], motorsData.value[14], motorsData.value[15],
+                        motorsData.throttle, motorsData.pitch, motorsData.roll, motorsData.yaw);
                 break;
-            case AQMAV_DATASET_MOTORS_PWM : {
+            case AQMAV_DATASET_MOTORS_PWM :
+            {
                 uint32_t pwm[14];
                 for (int i = 0; i < 14; ++i)
                     pwm[i] = PWM_NUM_PORTS > i && motorsData.pwm[i] ? *motorsData.pwm[i]->ccr : 0;
-                mavlink_msg_aq_telemetry_f_send(MAVLINK_COMM_0, i, pwm[0], pwm[1], pwm[2], pwm[3], pwm[4], pwm[5], pwm[6], pwm[7], pwm[8], pwm[9], pwm[10], pwm[11],
-                                                pwm[12], pwm[13],
-                                                0, 0, 0, 0, 0, 0);
+                mavlink_msg_aq_telemetry_f_send(MAVLINK_COMM_0, i, pwm[0], pwm[1], pwm[2], pwm[3], pwm[4], pwm[5], pwm[6], pwm[7], pwm[8], pwm[9], pwm[10], pwm[11], pwm[12], pwm[13],
+                        0, 0, 0, 0, 0, 0);
                 break;
             }
             case AQMAV_DATASET_NAV :
-                mavlink_msg_aq_telemetry_f_send(MAVLINK_COMM_0, i, navData.holdHeading, navData.holdCourse, navData.holdDistance, navData.holdAlt, navData.holdTiltN,
-                                                navData.holdTiltE,
-                                                navData.holdSpeedN, navData.holdSpeedE, navData.holdSpeedAlt, navData.targetHoldSpeedAlt, 0, 0, 0, 0, 0, 0, 0, 0, micros - navData.lastUpdate,
-                                                navData.fixType);
+                mavlink_msg_aq_telemetry_f_send(MAVLINK_COMM_0, i, navData.holdHeading, navData.holdCourse, navData.holdDistance, navData.holdAlt, navData.holdTiltN, navData.holdTiltE,
+                        navData.holdSpeedN, navData.holdSpeedE, navData.holdSpeedAlt, navData.targetHoldSpeedAlt, navData.presAltOffset, 0, 0, 0, 0, 0, 0, 0, micros - navData.lastUpdate, navData.fixType);
                 break;
             case AQMAV_DATASET_IMU :
-                mavlink_msg_aq_telemetry_f_send(MAVLINK_COMM_0, i, AQ_ROLL, AQ_PITCH, AQ_YAW, IMU_RATEX, IMU_RATEY, IMU_RATEZ, IMU_ACCX, IMU_ACCY, IMU_ACCZ, IMU_MAGX,
-                                                IMU_MAGY, IMU_MAGZ,
-                                                IMU_TEMP, 0, 0, 0, 0, 0, 0, AQ_PRESSURE);
+                mavlink_msg_aq_telemetry_f_send(MAVLINK_COMM_0, i, AQ_ROLL, AQ_PITCH, AQ_YAW, IMU_RATEX, IMU_RATEY, IMU_RATEZ, IMU_ACCX, IMU_ACCY, IMU_ACCZ, IMU_MAGX, IMU_MAGY, IMU_MAGZ,
+                        IMU_TEMP, micros - IMU_LASTUPD, 0, 0, 0, 0, 0, AQ_PRESSURE);
                 break;
             case AQMAV_DATASET_RC :
-                mavlink_msg_aq_telemetry_f_send(MAVLINK_COMM_0, i, RADIO_THROT, RADIO_RUDD, RADIO_PITCH, RADIO_ROLL, rcIsSwitchActive(NAV_CTRL_AH),
-                                                rcIsSwitchActive(NAV_CTRL_PH),
-                                                rcIsSwitchActive(NAV_CTRL_MISN), rcIsSwitchActive(NAV_CTRL_HOM_SET), rcIsSwitchActive(NAV_CTRL_HOM_GO), rcIsSwitchActive(NAV_CTRL_HF_SET),
-                                                rcIsSwitchActive(NAV_CTRL_HF_LOCK),
-                                                rcIsSwitchActive(NAV_CTRL_WP_REC), 0, 0, 0, 0, 0,
-                                                rcIsSwitchActive(GMBL_CTRL_TRG_ON), rcGetControlValue(GMBL_CTRL_TILT), rcGetControlValue(GMBL_PSTHR_CHAN));
+                mavlink_msg_aq_telemetry_f_send(MAVLINK_COMM_0, i, RADIO_THROT, RADIO_RUDD, RADIO_PITCH, RADIO_ROLL, rcIsSwitchActive(NAV_CTRL_AH), rcIsSwitchActive(NAV_CTRL_PH),
+                        rcIsSwitchActive(NAV_CTRL_MISN), rcIsSwitchActive(NAV_CTRL_HOM_SET), rcIsSwitchActive(NAV_CTRL_HOM_GO), rcIsSwitchActive(NAV_CTRL_HF_SET), rcIsSwitchActive(NAV_CTRL_HF_LOCK),
+                        rcIsSwitchActive(NAV_CTRL_WP_REC), 0, 0, 0, 0, 0,
+                        rcIsSwitchActive(GMBL_CTRL_TRG_ON), rcGetControlValue(GMBL_CTRL_TILT), rcGetControlValue(GMBL_PSTHR_CHAN));
+                break;
+            case AQMAV_DATASET_CONFIG :
+                mavlink_msg_aq_telemetry_f_send(MAVLINK_COMM_0, i,
+                        configGetAdjParamId(CONFIG_ADJUST_P1), (configGetAdjParamId(CONFIG_ADJUST_P1) ? configGetParamValue(configGetAdjParamId(CONFIG_ADJUST_P1)) : 0),
+                        configGetAdjParamId(CONFIG_ADJUST_P2), (configGetAdjParamId(CONFIG_ADJUST_P2) ? configGetParamValue(configGetAdjParamId(CONFIG_ADJUST_P2)) : 0),
+                        configGetAdjParamId(CONFIG_ADJUST_P3), (configGetAdjParamId(CONFIG_ADJUST_P3) ? configGetParamValue(configGetAdjParamId(CONFIG_ADJUST_P3)) : 0),
+                        configGetAdjParamId(CONFIG_ADJUST_P4), (configGetAdjParamId(CONFIG_ADJUST_P4) ? configGetParamValue(configGetAdjParamId(CONFIG_ADJUST_P4)) : 0),
+                        configGetAdjParamId(CONFIG_ADJUST_P5), (configGetAdjParamId(CONFIG_ADJUST_P5) ? configGetParamValue(configGetAdjParamId(CONFIG_ADJUST_P5)) : 0),
+                        configGetAdjParamId(CONFIG_ADJUST_P6), (configGetAdjParamId(CONFIG_ADJUST_P6) ? configGetParamValue(configGetAdjParamId(CONFIG_ADJUST_P6)) : 0),
+                        0, 0, 0, 0, 0, 0, 0, 0);
                 break;
             case AQMAV_DATASET_DEBUG :
                 // First 10 values are displayed in QGC as integers, the other 10 as floats.
                 mavlink_msg_aq_telemetry_f_send(MAVLINK_COMM_0, i,
-                                                /* ints */ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                                /*floats*/ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+                        /* ints */ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                        /*floats*/ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
                 break;
             }
         }
@@ -332,9 +353,23 @@ void mavlinkDo(void) {
 
     // list all requested/remaining parameters
     if (mavlinkData.currentParam < CONFIG_NUM_PARAMS && mavlinkData.nextParam < micros) {
-        mavlink_msg_param_value_send(MAVLINK_COMM_0, configParameterStrings[mavlinkData.currentParam], p[mavlinkData.currentParam], MAVLINK_TYPE_FLOAT,
-                                     CONFIG_NUM_PARAMS, mavlinkData.currentParam);
-        mavlinkData.currentParam++;
+        uint16_t totalParams = CONFIG_NUM_PARAMS;
+
+        // check if only adjustable params are being requested
+        if (mavlinkData.paramCompId == MAV_COMP_ID_SYSTEM_CONTROL) {
+            totalParams = configGetNumPossibleAdjParams();
+            int16_t t = configGetNextAdjustableParam(mavlinkData.currentParam);
+            if (t > -1)
+                mavlinkData.currentParam = t;
+            else {
+                mavlinkData.currentParam = CONFIG_NUM_PARAMS;
+                return;
+            }
+        }
+        mavlinkSendParamValue(mavlinkData.currentParam, totalParams, false);
+
+        ++mavlinkData.currentParam;
+
         mavlinkData.nextParam = micros + AQMAVLINK_PARAM_INTERVAL;
     }
 
@@ -363,7 +398,7 @@ void mavlinkDoCommand(mavlink_message_t *msg) {
     uint16_t command;
     float param, param2, param3;
     uint8_t enable, i, compId,
-            ack = MAV_CMD_ACK_ERR_NOT_SUPPORTED;
+    ack = MAV_CMD_ACK_ERR_NOT_SUPPORTED;
 
     command = mavlink_msg_command_long_get_command(msg);
     compId = mavlink_msg_command_long_get_target_component(msg);
@@ -387,7 +422,8 @@ void mavlinkDoCommand(mavlink_message_t *msg) {
                 AQ_NOTICE("Error: Can't perform Tare, no Digital IMU.");
 #endif
             }
-        } else {
+        }
+        else {
             ack = MAV_CMD_ACK_ERR_FAIL;
             AQ_NOTICE("Error: Can't calibrate while armed!");
         }
@@ -405,7 +441,8 @@ void mavlinkDoCommand(mavlink_message_t *msg) {
                 if (param == 0.0f) {
                     dIMURequestCalibRead();
                     ack = MAV_CMD_ACK_OK;
-                } else if (param == 1.0f) {
+                }
+                else if (param == 1.0f) {
                     dIMURequestCalibWrite();
                     ack = MAV_CMD_ACK_OK;
                 }
@@ -416,34 +453,33 @@ void mavlinkDoCommand(mavlink_message_t *msg) {
 
                 break; // case MAV_COMP_ID_IMU
 
-            // main parameters
+                // main parameters
             default:
-                if (param == 0.0f) {       // read flash
-                    configFlashRead();
+                if (param == 0.0f && configLoadParamsFromFlash()) // read flash
                     ack = MAV_CMD_ACK_OK;
-                } else if (param == 1.0f && configFlashWrite()) // write flash
+                else if (param == 1.0f && configSaveParamsToFlash())  // write flash
                     ack = MAV_CMD_ACK_OK;
-                else if (param == 2.0f && configReadFile(0) >= 0) // read file
+                else if (param == 2.0f && configLoadParamsFromFile()) // read file
                     ack = MAV_CMD_ACK_OK;
-                else if (param == 3.0f && configWriteFile(0) >= 0) // write file
+                else if (param == 3.0f && configSaveParamsToFile())     // write file
                     ack = MAV_CMD_ACK_OK;
-                else if (param == 4.0f) {    // load defaults
-                    configLoadDefault();
+                else if (param == 4.0f && configLoadParamsFromDefault()) // load all defaults
                     ack = MAV_CMD_ACK_OK;
-                } else
+                else
                     ack = MAV_CMD_ACK_ERR_FAIL;
 
                 break; // case default (main params)
 
             } // switch(component ID)
-        } else {
+        }
+        else {
             ack = MAV_CMD_ACK_ERR_FAIL;
             AQ_NOTICE("Error: Can't save or load parameters while flying!");
         }
 
         break; // case MAV_CMD_PREFLIGHT_STORAGE
 
-// remote reboot
+        // remote reboot
     case MAV_CMD_PREFLIGHT_REBOOT_SHUTDOWN:
         if (!(supervisorData.state & STATE_ARMED)) {
             param = mavlink_msg_command_long_get_param1(msg); // flight controller actions: 0=noOp; 1=reboot; 2=shutdown
@@ -457,14 +493,15 @@ void mavlinkDoCommand(mavlink_message_t *msg) {
                 ack = MAV_CMD_ACK_ERR_FAIL;
                 AQ_NOTICE("Error: Shutdown and computer actions not supported.");
             }
-        } else {
+        }
+        else {
             ack = MAV_CMD_ACK_ERR_FAIL;
             AQ_NOTICE("Error: Can't reset while armed!");
         }
 
         break;  // case MAV_CMD_PREFLIGHT_REBOOT_SHUTDOWN
 
-// enable/disable AQ custom dataset messages and set frequency
+        // enable/disable AQ custom dataset messages and set frequency
     case MAV_CMD_AQ_TELEMETRY:
         param = mavlink_msg_command_long_get_param1(msg); // start/stop
         param2 = mavlink_msg_command_long_get_param2(msg); // interval in us
@@ -500,7 +537,7 @@ void mavlinkDoCommand(mavlink_message_t *msg) {
 
         break; // case MAV_CMD_AQ_TELEMETRY
 
-// send firmware version number;
+        // send firmware version number;
     case MAV_CMD_AQ_REQUEST_VERSION:
 #ifdef MAV_CMD_REQUEST_AUTOPILOT_CAPABILITIES
     case MAV_CMD_REQUEST_AUTOPILOT_CAPABILITIES:
@@ -523,12 +560,12 @@ void mavlinkDoCommand(mavlink_message_t *msg) {
 
 void mavlinkRecvTaskCode(commRcvrStruct_t *r) {
     mavlink_message_t msg;
-    uint8_t c;
+    uint8_t c, ack;
 
     // process incoming data
     while (commAvailable(r)) {
         c = commReadChar(r);
-// Try to get a new message
+        // Try to get a new message
         if (mavlink_parse_char(MAVLINK_COMM_0, c, &msg, &mavlinkData.mavlinkStatus)) {
             // Handle message
             switch(msg.msgid) {
@@ -545,12 +582,12 @@ void mavlinkRecvTaskCode(commRcvrStruct_t *r) {
                 }
                 break;
 
-//  case MAVLINK_MSG_ID_SET_MODE:
-//      if (mavlink_msg_set_mode_get_target_system(&msg) == mavlink_system.sysid) {
-//   mavlinkData.sys_mode = mavlink_msg_set_mode_get_base_mode(&msg);
-//   mavlink_msg_sys_status_send(MAVLINK_COMM_0, 0, 0, 0, 1000-mavlinkData.idlePercent, analogData.vIn * 1000, -1, (analogData.vIn - 9.8f) / 12.6f * 1000, 0, mavlinkData.packetDrops, 0, 0, 0, 0);
-//      }
-//      break;
+                //  case MAVLINK_MSG_ID_SET_MODE:
+                //      if (mavlink_msg_set_mode_get_target_system(&msg) == mavlink_system.sysid) {
+                //   mavlinkData.sys_mode = mavlink_msg_set_mode_get_base_mode(&msg);
+                //   mavlink_msg_sys_status_send(MAVLINK_COMM_0, 0, 0, 0, 1000-mavlinkData.idlePercent, analogData.vIn * 1000, -1, (analogData.vIn - 9.8f) / 12.6f * 1000, 0, mavlinkData.packetDrops, 0, 0, 0, 0);
+                //      }
+                //      break;
 
             case MAVLINK_MSG_ID_MISSION_REQUEST_LIST:
                 if (mavlink_msg_mission_request_list_get_target_system(&msg) == mavlink_system.sysid)
@@ -559,7 +596,7 @@ void mavlinkRecvTaskCode(commRcvrStruct_t *r) {
 
             case MAVLINK_MSG_ID_MISSION_CLEAR_ALL:
                 if (mavlink_msg_mission_clear_all_get_target_system(&msg) == mavlink_system.sysid) {
-                    mavlink_msg_mission_ack_send(MAVLINK_COMM_0, mavlink_system.sysid, MAV_COMP_ID_MISSIONPLANNER, navClearWaypoints());
+                    mavlink_msg_mission_ack_send(MAVLINK_COMM_0, mavlink_system.sysid, MAV_COMP_ID_MISSIONPLANNER, (navClearWaypoints() ? MAV_MISSION_ACCEPTED : MAV_MISSION_ERROR));
                 }
                 break;
 
@@ -580,58 +617,69 @@ void mavlinkRecvTaskCode(commRcvrStruct_t *r) {
                         wp = navGetHomeWaypoint();
 
                         mavlink_msg_mission_item_send(MAVLINK_COMM_0, msg.sysid, MAV_COMP_ID_MISSIONPLANNER,
-                                                      seqId, MAV_FRAME_GLOBAL, MAV_CMD_NAV_RETURN_TO_LAUNCH, (navData.missionLeg == seqId) ? 1 : 0, 1,
-                                                      wp->targetRadius, wp->loiterTime/1000, 0.0f, wp->poiHeading, wp->targetLat, wp->targetLon, wp->targetAlt);
-                    } else if (wp->type == NAV_LEG_GOTO) {
+                                seqId, MAV_FRAME_GLOBAL, MAV_CMD_NAV_RETURN_TO_LAUNCH, (navData.missionLeg == seqId) ? 1 : 0, 1,
+                                        wp->targetRadius, wp->loiterTime/1000, 0.0f, wp->poiHeading, wp->targetLat, wp->targetLon, wp->targetAlt);
+                    }
+                    else if (wp->type == NAV_LEG_GOTO) {
                         mavlink_msg_mission_item_send(MAVLINK_COMM_0, msg.sysid, MAV_COMP_ID_MISSIONPLANNER,
-                                                      seqId, mavFrame, MAV_CMD_NAV_WAYPOINT, (navData.missionLeg == seqId) ? 1 : 0, 1,
-                                                      wp->targetRadius, wp->loiterTime/1000, wp->maxHorizSpeed, wp->poiHeading, wp->targetLat, wp->targetLon, wp->targetAlt);
-                    } else if (wp->type == NAV_LEG_TAKEOFF) {
+                                seqId, mavFrame, MAV_CMD_NAV_WAYPOINT, (navData.missionLeg == seqId) ? 1 : 0, 1,
+                                        wp->targetRadius, wp->loiterTime/1000, wp->maxHorizSpeed, wp->poiHeading, wp->targetLat, wp->targetLon, wp->targetAlt);
+                    }
+                    else if (wp->type == NAV_LEG_TAKEOFF) {
                         mavlink_msg_mission_item_send(MAVLINK_COMM_0, msg.sysid, MAV_COMP_ID_MISSIONPLANNER,
-                                                      seqId, mavFrame, MAV_CMD_NAV_TAKEOFF, (navData.missionLeg == seqId) ? 1 : 0, 1,
-                                                      wp->targetRadius, wp->loiterTime/1000, wp->poiHeading, wp->maxVertSpeed, wp->targetLat, wp->targetLon, wp->targetAlt);
-                    } else if (wp->type == NAV_LEG_ORBIT) {
+                                seqId, mavFrame, MAV_CMD_NAV_TAKEOFF, (navData.missionLeg == seqId) ? 1 : 0, 1,
+                                        wp->targetRadius, wp->loiterTime/1000, wp->poiHeading, wp->maxVertSpeed, wp->targetLat, wp->targetLon, wp->targetAlt);
+                    }
+                    else if (wp->type == NAV_LEG_ORBIT) {
                         mavlink_msg_mission_item_send(MAVLINK_COMM_0, msg.sysid, MAV_COMP_ID_MISSIONPLANNER,
-                                                      seqId, mavFrame, 1, (navData.missionLeg == seqId) ? 1 : 0, 1,
-                                                      wp->targetRadius, wp->loiterTime/1000, wp->maxHorizSpeed, wp->poiHeading, wp->targetLat, wp->targetLon, wp->targetAlt);
-                    } else if (wp->type == NAV_LEG_LAND) {
+                                seqId, mavFrame, 1, (navData.missionLeg == seqId) ? 1 : 0, 1,
+                                        wp->targetRadius, wp->loiterTime/1000, wp->maxHorizSpeed, wp->poiHeading, wp->targetLat, wp->targetLon, wp->targetAlt);
+                    }
+                    else if (wp->type == NAV_LEG_LAND) {
                         mavlink_msg_mission_item_send(MAVLINK_COMM_0, msg.sysid, MAV_COMP_ID_MISSIONPLANNER,
-                                                      seqId, mavFrame, MAV_CMD_NAV_LAND, (navData.missionLeg == seqId) ? 1 : 0, 1,
-                                                      0.0f, wp->maxVertSpeed, wp->maxHorizSpeed, wp->poiAltitude, wp->targetLat, wp->targetLon, wp->targetAlt);
-                    } else {
+                                seqId, mavFrame, MAV_CMD_NAV_LAND, (navData.missionLeg == seqId) ? 1 : 0, 1,
+                                        0.0f, wp->maxVertSpeed, wp->maxHorizSpeed, wp->poiAltitude, wp->targetLat, wp->targetLon, wp->targetAlt);
+                    }
+                    else {
                         mavlink_msg_mission_item_send(MAVLINK_COMM_0, msg.sysid, MAV_COMP_ID_MISSIONPLANNER,
-                                                      seqId, mavFrame, MAV_CMD_NAV_WAYPOINT, (navData.missionLeg == seqId) ? 1 : 0, 1,
-                                                      wp->targetRadius, wp->loiterTime/1000, 0.0f, wp->poiHeading, wp->targetLat, wp->targetLon, wp->targetAlt);
+                                seqId, mavFrame, MAV_CMD_NAV_WAYPOINT, (navData.missionLeg == seqId) ? 1 : 0, 1,
+                                        wp->targetRadius, wp->loiterTime/1000, 0.0f, wp->poiHeading, wp->targetLat, wp->targetLon, wp->targetAlt);
                     }
                 }
-                break;
+                break; // MAVLINK_MSG_ID_MISSION_REQUEST
 
             case MAVLINK_MSG_ID_MISSION_SET_CURRENT:
                 if (mavlink_msg_mission_count_get_target_system(&msg) == mavlink_system.sysid) {
                     uint16_t seqId;
+                    ack = MAV_MISSION_ACCEPTED;
 
                     seqId = mavlink_msg_mission_set_current_get_seq(&msg);
-                    if (seqId < NAV_MAX_MISSION_LEGS)
+                    if (seqId < NAV_MAX_MISSION_LEGS && navData.missionLegs[seqId].type)
                         navLoadLeg(seqId);
+                    else
+                        ack = MAV_MISSION_INVALID_SEQUENCE;
+
+                    mavlink_msg_mission_ack_send(MAVLINK_COMM_0, mavlink_system.sysid, mavlink_system.compid, ack);
                 }
                 break;
 
             case MAVLINK_MSG_ID_MISSION_COUNT:
                 if (mavlink_msg_mission_count_get_target_system(&msg) == mavlink_system.sysid) {
-                    uint8_t count, ack;
+                    uint8_t count;
 
                     count = mavlink_msg_mission_count_get_count(&msg);
                     if (count > NAV_MAX_MISSION_LEGS || navClearWaypoints() != 1) {
                         // NACK
-                        ack = 1;
+                        ack = MAV_MISSION_NO_SPACE;
                         AQ_PRINTF("Error: %u waypoints exceeds system maximum of %u.", count, NAV_MAX_MISSION_LEGS);
-                    } else {
+                    }
+                    else {
                         mavlinkData.wpTargetSysId = msg.sysid;
                         mavlinkData.wpTargetCompId = msg.compid;
                         mavlinkData.wpCount = count;
                         mavlinkData.wpCurrent = mavlinkData.wpAttempt = 0;
                         mavlinkData.nextWP = timerMicros();
-                        ack = 0;
+                        ack = MAV_MISSION_ACCEPTED;
                     }
 
                     mavlink_msg_mission_ack_send(MAVLINK_COMM_0, mavlink_system.sysid, mavlink_system.compid, ack);
@@ -641,16 +689,19 @@ void mavlinkRecvTaskCode(commRcvrStruct_t *r) {
             case MAVLINK_MSG_ID_MISSION_ITEM:
                 if (mavlink_msg_mission_item_get_target_system(&msg) == mavlink_system.sysid) {
                     uint16_t seqId;
-                    uint8_t ack = 0;
+                    ack = MAV_MISSION_ACCEPTED;
                     uint8_t frame;
 
                     seqId = mavlink_msg_mission_item_get_seq(&msg);
                     frame = mavlink_msg_mission_item_get_frame(&msg);
 
-                    if (seqId >= NAV_MAX_MISSION_LEGS || (frame != MAV_FRAME_GLOBAL && frame != MAV_FRAME_GLOBAL_RELATIVE_ALT)) {
-                        // NACK
-                        ack = 1;
-                    } else {
+                    if (seqId >= NAV_MAX_MISSION_LEGS) {
+                        ack = MAV_MISSION_INVALID_SEQUENCE;
+                    }
+                    else if (frame != MAV_FRAME_GLOBAL && frame != MAV_FRAME_GLOBAL_RELATIVE_ALT) {
+                        ack = MAV_MISSION_INVALID;
+                    }
+                    else {
                         navMission_t *wp;
                         uint8_t command;
 
@@ -670,7 +721,8 @@ void mavlinkRecvTaskCode(commRcvrStruct_t *r) {
                             wp->loiterTime = mavlink_msg_mission_item_get_param2(&msg) * 1000;
                             wp->poiHeading = mavlink_msg_mission_item_get_param4(&msg);
                             wp->maxHorizSpeed = NAV_DFLT_HOR_SPEED;
-                        } else if (command == MAV_CMD_NAV_WAYPOINT) {
+                        }
+                        else if (command == MAV_CMD_NAV_WAYPOINT) {
                             wp = navGetWaypoint(seqId);
                             if (frame == MAV_FRAME_GLOBAL_RELATIVE_ALT)
                                 wp->relativeAlt = 1;
@@ -685,7 +737,8 @@ void mavlinkRecvTaskCode(commRcvrStruct_t *r) {
                             wp->loiterTime = mavlink_msg_mission_item_get_param2(&msg) * 1000;
                             wp->maxHorizSpeed = mavlink_msg_mission_item_get_param3(&msg);
                             wp->poiHeading = mavlink_msg_mission_item_get_param4(&msg);
-                        } else if (command == MAV_CMD_DO_SET_HOME) {
+                        }
+                        else if (command == MAV_CMD_DO_SET_HOME) {
                             // use current location
                             if (mavlink_msg_mission_item_get_current(&msg)) {
                                 navSetHomeCurrent();
@@ -703,7 +756,8 @@ void mavlinkRecvTaskCode(commRcvrStruct_t *r) {
                                 wp->poiHeading = mavlink_msg_mission_item_get_param4(&msg);
                                 wp->maxHorizSpeed = NAV_DFLT_HOR_SPEED;
                             }
-                        } else if (command == MAV_CMD_NAV_TAKEOFF) {
+                        }
+                        else if (command == MAV_CMD_NAV_TAKEOFF) {
                             wp = navGetWaypoint(seqId);
                             if (frame == MAV_FRAME_GLOBAL_RELATIVE_ALT)
                                 wp->relativeAlt = 1;
@@ -718,7 +772,8 @@ void mavlinkRecvTaskCode(commRcvrStruct_t *r) {
                             wp->loiterTime = mavlink_msg_mission_item_get_param2(&msg) * 1000;
                             wp->poiHeading = mavlink_msg_mission_item_get_param3(&msg);
                             wp->maxVertSpeed = mavlink_msg_mission_item_get_param4(&msg);
-                        } else if (command == MAV_CMD_AQ_NAV_LEG_ORBIT) {
+                        }
+                        else if (command == MAV_CMD_AQ_NAV_LEG_ORBIT) {
                             wp = navGetWaypoint(seqId);
                             if (frame == MAV_FRAME_GLOBAL_RELATIVE_ALT)
                                 wp->relativeAlt = 1;
@@ -733,7 +788,8 @@ void mavlinkRecvTaskCode(commRcvrStruct_t *r) {
                             wp->loiterTime = mavlink_msg_mission_item_get_param2(&msg) * 1000;
                             wp->maxHorizSpeed = mavlink_msg_mission_item_get_param3(&msg);
                             wp->poiHeading = mavlink_msg_mission_item_get_param4(&msg);
-                        } else if (command == MAV_CMD_NAV_LAND) {
+                        }
+                        else if (command == MAV_CMD_NAV_LAND) {
                             wp = navGetWaypoint(seqId);
                             if (frame == MAV_FRAME_GLOBAL_RELATIVE_ALT)
                                 wp->relativeAlt = 1;
@@ -747,9 +803,10 @@ void mavlinkRecvTaskCode(commRcvrStruct_t *r) {
                             wp->maxVertSpeed = mavlink_msg_mission_item_get_param2(&msg);
                             wp->maxHorizSpeed = mavlink_msg_mission_item_get_param3(&msg);
                             wp->poiHeading = mavlink_msg_mission_item_get_param4(&msg);
-                        } else {
+                        }
+                        else {
                             // NACK
-                            ack = 1;
+                            ack = MAV_MISSION_UNSUPPORTED;
                         }
                     }
 
@@ -758,20 +815,22 @@ void mavlinkRecvTaskCode(commRcvrStruct_t *r) {
                     mavlinkData.nextWP = timerMicros();
                     mavlink_msg_mission_ack_send(MAVLINK_COMM_0, mavlink_system.sysid, mavlink_system.compid, ack);
                 }
-                break;
+                break; //MAVLINK_MSG_ID_MISSION_ITEM
 
             case MAVLINK_MSG_ID_PARAM_REQUEST_READ:
                 if (mavlink_msg_param_request_read_get_target_system(&msg) == mavlink_system.sysid) {
                     uint16_t paramIndex;
 
+                    mavlinkData.paramCompId = mavlink_msg_param_request_read_get_target_component(&msg);
                     paramIndex = mavlink_msg_param_request_read_get_param_index(&msg);
                     if (paramIndex < CONFIG_NUM_PARAMS)
-                        mavlink_msg_param_value_send(MAVLINK_COMM_0, configParameterStrings[paramIndex], p[paramIndex], MAVLINK_TYPE_FLOAT, CONFIG_NUM_PARAMS, paramIndex);
+                        mavlinkSendParamValue(paramIndex, CONFIG_NUM_PARAMS, false);
                 }
                 break;
 
             case MAVLINK_MSG_ID_PARAM_REQUEST_LIST:
                 if (mavlink_msg_param_request_list_get_target_system(&msg) == mavlink_system.sysid) {
+                    mavlinkData.paramCompId = mavlink_msg_param_request_list_get_target_component(&msg);
                     mavlinkData.currentParam = 0;
                     mavlinkData.nextParam = 0;
                 }
@@ -779,18 +838,17 @@ void mavlinkRecvTaskCode(commRcvrStruct_t *r) {
 
             case MAVLINK_MSG_ID_PARAM_SET:
                 if (mavlink_msg_param_set_get_target_system(&msg) == mavlink_system.sysid) {
-                    int paramIndex = -1;
-                    float paramValue;
+                    int paramIndex;
                     char paramName[17];
 
                     mavlink_msg_param_set_get_param_id(&msg, paramName);
                     paramIndex = configGetParamIdByName((char *)paramName);
-                    if (paramIndex >= 0 && paramIndex < CONFIG_NUM_PARAMS) {
-                        paramValue = mavlink_msg_param_set_get_param_value(&msg);
-                        if (!isnan(paramValue) && !isinf(paramValue) && !(supervisorData.state & STATE_FLYING))
-                            p[paramIndex] = paramValue;
+                    if (paramIndex > -1) {
+                        if (!(supervisorData.state & STATE_FLYING))
+                            configSetParamByID(paramIndex, mavlink_msg_param_set_get_param_value(&msg));
                         // send back what we have no matter what
-                        mavlink_msg_param_value_send(MAVLINK_COMM_0, paramName, p[paramIndex], MAVLINK_TYPE_FLOAT, CONFIG_NUM_PARAMS, paramIndex);
+                        mavlinkData.paramCompId = mavlink_msg_param_set_get_target_component(&msg);
+                        mavlinkSendParamValue(paramIndex, CONFIG_NUM_PARAMS, true);
                     }
                 }
                 break;
@@ -822,12 +880,9 @@ void mavlinkRecvTaskCode(commRcvrStruct_t *r) {
 
             case MAVLINK_MSG_ID_OPTICAL_FLOW:
                 navUkfOpticalFlow(mavlink_msg_optical_flow_get_flow_x(&msg),
-                                  mavlink_msg_optical_flow_get_flow_y(&msg),
-                                  mavlink_msg_optical_flow_get_quality(&msg),
-                                  mavlink_msg_optical_flow_get_ground_distance(&msg));
-                break;
-
-            case MAVLINK_MSG_ID_HEARTBEAT:
+                        mavlink_msg_optical_flow_get_flow_y(&msg),
+                        mavlink_msg_optical_flow_get_quality(&msg),
+                        mavlink_msg_optical_flow_get_ground_distance(&msg));
                 break;
 
             default:
@@ -836,7 +891,7 @@ void mavlinkRecvTaskCode(commRcvrStruct_t *r) {
             }
         }
 
-// Update global packet drops counter
+        // Update global packet drops counter
         mavlinkData.packetDrops += mavlinkData.mavlinkStatus.packet_rx_drop_count;
     }
 }
@@ -890,6 +945,7 @@ void mavlinkInit(void) {
     mavlinkData.wpCount = navGetWaypointCount();
     mavlinkData.wpCurrent = mavlinkData.wpCount + 1;
     mavlinkData.wpTargetCompId = MAV_COMP_ID_MISSIONPLANNER;
+    mavlinkData.paramCompId = MAV_COMP_ID_ALL;
     mavlinkData.sys_mode = MAV_MODE_PREFLIGHT;
     mavlinkData.sys_state = MAV_STATE_BOOT;
     mavlink_system.sysid = flashSerno(0) % 250;
@@ -917,4 +973,5 @@ void mavlinkInit(void) {
         mavlink_msg_data_stream_send(MAVLINK_COMM_0, i, hz, mavlinkData.streams[i].enable);
     }
 }
+
 #endif // USE_MAVLINK

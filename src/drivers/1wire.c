@@ -14,7 +14,7 @@
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
     Copyright (c) 2011-2014  Bill Nesbitt
-*/
+ */
 
 #include "1wire.h"
 #include "aq_timer.h"
@@ -23,7 +23,7 @@
 #include <CoOS.h>
 #include <string.h>
 
-owStruct_t owData __attribute__((section(".ccm")));
+owStruct_t owData CCM_RAM;
 
 void owPinOut(void) {
     owHi();
@@ -44,8 +44,7 @@ uint8_t owTransaction(int8_t write, int8_t read) {
     owData.readBytes = read;
 
     owTransactionISR(OW_STATE_0);
-    while (owData.status == OW_STATUS_BUSY)
-        ;
+    while (owData.status == OW_STATUS_BUSY);
 
     return owData.status;
 }
@@ -150,7 +149,8 @@ void owReadByteISR(int bit) {
         owData.byteValue = 0;
         owReadBitISR(OW_STATE_0);
         timerSetAlarm2(65, owReadByteISR, bit+1);
-    } else {
+    }
+    else {
         owData.byteValue |= (owData.bitValue<<bit);
         if (bit < 7) {
             owReadBitISR(OW_STATE_0);
@@ -177,17 +177,20 @@ void owTransactionISR(int state) {
         owData.status = OW_STATUS_BUSY;
         owResetISR(OW_STATE_0);
         timerSetAlarm3(1000, owTransactionISR, OW_STATE_1);
-    } else if (state == OW_STATE_1) {
+    }
+    else if (state == OW_STATE_1) {
         if (!owData.present) {
             owData.status = OW_STATUS_NO_PRESENSE;
             return;
-        } else {
+        }
+        else {
             owData.byteValue = OW_ROM_SKIP;
             owData.ptr = owData.buf;
             owWriteByteISR(-1);
             timerSetAlarm3(600, owTransactionISR, OW_STATE_2);
         }
-    } else if (owData.writeBytes > 0) {
+    }
+    else if (owData.writeBytes > 0) {
         owData.byteValue = *owData.ptr++;
         owData.writeBytes--;
         owWriteByteISR(-1);
@@ -195,7 +198,8 @@ void owTransactionISR(int state) {
 
         if (owData.writeBytes == 0)
             owData.ptr = owData.buf;
-    } else if (owData.readBytes > -1) {
+    }
+    else if (owData.readBytes > -1) {
         owData.readBytes--;
         if (state == OW_STATE_3) {
             *owData.ptr++ = owData.byteValue;
@@ -203,10 +207,12 @@ void owTransactionISR(int state) {
         if (owData.readBytes > -1) {
             owReadByteISR(-1);
             timerSetAlarm3(600, owTransactionISR, OW_STATE_3);
-        } else {
+        }
+        else {
             owData.status = OW_STATUS_COMPLETE;
         }
-    } else {
+    }
+    else {
         owData.status = OW_STATUS_COMPLETE;
     }
 }

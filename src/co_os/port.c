@@ -15,6 +15,8 @@
 
 /*---------------------------- Include ---------------------------------------*/
 #include "coocox.h"
+
+
 //******************************************************************************
 //                              EQUATES
 //******************************************************************************
@@ -32,6 +34,8 @@ extern void   IRQ_DISABLE_SAVE(void);
 extern void   SetEnvironment(OS_STK *pstk) __attribute__ ((naked));
 extern void   SwitchContext(void)          __attribute__ ((naked));
 extern void   PendSV_Handler(void)         __attribute__ ((naked));
+
+
 /**
  ******************************************************************************
  * @brief      Plus a byte integers and Saved into memory cell
@@ -44,26 +48,29 @@ extern void   PendSV_Handler(void)         __attribute__ ((naked));
  *             and Saved into memory cell.
  ******************************************************************************
  */
-U8 Inc8 (volatile U8 *data) {
+U8 Inc8 (volatile U8 *data)
+{
     register U8  result = 0;
 
     __asm volatile
     (
-        " PUSH    {R1}     \n"
-        " CPSID   I        \n"
-        " LDRB    R1,[%1]  \n"
-        " ADD     R1,#1    \n"
-        " STRB    R1,[%1]  \n"
-        " CPSIE   I        \n"
-        " SUB     R1,#0x1  \n"
-        " MOVS    %0,R1    \n"
-        " POP     {R1}     \n"
-        :"=r"(result)
-        :"r"(data)
+            " PUSH    {R1}     \n"
+            " CPSID   I        \n"
+            " LDRB    R1,[%1]  \n"
+            " ADD     R1,#1    \n"
+            " STRB    R1,[%1]  \n"
+            " CPSIE   I        \n"
+            " SUB     R1,#0x1  \n"
+            " MOVS    %0,R1    \n"
+            " POP     {R1}     \n"
+            :"=r"(result)
+             :"r"(data)
     );
     return (result);
 
 }
+
+
 /**
  ******************************************************************************
  * @brief      Decrease a byte integers and Saved into memory cell
@@ -76,20 +83,21 @@ U8 Inc8 (volatile U8 *data) {
  *             and Saved into memory cell.
  ******************************************************************************
  */
-U8 Dec8 (volatile U8 *data) {
+U8 Dec8 (volatile U8 *data)
+{
     register U8  result = 0;
     __asm volatile
     (
-        " PUSH    {R1}     \n"
-        " CPSID   I        \n"
-        " LDRB    R1,[%1]  \n"
-        " SUB     R1,#1    \n"
-        " STRB    R1,[%1]  \n"
-        " CPSIE   I        \n"
-        " MOVS    %0,R1    \n"
-        " POP     {R1}     \n"
-        :"=r"(result)
-        :"r"(data)
+            " PUSH    {R1}     \n"
+            " CPSID   I        \n"
+            " LDRB    R1,[%1]  \n"
+            " SUB     R1,#1    \n"
+            " STRB    R1,[%1]  \n"
+            " CPSIE   I        \n"
+            " MOVS    %0,R1    \n"
+            " POP     {R1}     \n"
+            :"=r"(result)
+             :"r"(data)
     );
     return (result);
 }
@@ -105,10 +113,11 @@ U8 Dec8 (volatile U8 *data) {
  * @details    This function is called to ENABLE Interrupt.
  ******************************************************************************
  */
-void IRQ_ENABLE_RESTORE(void) {
+void IRQ_ENABLE_RESTORE(void)
+{
     __asm volatile
     (
-        " CPSIE   I        \n"
+            " CPSIE   I        \n"
     );
     return;
 }
@@ -124,13 +133,16 @@ void IRQ_ENABLE_RESTORE(void) {
  * @details    This function is called to close Interrupt.
  ******************************************************************************
  */
-void IRQ_DISABLE_SAVE(void) {
+void IRQ_DISABLE_SAVE(void)
+{
     __asm volatile
     (
-        " CPSID   I        \n"
+            " CPSID   I        \n"
     );
     return;
 }
+
+
 /**
  ******************************************************************************
  * @brief      Set environment for Coocox OS running
@@ -143,15 +155,18 @@ void IRQ_DISABLE_SAVE(void) {
  *              for Coocox OS running.
  ******************************************************************************
  */
-void SetEnvironment (OS_STK *pstk) {
+void SetEnvironment (OS_STK *pstk)
+{
     __asm volatile
     (
-        " SUB    R0,#28 \n"
-        " MSR    PSP,R0 \n"
-        " BX      LR               \n"
+            " SUB    R0,#28 \n"
+            " MSR    PSP,R0 \n"
+            " BX      LR               \n"
     );
 
 }
+
+
 /**
  ******************************************************************************
  * @brief      Do ready work to Switch Context for task change
@@ -164,18 +179,21 @@ void SetEnvironment (OS_STK *pstk) {
  *              Switch Context for task change
  ******************************************************************************
  */
-void SwitchContext(void) {
+void SwitchContext(void)
+{
     __asm volatile
     (
-        " LDR     R3,=NVIC_INT_CTRL  \n"
-        " LDR     R3,[R3]            \n"
-        " LDR     R2,=NVIC_PENDSVSET \n"
-        " LDR     R1,[R2]            \n"
-        " STR     R1, [R3]           \n"
-        " BX      LR               \n"
+            " LDR     R3,=NVIC_INT_CTRL  \n"
+            " LDR     R3,[R3]            \n"
+            " LDR     R2,=NVIC_PENDSVSET \n"
+            " LDR     R1,[R2]            \n"
+            " STR     R1, [R3]           \n"
+            " BX      LR               \n"
     );
 
 }
+
+
 
 /**
  ******************************************************************************
@@ -189,52 +207,53 @@ void SwitchContext(void) {
  ******************************************************************************
  */
 #if CFG_CHIP_TYPE == 2
-void PendSV_Handler(void) {
+void PendSV_Handler(void)
+{
     __asm volatile
     (
-        " LDR     R3,=TCBRunning   \n"
-        " LDR     R1,[R3]          \n"   // R1 == running tcb
-        " LDR     R2,=TCBNext      \n"
-        " LDR     R2,[R2]          \n"   // R2 == next tcb
+            " LDR     R3,=TCBRunning   \n"
+            " LDR     R1,[R3]          \n"   // R1 == running tcb
+            " LDR     R2,=TCBNext      \n"
+            " LDR     R2,[R2]          \n"   // R2 == next tcb
 
-        " CMP     R1,R2            \n"
-        " BEQ     exitPendSV       \n"
-        " MRS     R0, PSP          \n"    // Get PSP point (can not use PUSH,in ISR,SP is MSP )
+            " CMP     R1,R2            \n"
+            " BEQ     exitPendSV       \n"
+            " MRS     R0, PSP          \n"    // Get PSP point (can not use PUSH,in ISR,SP is MSP )
 
-        " SUB     R0,R0,#32        \n"
-        " STR     R0,[R1]          \n"    // Save orig PSP
-        // Store r4-r11,r0 -= regCnt * 4,r0 is new stack
-        // top point (addr h->l r11,r10,...,r5,r4)
-        " STMIA   R0!,{R4-R7}      \n"    // Save old context (R4-R7)
-        " MOV     R4,R8            \n"
-        " MOV     R5,R9            \n"
-        " MOV     R6,R10           \n"
-        " MOV     R7,R11           \n"
-        " STMIA   R0!,{R4-R7}      \n"    // Save old context (R8-R11)
+            " SUB     R0,R0,#32        \n"
+            " STR     R0,[R1]          \n"    // Save orig PSP
+            // Store r4-r11,r0 -= regCnt * 4,r0 is new stack
+            // top point (addr h->l r11,r10,...,r5,r4)
+            " STMIA   R0!,{R4-R7}      \n"    // Save old context (R4-R7)
+            " MOV     R4,R8            \n"
+            " MOV     R5,R9            \n"
+            " MOV     R6,R10           \n"
+            " MOV     R7,R11           \n"
+            " STMIA   R0!,{R4-R7}      \n"    // Save old context (R8-R11)
 
-        " popStk:                  \n"
-        " STR     R2, [R3]         \n"    // TCBRunning  = TCBNext;
-        " LDR     R0, [R2]         \n"    // Get SP of task that be switch into.
+            " popStk:                  \n"
+            " STR     R2, [R3]         \n"    // TCBRunning  = TCBNext;
+            " LDR     R0, [R2]         \n"    // Get SP of task that be switch into.
 
-        " ADD     R0,R0,#16        \n"
-        " LDMIA   R0!,{R4-R7}      \n"    // Restore new Context (R8-R11)
-        " MOV     R8,R4            \n"
-        " MOV     R9,R5            \n"
-        " MOV     R10,R6           \n"
-        " MOV     R11,R7           \n"
-        " SUB     R0,R0,#32        \n"
-        " LDMIA   R0!,{R4-R7}      \n"    // Restore new Context (R4-R7)
-        " ADD     R0,R0,#16        \n"
-        " MSR     PSP, R0          \n"    // Mov new stack point to PSP
+            " ADD     R0,R0,#16        \n"
+            " LDMIA   R0!,{R4-R7}      \n"    // Restore new Context (R8-R11)
+            " MOV     R8,R4            \n"
+            " MOV     R9,R5            \n"
+            " MOV     R10,R6           \n"
+            " MOV     R11,R7           \n"
+            " SUB     R0,R0,#32        \n"
+            " LDMIA   R0!,{R4-R7}      \n"    // Restore new Context (R4-R7)
+            " ADD     R0,R0,#16        \n"
+            " MSR     PSP, R0          \n"    // Mov new stack point to PSP
 
-        " exitPendSV:              \n"
-        " LDR    R3,=OSSchedLock   \n"
-        " MOV    R0, #0x0          \n"
-        " STRB   R0, [R3]          \n"
+            " exitPendSV:              \n"
+            " LDR    R3,=OSSchedLock   \n"
+            " MOV    R0, #0x0          \n"
+            " STRB   R0, [R3]          \n"
 
-        " LDR     R3,=INT_EXIT     \n"
-        " LDR     R0, [R3]         \n"
-        " BX      R0               \n"    // Exit interrupt
+            " LDR     R3,=INT_EXIT     \n"
+            " LDR     R0, [R3]         \n"
+            " BX      R0               \n"    // Exit interrupt
     );
 }
 #endif
@@ -242,44 +261,45 @@ void PendSV_Handler(void) {
 #if CFG_CHIP_TYPE == 1
 #include "fpu.h"
 
-void PendSV_Handler(void) {
-////////debug block /////////////////////////
+void PendSV_Handler(void)
+{
+    ////////debug block /////////////////////////
     __asm volatile
     (
-        " LDR    R3,=TCBRunning \n"
-        " LDR    R1,[R3]        \n"    // R1 == running tcb
-        " LDR    R2,=TCBNext    \n"
-        " LDR    R2,[R2]        \n"    // R2 == next tcb
+            " LDR    R3,=TCBRunning \n"
+            " LDR    R1,[R3]        \n"    // R1 == running tcb
+            " LDR    R2,=TCBNext    \n"
+            " LDR    R2,[R2]        \n"    // R2 == next tcb
 
-        " CMP    R1,R2          \n"
-        " BEQ    exitPendSV     \n"
+            " CMP    R1,R2          \n"
+            " BEQ    exitPendSV     \n"
 
-        " MRS    R0, PSP        \n"    // Get PSP point (can not use PUSH,in ISR,SP is MSP )
-        " STMDB  R0!,{R4-R11}   \n"    // Store r4-r11,r0 -= regCnt * 4,r0 is new stack
-        // top point (addr h->l r11,r10,...,r5,r4)
+            " MRS    R0, PSP        \n"    // Get PSP point (can not use PUSH,in ISR,SP is MSP )
+            " STMDB  R0!,{R4-R11}   \n"    // Store r4-r11,r0 -= regCnt * 4,r0 is new stack
+            // top point (addr h->l r11,r10,...,r5,r4)
 
-        " fstmdbs r0!, {s0-s31} \n"    // store FPU regs
-        " fmrx r12, fpscr     \n"
-        " stmdb r0!,{r12}     \n"    // store FPU status reg
+            " fstmdbs r0!, {s0-s31} \n"    // store FPU regs
+            " fmrx r12, fpscr     \n"
+            " stmdb r0!,{r12}     \n"    // store FPU status reg
 
-        " STR    R0,[R1]        \n"    // Save orig PSP
+            " STR    R0,[R1]        \n"    // Save orig PSP
 
-        " STR    R2, [R3]       \n"    // TCBRunning  = TCBNext;
-        " LDR    R0, [R2]       \n"    // Get SP of task that be switch into.
+            " STR    R2, [R3]       \n"    // TCBRunning  = TCBNext;
+            " LDR    R0, [R2]       \n"    // Get SP of task that be switch into.
 
-        " ldmia r0!,{r12}     \n"    // load FPU status reg
-        " fmxr fpscr, r12     \n"
-        " fldmias r0!, {s0-s31} \n"    // load FPU regs
+            " ldmia r0!,{r12}     \n"    // load FPU status reg
+            " fmxr fpscr, r12     \n"
+            " fldmias r0!, {s0-s31} \n"    // load FPU regs
 
-        " LDMIA  R0!,{R4-R11}   \n"    // POP {R4-R11},R0 += regCnt * 4
-        " MSR    PSP, R0        \n"    // Mov new stack point to PSP
+            " LDMIA  R0!,{R4-R11}   \n"    // POP {R4-R11},R0 += regCnt * 4
+            " MSR    PSP, R0        \n"    // Mov new stack point to PSP
 
-        " exitPendSV:           \n"
-        " LDR    R3,=OSSchedLock\n"
-        " MOVS   R0, #0x0       \n"
-        " STRB   R0, [R3]       \n"
-        " ORR    LR,LR,#0x04    \n"    // Ensure exception return uses process stack
-        " BX     LR             \n"    // Exit interrupt
+            " exitPendSV:           \n"
+            " LDR    R3,=OSSchedLock\n"
+            " MOVS   R0, #0x0       \n"
+            " STRB   R0, [R3]       \n"
+            " ORR    LR,LR,#0x04    \n"    // Ensure exception return uses process stack
+            " BX     LR             \n"    // Exit interrupt
     );
 }
 #endif

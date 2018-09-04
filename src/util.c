@@ -14,7 +14,7 @@
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
     Copyright (c) 2011-2014  Bill Nesbitt
-*/
+ */
 
 #include "aq.h"
 #include "util.h"
@@ -32,14 +32,14 @@
 
 uint32_t heapUsed, heapHighWater, dataSramUsed;
 
-uint32_t *ccmHeap[UTIL_CCM_HEAP_SIZE] __attribute__((section(".ccm")));
+uint32_t *ccmHeap[UTIL_CCM_HEAP_SIZE] CCM_RAM;
 
 #ifdef UTIL_STACK_CHECK
 int32_t numStacks;
-void *stackPointers[UTIL_STACK_CHECK] __attribute__((section(".ccm")));
-uint16_t stackSizes[UTIL_STACK_CHECK] __attribute__((section(".ccm")));
-uint16_t stackFrees[UTIL_STACK_CHECK] __attribute__((section(".ccm")));
-char *stackNames[UTIL_STACK_CHECK] __attribute__((section(".ccm")));
+void *stackPointers[UTIL_STACK_CHECK] CCM_RAM;
+uint16_t stackSizes[UTIL_STACK_CHECK] CCM_RAM;
+uint16_t stackFrees[UTIL_STACK_CHECK] CCM_RAM;
+char *stackNames[UTIL_STACK_CHECK] CCM_RAM;
 
 void utilStackCheck(void) {
     int i, j;
@@ -74,7 +74,7 @@ uint16_t utilGetStackFree(const char *stackName) {
 void *aqCalloc(size_t count, size_t size) {
     char *addr = 0;
 
-    if (count * size) {
+    if (count * size > 0) {
         addr = calloc(count, size);
 
         heapUsed += count * size;
@@ -104,7 +104,8 @@ void *aqDataCalloc(uint16_t count, uint16_t size) {
 
     if ((dataSramUsed + words) > UTIL_CCM_HEAP_SIZE) {
         AQ_NOTICE("Out of data SRAM!\n");
-    } else {
+    }
+    else {
         dataSramUsed += words;
     }
 
@@ -145,24 +146,23 @@ void delay(unsigned long t) {
 }
 
 void utilSerialNoString(void) {
-    AQ_PRINTF("AQ S/N: %08X-%08X-%08X\n", flashSerno(2), flashSerno(1), flashSerno(0));
+    AQ_PRINTF("AQ S/N: %08X-%08X-%08X\n", (unsigned int) flashSerno(2), (unsigned int) flashSerno(1), (unsigned int) flashSerno(0));
 }
 
 void utilVersionString(void) {
-    AQ_PRINTF("AQ FW ver: %d.%d.%d-%s, HW ver: %d.%d\n", FIMRWARE_VER_MAJ, FIMRWARE_VER_MIN, FIMRWARE_VER_BLD, FIMRWARE_VER_STR, BOARD_VERSION,
-              BOARD_REVISION);
+    AQ_PRINTF("AQ FW ver: %d.%d.%d-%s, HW ver: %d.%d\n", FIMRWARE_VER_MAJ, FIMRWARE_VER_MIN, FIMRWARE_VER_BLD, FIMRWARE_VER_STR, BOARD_VERSION, BOARD_REVISION);
 }
 
 void info(void) {
     utilSerialNoString();
 
 #ifdef USE_MAVLINK
-    AQ_PRINTF("Mavlink SYS ID: %d\n", flashSerno(0) % 250);
+    AQ_PRINTF("Mavlink SYS ID: %d\n", (unsigned int) (flashSerno(0) % 250));
 #endif
 
-    AQ_PRINTF("SYS Clock: %u MHz\n", rccClocks.SYSCLK_Frequency / 1000000);
-    AQ_PRINTF("%u/%u heap used/high water\n", heapUsed, heapHighWater);
-    AQ_PRINTF("%u of %u CCM heap used\n", dataSramUsed * sizeof(int), UTIL_CCM_HEAP_SIZE * sizeof(int));
+    AQ_PRINTF("SYS Clock: %u MHz\n", (unsigned int) (rccClocks.SYSCLK_Frequency / 1000000));
+    AQ_PRINTF("%u/%u heap used/high water\n", (unsigned int) heapUsed, (unsigned int) heapHighWater);
+    AQ_PRINTF("%u of %u CCM heap used\n", (unsigned int) (dataSramUsed * sizeof(int)), (unsigned int) (UTIL_CCM_HEAP_SIZE * sizeof(int)));
 
     yield(100);
     utilVersionString();
@@ -228,39 +228,3 @@ void utilFirFilterInit(utilFirFilter_t *f, const float *window, float *buffer, u
     for (i = 0; i < n; i++)
         f->data[i] = 0.0f;
 }
-
-// unused
-/*
-int ftoa(char *buf, float f, unsigned int digits) {
-    int bl = 0;
-    float whole, frac;
-    long long llfrac;
-
-    // handle infinite values
-    if (isinf(f)) {
-        strcpy(buf, "INF");
-        return 3;
-    }
-    // handle Not a Number
-    else if (isnan(f)) {
-        strcpy(buf, "NaN");
-        return 3;
-    }
-    else {
-
- frac = modff(f, &whole);
- //index = sprintf(buf, "%ld", (long)whole);
- bl = strlen(ltoa((long)whole, buf, 10));
-
- if (digits && frac) {
-     frac *= powf(10.0f, digits + 1);
-     llfrac = (long long)fabs(frac);
-     if (llfrac % 10 > 4)
-  llfrac += 10;
-     bl += sprintf(&buf[bl], ".%0*lld", digits, llfrac / 10);
- }
-
- return bl;
-    }
-}
-*/

@@ -14,7 +14,7 @@
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
     Copyright (c) 2011-2014  Bill Nesbitt
-*/
+ */
 
 #include "aq.h"
 #include "aq_math.h"
@@ -85,7 +85,8 @@ void nlerp(float32_t *r, float32_t *a, float32_t *b, float32_t t) {
         r[1] = a[1]*f1 + b[1]*f2;
         r[2] = a[2]*f1 + b[2]*f2;
         r[3] = a[3]*f1 + b[3]*f2;
-    } else {
+    }
+    else {
         r[0] = a[0]*f1 - b[0]*f2;
         r[1] = a[1]*f1 - b[1]*f2;
         r[2] = a[2]*f1 - b[2]*f2;

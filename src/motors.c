@@ -14,7 +14,7 @@
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
     Copyright (c) 2011-2014  Bill Nesbitt
-*/
+ */
 
 #include "aq.h"
 #include "motors.h"
@@ -37,7 +37,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-motorsStruct_t motorsData __attribute__((section(".ccm")));
+motorsStruct_t motorsData CCM_RAM;
 
 #ifdef MOTORS_CAN_LOGGING
 #include "filer.h"
@@ -132,7 +132,7 @@ static void motorsCheckCanStatus(int motorId) {
     }
     // if ESC is reporting as being disarmed (and should not be)
     else if (motorsData.canStatus[motorId].state == ESC32_STATE_DISARMED && (supervisorData.state & STATE_ARMED)) {
-// send an arm command
+        // send an arm command
         canCommandArm(CAN_TT_NODE, motorsData.can[motorId]->networkId);
     }
 #endif
@@ -143,24 +143,23 @@ void motorsSendValues(void) {
 
     for (int j = 0; j < motorsData.numActive; ++j) {
         i = motorsData.activeList[j];
-// ensure motor output is constrained
+        // ensure motor output is constrained
         motorsData.value[i] = constrainInt(motorsData.value[i], 0, MOTORS_SCALE);
 
-// PWM
+        // PWM
         if (i < PWM_NUM_PORTS && motorsData.pwm[i]) {
             if (supervisorData.state & STATE_ARMED) {
 #ifdef HAS_ONBOARD_ESC
                 if (MOTORS_ESC_TYPE == ESC_TYPE_ONBOARD_PWM)
-                    *motorsData.pwm[i]->ccr = constrainInt((float)motorsData.value[i] * (ONBOARD_ESC_PWM_MAX - ONBOARD_ESC_PWM_MIN) / MOTORS_SCALE + ONBOARD_ESC_PWM_MIN,
-                                                           ONBOARD_ESC_PWM_START, ONBOARD_ESC_PWM_MAX);
+                    *motorsData.pwm[i]->ccr = constrainInt((float)motorsData.value[i] * (ONBOARD_ESC_PWM_MAX - ONBOARD_ESC_PWM_MIN) / MOTORS_SCALE + ONBOARD_ESC_PWM_MIN, ONBOARD_ESC_PWM_START, ONBOARD_ESC_PWM_MAX);
                 else
 #endif
                     *motorsData.pwm[i]->ccr = constrainInt((float)motorsData.value[i] * (p[MOT_MAX] - p[MOT_MIN]) / MOTORS_SCALE + p[MOT_MIN], p[MOT_START], p[MOT_MAX]);
-            } else
+            } else {
                 *motorsData.pwm[i]->ccr = 0;
-        }
-// CAN
-        else if (motorsData.can[i]) {
+            }
+        } else if (motorsData.can[i]) {
+            // CAN
             motorsCheckCanStatus(i);
 
             if (supervisorData.state & STATE_ARMED)
@@ -183,8 +182,8 @@ void motorsSendThrust(void) {
         i = motorsData.activeList[j];
         value = motorsThrust2Value(motorsData.thrust[i]);
 
-// using open-loop PWM ESC?
-        if (i < PWM_NUM_PORTS && motorsData.pwm[i] && MOTORS_ESC_TYPE != ESC_TYPE_ESC32) {
+        // using open-loop PWM ESC?
+        if (i < PWM_NUM_PORTS && motorsData.pwm[i] && (uint8_t)p[MOT_ESC_TYPE] != ESC_TYPE_ESC32) {
             // preload the request to accelerate setpoint changes
             if (motorsData.oldValues[i] != value) {
                 v = (value -  motorsData.oldValues[i]);
@@ -217,7 +216,7 @@ void motorsOff(void) {
         i = motorsData.activeList[j];
         motorsData.value[i] = 0;
 
-// PWM
+        // PWM
         if (i < PWM_NUM_PORTS && motorsData.pwm[i]) {
 #ifdef HAS_ONBOARD_ESC
             if (MOTORS_ESC_TYPE == ESC_TYPE_ONBOARD_PWM)
@@ -225,9 +224,8 @@ void motorsOff(void) {
             else
 #endif
                 *motorsData.pwm[i]->ccr = (supervisorData.state & STATE_ARMED) ? p[MOT_ARM] : 0;
-        }
-// CAN
-        else if (motorsData.can[i]) {
+        } else if (motorsData.can[i]) {
+            // CAN
             motorsCheckCanStatus(i);
             *motorsData.canPtrs[i] = 0;
         }
@@ -257,10 +255,10 @@ void motorsCommands(float throtCommand, float pitchCommand, float rollCommand, f
         value += (rollCommand * d->roll * 0.01f);
         value += (ruddCommand * d->yaw * 0.01f);
 
-// adjust for voltage factor
+        // adjust for voltage factor
         value *= motorsVFactor();
 
-// check for over throttle
+        // check for over throttle
         if (value >= MOTORS_SCALE)
             motorsData.throttleLimiter += MOTORS_THROTTLE_LIMITER;
 
@@ -312,7 +310,8 @@ static int motorsPwmInit(int i) {
     if (i >= PWM_NUM_PORTS) {
         AQ_PRINTF("Motors: PWM port number %d does not exist!\n", i);
         ret = 0;
-    } else if (MOTORS_ESC_TYPE == ESC_TYPE_ONBOARD_PWM) {
+    }
+    else if (MOTORS_ESC_TYPE == ESC_TYPE_ONBOARD_PWM) {
 #if defined(HAS_ONBOARD_ESC)
         res = ONBOARD_ESC_PWM_RESOLUTION;
         freq = MOTORS_ONBOARD_PWM_FREQ;
@@ -320,7 +319,8 @@ static int motorsPwmInit(int i) {
         AQ_NOTICE("Motors: Onboard ESC not supported on this hardware!\n");
         ret = 0;
 #endif
-    } else if (MOTORS_ESC_TYPE == ESC_TYPE_ESC32) {
+    }
+    else if (MOTORS_ESC_TYPE == ESC_TYPE_ESC32) {
         esc32Mode = USE_QUATOS;
     }
 
@@ -407,13 +407,13 @@ void motorsPwmToAll(float pwmValue) {
 
 void motorsEscPwmCalibration(void) {
     // check esc type and calibration request bit
-    if (MOTORS_ESC_TYPE != ESC_TYPE_STD_PWM || !((uint32_t)p[MOT_ESC_TYPE] & 0x800000))
+    if (MOTORS_ESC_TYPE != ESC_TYPE_STD_PWM || !((uint32_t)p[MOT_ESC_TYPE] & MOT_ESC_TYPE_CALIB_ENABLE))
         return;
 
     // reset calibration request bit
-    p[MOT_ESC_TYPE] = (uint32_t)p[MOT_ESC_TYPE] & 0x7FFFFF;
+    p[MOT_ESC_TYPE] = (uint32_t)p[MOT_ESC_TYPE] & ~(MOT_ESC_TYPE_CALIB_ENABLE);
     // store new param, or fail
-    if (!configFlashWrite())
+    if (!configSaveParamsToFlash())
         return;
 
     for (int i = 5; i > 0; --i) {
@@ -442,7 +442,7 @@ void motorsInit(void) {
         return;
     }
 
-    motorsData.distribution = (motorsPowerStruct_t *)&p[MOT_PWRD_01_T];
+    motorsData.distribution = (motorsPowerStruct_t *)configGetParamPtr(MOT_PWRD_01_T);
 
     sumPitch = 0.0f;
     sumRoll = 0.0f;
@@ -491,4 +491,9 @@ void motorsInit(void) {
     motorsSetCanGroup();
     motorsOff();
     canTelemRegister(motorsReceiveTelem, CAN_TYPE_ESC);
+
+    if ((uint32_t)p[MOT_ESC_TYPE] & MOT_ESC_TYPE_CALIB_ENABLE) {
+        AQ_NOTICE("Motors: ERROR! ESC calibration bit still set.\n");
+        motorsData.numActive = 0;
+    }
 }

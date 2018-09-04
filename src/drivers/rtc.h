@@ -20,14 +20,14 @@
 #define _rtc_h
 
 #ifndef RTC_INIT_MASK
-#define RTC_INIT_MASK    ((uint32_t)0xFFFFFFFF)
+    #define RTC_INIT_MASK    ((uint32_t)0xFFFFFFFF)
 #endif
 
 #ifndef RTC_TR_RESERVED_MASK
-#define RTC_TR_RESERVED_MASK    ((uint32_t)0x007F7F7F)
+    #define RTC_TR_RESERVED_MASK    ((uint32_t)0x007F7F7F)
 #endif
 #ifndef RTC_DR_RESERVED_MASK
-#define RTC_DR_RESERVED_MASK    ((uint32_t)0x00FFFF3F)
+    #define RTC_DR_RESERVED_MASK    ((uint32_t)0x00FFFF3F)
 #endif
 
 typedef struct {
@@ -35,13 +35,13 @@ typedef struct {
     uint32_t asyncPrediv, syncPrediv;
     volatile unsigned long captureLSI[2];
     volatile int captureNumber;
-} CC_ALIGNED rtcStruct_t;
+} rtcStruct_t;
 
 extern rtcStruct_t rtcData;
 
 extern void rtcInit(void);
 extern unsigned long rtcGetDateTime(void);
-extern int rtcSetDataTime(int year, int month, int day, int hour, int minute, int second);
+extern int rtcSetDateTime(int year, int month, int day, int hour, int minute, int second);
 extern void rtcSetDateTimeLong(unsigned long dateTime);
 
 #endif

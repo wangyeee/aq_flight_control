@@ -75,7 +75,7 @@ typedef struct {
     uint8_t rfChannel;
     uint8_t dsmNumChannels;
     uint8_t dsmProtocol;
-    uint8_t isDsm2;
+ uint8_t isDsm2;
     uint8_t bound;
     uint8_t newBind;
     uint8_t rfChannels[23];

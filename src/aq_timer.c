@@ -14,7 +14,7 @@
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
     Copyright (c) 2011-2014  Bill Nesbitt
-*/
+ */
 
 #include "aq.h"
 #include "aq_timer.h"
@@ -25,8 +25,8 @@ timerStruct_t timerData;
 
 // Use TIMER_TIM to create a us system clock
 void timerInit(void) {
-    TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
-    TIM_OCInitTypeDef  TIM_OCInitStructure;
+    TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
+    TIM_OCInitTypeDef TIM_OCInitStructure;
     NVIC_InitTypeDef NVIC_InitStructure;
 
     // Enable the TIMER_TIM global Interrupt
@@ -38,7 +38,7 @@ void timerInit(void) {
 
     TIMER_EN;
 
-// stop timer when core halted (debug)
+    // stop timer when core halted (debug)
     DBGMCU_APB1PeriphConfig(TIMER_CORE_HALT, ENABLE);
 
     /* Time base configuration for 1MHz (us)*/
@@ -203,9 +203,8 @@ void TIMER_ISR(void) {
         TIMER_TIM->DIER &= (uint16_t)~TIM_IT_CC3;
 
         timerData.alarm3Callback(timerData.alarm3Parameter);
-    }
-    // CC4 is used for RTC calibration at startup
-    else if ((itEnable & TIM_IT_CC4) != RESET && (itStatus & TIM_IT_CC4) != RESET) {
+    } else if ((itEnable & TIM_IT_CC4) != RESET && (itStatus & TIM_IT_CC4) != RESET) {
+        // CC4 is used for RTC calibration at startup
         TIMER_TIM->SR = (uint16_t)~TIM_IT_CC4;
 
         if (timerData.alarm4Callback) {

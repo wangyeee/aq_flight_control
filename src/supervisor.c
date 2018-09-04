@@ -15,7 +15,7 @@
 
     Copyright (c) 2011-2014  Bill Nesbitt
     Copyright 2013-2016 Maxim Paperno
-*/
+ */
 
 #include "aq.h"
 #include "config.h"
@@ -42,7 +42,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-supervisorStruct_t supervisorData __attribute__((section(".ccm")));
+supervisorStruct_t supervisorData CCM_RAM;
 
 OS_STK *supervisorTaskStack;
 
@@ -125,7 +125,6 @@ static void supervisorSetSystemStatus(void) {
     // FIXME: we need a better indicator of whether we're actually RingTH
     if (rcIsSwitchActive(NAV_CTRL_HOM_GO))
         supervisorData.systemStatus |= SPVR_AQ_STATUS_RTH;
-
 }
 
 void supervisorArm(void) {
@@ -133,7 +132,8 @@ void supervisorArm(void) {
     if (rcStat) {
         AQ_NOTICE("Error: Can't arm due to RC error(s):\n");
         rcReportAllErrors(rcStat);
-    } else if (rcIsSwitchActive(NAV_CTRL_AH) || rcIsSwitchActive(NAV_CTRL_PH) || rcIsSwitchActive(NAV_CTRL_MISN))
+    }
+    else if (rcIsSwitchActive(NAV_CTRL_AH) || rcIsSwitchActive(NAV_CTRL_PH) || rcIsSwitchActive(NAV_CTRL_MISN))
         AQ_NOTICE("Error: Can't arm, not in manual flight mode.\n");
     else if (rcIsSwitchActive(NAV_CTRL_HOM_SET) || rcIsSwitchActive(NAV_CTRL_HOM_GO))
         AQ_NOTICE("Error: Can't arm, home command active.\n");
@@ -169,14 +169,10 @@ void supervisorCalibrate(void) {
 }
 
 void supervisorTare(void) {
-#ifdef HAS_DIGITAL_IMU  /* Fix issue linking with gcc */
     supervisorLEDsOn();
     dIMUTare();
     AQ_NOTICE("Level calibration complete.\n");
     supervisorLEDsOff();
-#else
-    AQ_NOTICE("Warning: Tare is only available with DIMU.\n");
-#endif
 }
 
 void supervisorTaskCode(void *unused) {
@@ -249,7 +245,8 @@ void supervisorTaskCode(void *unused) {
                 if (timerMicros() > 15000000) {
                     supervisorData.configRead = 0;
                     digitalLo(supervisorData.debugLed);
-                } else {
+                }
+                else {
                     digitalTogg(supervisorData.debugLed);
                 }
             }
@@ -263,11 +260,13 @@ void supervisorTaskCode(void *unused) {
             if (RADIO_VALID && RADIO_THROT < p[CTRL_MIN_THROT] && RADIO_RUDD > +500) {
                 if (!supervisorData.armTime) {
                     supervisorData.armTime = timerMicros();
-                } else if ((timerMicros() - supervisorData.armTime) > SUPERVISOR_DISARM_TIME) {
+                }
+                else if ((timerMicros() - supervisorData.armTime) > SUPERVISOR_DISARM_TIME) {
                     supervisorArm();
                     supervisorData.armTime = 0;
                 }
-            } else {
+            }
+            else {
                 supervisorData.armTime = 0;
             }
 
@@ -282,12 +281,13 @@ void supervisorTaskCode(void *unused) {
                     if (RADIO_ROLL < -500 && RADIO_PITCH > +500) {
                         supervisorTare();
                         supervisorData.stickCmdTimer = 0;
-                    } else
+                    }
+                    else
 #endif // HAS_DIGITAL_IMU
                         // config write (upper right)
                         if (RADIO_ROLL > +500 && RADIO_PITCH < -500) {
                             supervisorLEDsOn();
-                            configFlashWrite();
+                            configSaveParamsToFlash();
 #ifdef DIMU_HAVE_EEPROM
                             dIMURequestCalibWrite();
 #endif
@@ -316,17 +316,19 @@ void supervisorTaskCode(void *unused) {
             if (RADIO_THROT < p[CTRL_MIN_THROT] && RADIO_RUDD < -500 && navData.mode == NAV_STATUS_MANUAL) {
                 if (!supervisorData.armTime) {
                     supervisorData.armTime = timerMicros();
-                } else if ((timerMicros() - supervisorData.armTime) > SUPERVISOR_DISARM_TIME) {
+                }
+                else if ((timerMicros() - supervisorData.armTime) > SUPERVISOR_DISARM_TIME) {
                     supervisorDisarm();
                     supervisorData.armTime = 0;
                 }
-            } else {
+            }
+            else {
                 supervisorData.armTime = 0;
             }
         }
-// end of calibrating/disarmed/armed mode checks
+        // end of calibrating/disarmed/armed mode checks
 
-// radio loss
+        // radio loss
         if ((supervisorData.state & STATE_FLYING) && (navData.mode < NAV_STATUS_MISSION || (supervisorData.state & STATE_RADIO_LOSS2))) {
             // regained?
             if (RADIO_QUALITY > 1.0f) {
@@ -364,8 +366,7 @@ void supervisorTaskCode(void *unused) {
                     navClearWaypoints();
                     wp = navGetWaypoint(wpi++);
 
-                    if (fsOption > SPVR_OPT_FS_RAD_ST2_LAND
-                            && navCalcDistance(gpsData.lat, gpsData.lon, navData.homeLeg.targetLat, navData.homeLeg.targetLon) > SUPERVISOR_HOME_POS_DETECT_RADIUS) {
+                    if (fsOption > SPVR_OPT_FS_RAD_ST2_LAND && navCalcDistance(gpsData.lat, gpsData.lon, navData.homeLeg.targetLat, navData.homeLeg.targetLon) > SUPERVISOR_HOME_POS_DETECT_RADIUS) {
                         float targetAltitude;
 
                         // ascend
@@ -386,7 +387,8 @@ void supervisorTaskCode(void *unused) {
                             wp->poiAltitude = 0.0f;
 
                             wp = navGetWaypoint(wpi++);
-                        } else {
+                        }
+                        else {
                             // the greater of our current altitude or home's altitude
                             targetAltitude = ((ALTITUDE > navData.homeLeg.targetAlt) ? ALTITUDE : navData.homeLeg.targetAlt) + navData.presAltOffset;
                         }
@@ -417,7 +419,7 @@ void supervisorTaskCode(void *unused) {
 
                     // land
                     wp->type = NAV_LEG_LAND;
-                    wp->maxVertSpeed = p[NAV_LANDING_VEL];
+                    wp->maxVertSpeed = NAV_DFLT_LND_SPEED;
                     wp->maxHorizSpeed = 0.0f;
                     wp->poiAltitude = 0.0f;
 
@@ -436,36 +438,36 @@ void supervisorTaskCode(void *unused) {
                 }
             }
         }
-// end radio loss check
+        // end radio loss check
 
-// calculate idle time
+        // calculate idle time
         supervisorData.idlePercent = (counter - lastAqCounter) * minCycles * 100.0f / ((1e6f / SUPERVISOR_RATE) * rccClocks.SYSCLK_Frequency / 1e6f);
         lastAqCounter = counter;
 
-// smooth vIn readings
+        // smooth vIn readings
         supervisorData.vInLPF += (analogData.vIn - supervisorData.vInLPF) * (0.1f / SUPERVISOR_RATE);
 
-// smooth current flow readings, if any
+        // smooth current flow readings, if any
         if (supervisorData.currentSenseValPtr)
             supervisorData.aOutLPF += (*supervisorData.currentSenseValPtr - supervisorData.aOutLPF) * (0.1f / SUPERVISOR_RATE);
 
-//calculate remaining battery % based on configured low batt stg 2 level -- ASSumes 4.2v/cell maximum
-        supervisorData.battRemainingPrct = (supervisorData.vInLPF - p[SPVR_LOW_BAT2] * analogData.batCellCount) / ((
-                                               4.2f - p[SPVR_LOW_BAT2]) * analogData.batCellCount) * 100;
+        //calculate remaining battery % based on configured low batt stg 2 level -- ASSumes 4.2v/cell maximum
+        supervisorData.battRemainingPrct = (supervisorData.vInLPF - p[SPVR_LOW_BAT2] * analogData.batCellCount) / ((4.2f - p[SPVR_LOW_BAT2]) * analogData.batCellCount) * 100;
 
-// low battery
+        // low battery
         if (!(supervisorData.state & STATE_LOW_BATTERY1) && supervisorData.vInLPF < (p[SPVR_LOW_BAT1]*analogData.batCellCount)) {
             supervisorData.state |= STATE_LOW_BATTERY1;
             AQ_NOTICE("Warning: Low battery stage 1\n");
 
             // TODO: something
-        } else if (!(supervisorData.state & STATE_LOW_BATTERY2) && supervisorData.vInLPF < (p[SPVR_LOW_BAT2]*analogData.batCellCount)) {
+        }
+        else if (!(supervisorData.state & STATE_LOW_BATTERY2) && supervisorData.vInLPF < (p[SPVR_LOW_BAT2]*analogData.batCellCount)) {
             supervisorData.state |= STATE_LOW_BATTERY2;
             AQ_NOTICE("Warning: Low battery stage 2\n");
 
             // TODO: something
         }
-// end battery level checks
+        // end battery level checks
 
         supervisorSetSystemStatus();
 
@@ -476,17 +478,19 @@ void supervisorTaskCode(void *unused) {
             // rapidly flash Ready LED if we are critically low on power
             if (supervisorData.state & STATE_LOW_BATTERY2)
                 digitalTogg(supervisorData.readyLed);
-        } else if (supervisorData.state & STATE_ARMED) {
+        }
+        else if (supervisorData.state & STATE_ARMED) {
             digitalHi(supervisorData.readyLed);
         }
 
 #ifdef SUPERVISOR_DEBUG_PORT
-// DEBUG LED to indicate radio RX state
+        // DEBUG LED to indicate radio RX state
         if (!supervisorData.configRead && RADIO_INITIALIZED && supervisorData.state != STATE_CALIBRATION) {
             // packet received in the last 50ms?
             if (RADIO_VALID) {
                 digitalHi(supervisorData.debugLed);
-            } else {
+            }
+            else {
                 if (RADIO_BINDING)
                     digitalTogg(supervisorData.debugLed);
                 else
@@ -494,9 +498,7 @@ void supervisorTaskCode(void *unused) {
             }
         }
 #endif
-
         count++;
-
 #ifdef USE_SIGNALING
         signalingEvent();
 #endif
@@ -552,6 +554,5 @@ void supervisorInit(void) {
     supervisorData.systemStatus = SPVR_AQ_STATUS_INIT;
     supervisorTaskStack = aqStackInit(SUPERVISOR_STACK_SIZE, "SUPERVISOR");
 
-    supervisorData.supervisorTask = CoCreateTask(supervisorTaskCode, (void *)0, SUPERVISOR_PRIORITY, &supervisorTaskStack[SUPERVISOR_STACK_SIZE-1],
-                                    SUPERVISOR_STACK_SIZE);
+    supervisorData.supervisorTask = CoCreateTask(supervisorTaskCode, (void *)0, SUPERVISOR_PRIORITY, &supervisorTaskStack[SUPERVISOR_STACK_SIZE-1], SUPERVISOR_STACK_SIZE);
 }

@@ -14,7 +14,7 @@
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
     Copyright (c) 2011-2014  Bill Nesbitt
-*/
+ */
 
 #include "calib.h"
 #include "supervisor.h"
@@ -56,19 +56,22 @@ int calibOctant(float32_t *vec) {
                 return 0;
             else
                 return 1;
-        } else {
+        }
+        else {
             if (z > 0)
                 return 2;
             else
                 return 3;
         }
-    } else {
+    }
+    else {
         if (y > 0) {
             if (z > 0)
                 return 4;
             else
                 return 5;
-        } else {
+        }
+        else {
             if (z > 0)
                 return 6;
             else
@@ -294,7 +297,7 @@ void calibCalculate(void) {
     p[IMU_MAG_ALGN_ZX] = calibData.U[6];
     p[IMU_MAG_ALGN_ZY] = calibData.U[7];
 
-calibFree:
+    calibFree:
 
     if (D.pData)
         aqFree(D.pData, 10*8*CALIB_SAMPLES, sizeof(float32_t));
@@ -314,7 +317,7 @@ void calibrate(void) {
 
     if (!(supervisorData.state & STATE_CALIBRATION))
         return;
-
+    /*
 #ifdef USE_DIGITAL_IMU
     vec[0] = hmc5983Data.rawMag[0];
     vec[1] = hmc5983Data.rawMag[1];
@@ -324,6 +327,10 @@ void calibrate(void) {
     vec[1] = adcData.voltages[4];
     vec[2] = adcData.voltages[5];
 #endif
+    */
+    vec[0] = IMU_RAW_MAGX;
+    vec[1] = IMU_RAW_MAGY;
+    vec[2] = IMU_RAW_MAGZ;
 
     for (i = 0; i < 3; i++) {
         if (vec[i] < calibData.min[i])
@@ -340,7 +347,8 @@ void calibrate(void) {
         calibData.lastVec[0] = vec[0];
         calibData.lastVec[1] = vec[1];
         calibData.lastVec[2] = vec[2];
-    } else if (calibAngle(calibData.lastVec, vec) * RAD_TO_DEG > CALIB_MIN_ANGLE) {
+    }
+    else if (calibAngle(calibData.lastVec, vec) * RAD_TO_DEG > CALIB_MIN_ANGLE) {
         if (fabsf(calibData.min[0] - calibData.max[0]) > 1.0f &&
                 fabsf(calibData.min[1] - calibData.max[1]) > 1.0f &&
                 fabsf(calibData.min[2] - calibData.max[2]) > 1.0f) {

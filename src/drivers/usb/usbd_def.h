@@ -93,6 +93,8 @@
 #define  USB_DESC_TYPE_ENDPOINT                            5
 #define  USB_DESC_TYPE_DEVICE_QUALIFIER                    6
 #define  USB_DESC_TYPE_OTHER_SPEED_CONFIGURATION           7
+
+
 #define USB_CONFIG_REMOTE_WAKEUP                           2
 #define USB_CONFIG_SELF_POWERED                            1
 
@@ -103,12 +105,16 @@
 /**
   * @}
   */
+
+
 /** @defgroup USBD_DEF_Exported_TypesDefinitions
   * @{
   */
 /**
   * @}
   */
+
+
 
 /** @defgroup USBD_DEF_Exported_Macros
   * @{

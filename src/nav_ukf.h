@@ -124,6 +124,9 @@ typedef struct {
     volatile uint8_t flowLock;
     uint8_t flowInit;
     uint8_t logHandle;
+#ifdef WMM_STACK_SIZE
+    //OS_FlagID wmmTimeFlag;
+#endif
 } navUkfStruct_t;
 
 extern navUkfStruct_t navUkfData;

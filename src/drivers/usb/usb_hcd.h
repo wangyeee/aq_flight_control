@@ -32,6 +32,8 @@
 /* Includes ------------------------------------------------------------------*/
 #include "usb_regs.h"
 #include "usb_core.h"
+
+
 /** @addtogroup USB_OTG_DRIVER
   * @{
   */
@@ -40,18 +42,24 @@
   * @brief This file is the
   * @{
   */
+
+
 /** @defgroup USB_HCD_Exported_Defines
   * @{
   */
 /**
   * @}
   */
+
+
 /** @defgroup USB_HCD_Exported_Types
   * @{
   */
 /**
   * @}
   */
+
+
 /** @defgroup USB_HCD_Exported_Macros
   * @{
   */
@@ -69,11 +77,11 @@
 /** @defgroup USB_HCD_Exported_FunctionsPrototype
   * @{
   */
-uint32_t  HCD_Init                 (USB_OTG_CORE_HANDLE *pdev,
+uint32_t  HCD_Init                 (USB_OTG_CORE_HANDLE *pdev ,
                                     USB_OTG_CORE_ID_TypeDef coreID);
-uint32_t  HCD_HC_Init              (USB_OTG_CORE_HANDLE *pdev,
+uint32_t  HCD_HC_Init              (USB_OTG_CORE_HANDLE *pdev ,
                                     uint8_t hc_num);
-uint32_t  HCD_SubmitRequest        (USB_OTG_CORE_HANDLE *pdev,
+uint32_t  HCD_SubmitRequest        (USB_OTG_CORE_HANDLE *pdev ,
                                     uint8_t hc_num) ;
 uint32_t  HCD_GetCurrentSpeed      (USB_OTG_CORE_HANDLE *pdev);
 uint32_t  HCD_ResetPort            (USB_OTG_CORE_HANDLE *pdev);
@@ -87,6 +95,8 @@ HC_STATUS HCD_GetHCState           (USB_OTG_CORE_HANDLE *pdev,  uint8_t ch_num) 
   */
 
 #endif //__USB_HCD_H__
+
+
 /**
   * @}
   */

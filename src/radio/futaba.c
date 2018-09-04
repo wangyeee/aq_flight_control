@@ -14,7 +14,7 @@
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
     Copyright (c) 2011-2014  Bill Nesbitt
-*/
+ */
 
 #include "aq.h"
 #include "radio.h"
@@ -25,13 +25,14 @@
 #include "aq_timer.h"
 #include <string.h>
 
-futabaStruct_t futabaData __attribute__((section(".ccm")));
+futabaStruct_t futabaData CCM_RAM;
 
 int futabaDecode(radioInstance_t *r) {
     if (futabaData.u.rawBuf[22] & 0b0100) {
         r->errorCount++;
         return -1;
-    } else {
+    }
+    else {
         r->channels[0] = 1696 - futabaData.u.channels.channel3;
         r->channels[1] = futabaData.u.channels.channel1 - 1024;
         r->channels[2] = futabaData.u.channels.channel2 - 1024;
@@ -79,8 +80,8 @@ int futabaCharIn(radioInstance_t *r, uint8_t c) {
         futabaData.u.rawBuf[futabaData.dataCount++] = c;
         if (futabaData.dataCount == 23)
             futabaData.state = FUTABA_WAIT_END;
-// make sure at least one channel value byte is > 0
-// all zeros means something is wrong with Rx (observed in the wild)
+        // make sure at least one channel value byte is > 0
+        // all zeros means something is wrong with Rx (observed in the wild)
         if (c)
             futabaData.validFrame = 1;
         break;

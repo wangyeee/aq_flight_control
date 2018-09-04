@@ -53,12 +53,16 @@
 /**
   * @}
   */
+
+
 /** @defgroup USBD_INFO_Exported_TypesDefinitions
   * @{
   */
 /**
   * @}
   */
+
+
 
 /** @defgroup USBD_INFO_Exported_Macros
   * @{

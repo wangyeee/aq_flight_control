@@ -14,12 +14,12 @@
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
     Copyright (c) 2011-2014  Bill Nesbitt
-*/
+ */
 
 /*
     PPM module written by TC
     Heavily modified by Menno de Gans
-*/
+ */
 
 #include "aq.h"
 #include "radio.h"
@@ -29,7 +29,7 @@
 #include "util.h"
 #include <string.h>
 
-ppmStruct_t ppmData __attribute__((section(".ccm")));
+ppmStruct_t ppmData CCM_RAM;
 
 void ppmCallback(uint32_t capture, uint8_t bitstatus) {
     uint16_t diff;
@@ -66,10 +66,12 @@ void ppmCallback(uint32_t capture, uint8_t bitstatus) {
 
                 if (ppmData.stableChannelsCount >= PPM_STAB_CHANNEL_FRAMES) {
                     ppmData.numberChannels = ppmData.lastChannel;
-                } else {
+                }
+                else {
                     ppmData.stableChannelsCount++;
                 }
-            } else {
+            }
+            else {
                 ppmData.stableChannelsCount = 0;
             }
         }
@@ -100,7 +102,7 @@ void ppmCallback(uint32_t capture, uint8_t bitstatus) {
 
     else if (ppmData.inputValid) { // We are inside the frame and no errors found this far in the frame
 
-// Too many channels, invalidate the whole frame
+        // Too many channels, invalidate the whole frame
         if (ppmData.lastChannel >= PPM_MAX_CHANNELS)
             ppmData.inputValid = 0;
 
@@ -139,7 +141,8 @@ int ppmDataAvailable(radioInstance_t *r) {
         }
 
         return 1;
-    } else {
+    }
+    else {
         return 0;
     }
 }

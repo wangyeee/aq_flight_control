@@ -40,7 +40,7 @@ typedef struct {
     int8_t direction;
     GPIO_TypeDef* port;
     uint16_t pin;
-} CC_ALIGNED pwmPortStruct_t;
+} pwmPortStruct_t;
 
 extern pwmPortStruct_t *pwmInitOut(uint8_t pwmPort, uint32_t resolution, uint32_t freq, uint32_t inititalValue, int8_t ESC32Mode);
 extern pwmPortStruct_t *pwmInitDigitalOut(uint8_t pwmPort);

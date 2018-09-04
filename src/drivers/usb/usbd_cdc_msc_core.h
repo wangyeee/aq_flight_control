@@ -40,6 +40,8 @@
   * @brief This file is the Header file for USBD_cdc.c
   * @{
   */
+
+
 /** @defgroup usbd_cdc_Exported_Defines
   * @{
   */
@@ -50,6 +52,8 @@
 
 #define DEVICE_CLASS_CDC                        0x02
 #define DEVICE_SUBCLASS_CDC                     0x00
+
+
 #define USB_DEVICE_DESCRIPTOR_TYPE              0x01
 #define USB_CONFIGURATION_DESCRIPTOR_TYPE       0x02
 #define USB_STRING_DESCRIPTOR_TYPE              0x03
@@ -89,20 +93,25 @@
 /**
   * @}
   */
+
+
 /** @defgroup USBD_CORE_Exported_TypesDefinitions
   * @{
   */
-typedef struct _CDC_IF_PROP {
-    uint16_t (*pIf_Init)     (void);
-    uint16_t (*pIf_DeInit)   (void);
-    uint16_t (*pIf_Ctrl)     (uint32_t Cmd, uint8_t* Buf, uint32_t Len);
-    uint16_t (*pIf_DataTx)   (uint8_t* Buf, uint32_t Len);
-    uint16_t (*pIf_DataRx)   (uint8_t* Buf, uint32_t Len);
+typedef struct _CDC_IF_PROP
+{
+  uint16_t (*pIf_Init)     (void);
+  uint16_t (*pIf_DeInit)   (void);
+  uint16_t (*pIf_Ctrl)     (uint32_t Cmd, uint8_t* Buf, uint32_t Len);
+  uint16_t (*pIf_DataTx)   (uint8_t* Buf, uint32_t Len);
+  uint16_t (*pIf_DataRx)   (uint8_t* Buf, uint32_t Len);
 }
 CDC_IF_Prop_TypeDef;
 /**
   * @}
   */
+
+
 
 /** @defgroup USBD_CORE_Exported_Macros
   * @{

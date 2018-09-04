@@ -177,6 +177,8 @@ enum pwmPorts {
 #define PWM_IRQ_TIM9_CH2 7
 #define PWM_IRQ_TIM11_CH1 8
 
+
+
 #define RC1_UART  UART4
 #define RC2_UART  UART7
 
@@ -205,6 +207,8 @@ enum pwmPorts {
 #define ADC_DMA_CR  DMA2->HIFCR
 #define ADC_DMA_IRQ  DMA2_Stream4_IRQn
 #define ADC_DMA_HANDLER  DMA2_Stream4_IRQHandler
+
+
 #define CANx       CAN1
 #define CAN_CLK       RCC_APB1Periph_CAN1
 #define CAN_RX_PIN      GPIO_Pin_0
@@ -261,6 +265,8 @@ enum pwmPorts {
 //#define SPI_SPI2_DMA_TX      DMA1_Stream4
 //#define SPI_SPI2_DMA_TX_CHANNEL     DMA_Channel_0
 //#define SPI_SPI2_DMA_TX_FLAGS     (DMA_IT_TEIF4 | DMA_IT_DMEIF4 | DMA_IT_FEIF4 | DMA_IT_TCIF4 | DMA_IT_HTIF4)
+
+
 #define HAS_DIGITAL_IMU
 #define USE_DIGITAL_IMU
 
@@ -315,10 +321,14 @@ enum pwmPorts {
 #define DIMU_MPU6000_INT_EXTI_LINE  EXTI_Line2
 #define DIMU_MPU6000_INT_EXTI_IRQ   EXTI2_IRQn
 #define DIMU_MPU6000_INT_ISR     EXTI2_IRQHandler
+
+
 #define COMM_PORT1      USART1     // front FTDI interface
 //#define COMM_PORT2      USART8     // expansion header
 #define COMM_PORT3      USART3     // USB interface
 #define COMM_PORT4      USART6     // OMAP interface
+
+
 #define SERIAL_UART1_PORT GPIOA
 #define SERIAL_UART1_RX_PIN GPIO_Pin_10
 #define SERIAL_UART1_TX_PIN GPIO_Pin_9
@@ -466,10 +476,14 @@ enum pwmPorts {
 #define SERIAL_UART6_TX_TE_FLAG DMA_FLAG_TEIF6
 #define SERIAL_UART6_TX_DM_FLAG DMA_FLAG_DMEIF6
 #define SERIAL_UART6_TX_FE_FLAG DMA_FLAG_FEIF6
+
+
 #define RADIO_RC1_SELECT_PORT GPIOC
 #define RADIO_RC1_SELECT_PIN GPIO_Pin_14
 #define RADIO_RC2_SELECT_PORT GPIOD
 #define RADIO_RC2_SELECT_PIN GPIO_Pin_10
+
+
 #define DAC_TP_PORT  GPIOA
 #define DAC_TP_PIN  GPIO_Pin_4
 
@@ -496,8 +510,12 @@ enum pwmPorts {
 #define ANALOG_DMA_ISR  DMA2->HISR
 #define ANALOG_DMA_IRQ  DMA2_Stream4_IRQn
 #define ANALOG_DMA_HANDLER DMA2_Stream4_IRQHandler
+
+
 #define EEPROM_CS_PORT  GPIOE
 #define EEPROM_CS_PIN  GPIO_Pin_12
+
+
 #define UKF_VEL_Q               +3.2545e-02     // +0.032544903471       0.000000350530 +0.000037342305
 #define UKF_VEL_ALT_Q           +1.4483e-01     // +0.144827254833       0.000000347510 -0.000055111229
 #define UKF_POS_Q               +7.1562e+03     // +7156.240473309331    0.000000352142 +2.727925965284749
@@ -525,6 +543,8 @@ enum pwmPorts {
 #define UKF_MAG_N               +5.2355e-01     // +0.523549973965       0.000000500000 +0.000000000000
 #define UKF_POS_DELAY           +2.1923e+03     // +2192.300048828125    0.000000500000 +0.000000000000125
 #define UKF_VEL_DELAY           -1.0182e+05     // -101820.000000000000  0.000000500000 +0.00000000000000000
+
+
 #define MOTORS_PWM_FREQ  400 // Hz
 #define PWM_RESOLUTION  1000000
 

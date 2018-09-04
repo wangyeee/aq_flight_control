@@ -13,6 +13,8 @@
  *******************************************************************************
  */
 
+
+
 /*---------------------------- Include ---------------------------------------*/
 #include <coocox.h>
 
@@ -49,12 +51,14 @@ BOOL  TimerReq = Co_FALSE;                 /*!< Timer dispose request           
  *******************************************************************************
  */
 #if (CFG_MAX_SERVICE_REQUEST > 0)
-BOOL InsertInSRQ(U8 type,U8 id,void* arg) {
+BOOL InsertInSRQ(U8 type,U8 id,void* arg)
+{
     P_SQC   pcell;
     U8 cnt;
     U8 heed;
     IRQ_DISABLE_SAVE();
-    if (ServiceReq.cnt >= CFG_MAX_SERVICE_REQUEST) {
+    if (ServiceReq.cnt >= CFG_MAX_SERVICE_REQUEST)
+    {
         IRQ_ENABLE_RESTORE ();
 
         return Co_FALSE;                   /* Error return                       */
@@ -72,6 +76,8 @@ BOOL InsertInSRQ(U8 type,U8 id,void* arg) {
 }
 #endif
 
+
+
 /**
  *******************************************************************************
  * @brief      Respond the request in the service request queue.
@@ -85,7 +91,8 @@ BOOL InsertInSRQ(U8 type,U8 id,void* arg) {
  * @note
  *******************************************************************************
  */
-void RespondSRQ(void) {
+void RespondSRQ(void)
+{
 
 #if CFG_MAX_SERVICE_REQUEST > 0
     SQC cell;
@@ -93,13 +100,15 @@ void RespondSRQ(void) {
 #endif
 
 #if (CFG_TASK_WAITTING_EN > 0)
-    if(TimeReq == Co_TRUE) {               /* Time delay request?                */
+    if(TimeReq == Co_TRUE)                 /* Time delay request?                */
+    {
         TimeDispose();                  /* Yes,call handler                   */
         TimeReq = Co_FALSE;                /* Reset time delay request Co_FALSE     */
     }
 #endif
 #if CFG_TMR_EN  > 0
-    if(TimerReq == Co_TRUE) {              /* Timer request?                     */
+    if(TimerReq == Co_TRUE)                /* Timer request?                     */
+    {
         TmrDispose();                   /* Yes,call handler                   */
         TimerReq = Co_FALSE;               /* Reset timer request Co_FALSE          */
     }
@@ -107,15 +116,17 @@ void RespondSRQ(void) {
 
 #if CFG_MAX_SERVICE_REQUEST > 0
 
-    while (ServiceReq.cnt != 0) {
+    while (ServiceReq.cnt != 0)
+    {
         IRQ_DISABLE_SAVE ();            /* need to protect the following      */
         cell = ServiceReq.cell[ServiceReq.head];  /* extract one cell         */
         ServiceReq.head = (ServiceReq.head + 1) % /* move head (pop)          */
-                          CFG_MAX_SERVICE_REQUEST;
+                CFG_MAX_SERVICE_REQUEST;
         ServiceReq.cnt--;
         IRQ_ENABLE_RESTORE ();          /* now use the cell copy              */
 
-        switch(cell.type) {             /* Judge service request type         */
+        switch(cell.type)               /* Judge service request type         */
+        {
 #if CFG_SEM_EN > 0
         case SEM_REQ:                   /* Semaphore post request,call handler*/
             CoPostSem(cell.id);
@@ -143,7 +154,8 @@ void RespondSRQ(void) {
 #endif
     IRQ_DISABLE_SAVE ();                /* need to protect the following      */
 
-    if (ServiceReq.cnt == 0) {          /* another item in the queue already? */
+    if (ServiceReq.cnt == 0)            /* another item in the queue already? */
+    {
         IsrReq = Co_FALSE;                 /* queue still empty here             */
     }
     IRQ_ENABLE_RESTORE ();              /* now it is done and return          */

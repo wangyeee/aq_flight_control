@@ -14,7 +14,7 @@
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
     Copyright 2015-2016 Maxim Paperno
-*/
+ */
 
 #include "rc.h"
 #include "comm.h"
@@ -26,7 +26,8 @@ inline int16_t rcGetChannelValue(int chan) {
         if (radioData.mode == RADIO_MODE_SPLIT) {
             if (chan < RADIO_MAX_CHANNELS * RADIO_NUM)
                 return radioData.allChannels[chan];
-        } else if (chan < RADIO_MAX_CHANNELS)
+        }
+        else if (chan < RADIO_MAX_CHANNELS)
             return radioData.channels[chan];
     }
     return 0;
@@ -44,6 +45,8 @@ inline void rcSetChannelValue(int chan, int val) {
             radioData.channels[chan] = val;
     }
 }
+
+
 /* Returns true if current RC controller value (eg. radio channel) matches configured value (channel and position) for a given control parameter. */
 __attribute__((always_inline))
 inline uint8_t rcIsSwitchActive(int paramId) {

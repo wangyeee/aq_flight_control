@@ -14,7 +14,7 @@
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
     Copyright (c) 2011-2014  Bill Nesbitt
-*/
+ */
 
 #include "aq.h"
 #include "telemetry.h"
@@ -41,7 +41,7 @@
 #include <string.h>
 #include <stdio.h>
 
-telemetryStruct_t telemetryData __attribute__((section(".ccm")));
+telemetryStruct_t telemetryData CCM_RAM;
 
 static void telemtryChecksum(uint8_t c) {
     telemetryData.ckA += c;

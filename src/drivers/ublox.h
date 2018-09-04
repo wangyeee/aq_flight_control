@@ -28,6 +28,8 @@
 #define UBLOX_MON_CLASS     0x0a
 #define UBLOX_AID_CLASS     0x0b
 #define UBLOX_TIM_CLASS     0x0d
+
+
 #define UBLOX_NAV_POSLLH    0x02
 #define UBLOX_NAV_DOP     0x04
 #define UBLOX_NAV_VALNED    0x12
@@ -179,14 +181,14 @@ typedef struct {
 
     signed long lastLat, lastLon;
     union {
-        ubloxStructPOSLLH_t posllh;
-        ubloxStructVALNED_t valned;
-        ubloxStructDOP_t dop;
-        ubloxStructTP_t tp;
-        ubloxStructTIMEUTC_t timeutc;
-        ubloxStructVER_t ver;
-        ubloxStructPVT_t pvt;
-        char other[UBLOX_MAX_PAYLOAD];
+ ubloxStructPOSLLH_t posllh;
+ ubloxStructVALNED_t valned;
+ ubloxStructDOP_t dop;
+ ubloxStructTP_t tp;
+ ubloxStructTIMEUTC_t timeutc;
+ ubloxStructVER_t ver;
+ ubloxStructPVT_t pvt;
+ char other[UBLOX_MAX_PAYLOAD];
     } payload;
 
     unsigned char state;
@@ -201,7 +203,7 @@ typedef struct {
 
     unsigned char ubloxTxCK_A;
     unsigned char ubloxTxCK_B;
-} CC_ALIGNED ubloxStruct_t;
+} ubloxStruct_t;
 
 extern unsigned char ubloxCharIn(unsigned char c);
 extern void ubloxInit(void);

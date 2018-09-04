@@ -14,7 +14,7 @@
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
     Copyright (c) 2014  Bill Nesbitt
-*/
+ */
 
 #include "cyrf6936.h"
 #include "cyrf6936_regs.h"
@@ -71,7 +71,8 @@ uint8_t cyrfProcessBatch(const uint8_t batch[][2], uint8_t index, uint8_t slotNo
         spiTransaction(cyrfData.spi, cyrfRxBuf, txBuf, 2);
 
         return 1;
-    } else {
+    }
+    else {
         return 0;
     }
 }
@@ -107,7 +108,8 @@ processStackTop:
             if (cyrfProcessBatch(slot->target, slot->len, tail) == 0) {
                 cyrfData.tail = (tail + 1) % CYRF_STACK_SIZE;
                 goto processStackTop;
-            } else {
+            }
+            else {
                 slot->len++;
             }
             break;
@@ -271,7 +273,7 @@ uint8_t cyrfGetIsrState(void) {
 }
 
 void cyrfTimerInit(void) {
-    TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
+    TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
     NVIC_InitTypeDef NVIC_InitStructure;
 
     // Enable the TIMER_TIM global Interrupt
@@ -281,7 +283,7 @@ void cyrfTimerInit(void) {
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
 
-// stop timer when core halted (debug)
+    // stop timer when core halted (debug)
     DBGMCU_APB1PeriphConfig(CYRF_TIMER_DBG, ENABLE);
 
     /* Time base configuration for 1MHz (us)*/
@@ -340,7 +342,8 @@ uint8_t cyrfInit(void) {
         cyrfSetReg(CYRF_XACT_CFG, 0x82);
         delayMicros(100);
         i--;
-    } while (cyrfGetReg(CYRF_XACT_CFG) != 0x82 && i);
+    }
+    while (cyrfGetReg(CYRF_XACT_CFG) != 0x82 && i);
 
     if (i) {
         uint16_t pin = CYRF_IRQ_PIN;
@@ -360,12 +363,15 @@ uint8_t cyrfInit(void) {
         cyrfData.initialized = 1;
 
         spiChangeCallback(cyrfData.spi, cyrfTxnComplete);
-    } else {
+    }
+    else {
         spiClientFree(cyrfData.spi);
     }
 
     return i;
 }
+
+
 void CYRF_TIMER_ISR(void) {
     CYRF_TIMER->SR &= (uint16_t)~TIM_IT_Update;
 

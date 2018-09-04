@@ -12,10 +12,14 @@
  * <h2><center>&copy; COPYRIGHT 2009 CooCox </center></h2>
  *******************************************************************************
  */
+
+
 #ifndef _CORE_H
 #define _CORE_H
 
 #include <CoOS.h>
+
+
 #define  OsSchedLock()  OSSchedLock++;      /*!< Lock schedule                */
 extern   void OsSchedUnlock(void);
 

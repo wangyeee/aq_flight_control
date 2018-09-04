@@ -37,9 +37,9 @@
 #define MAX21100_DRATE_SLOTS_PID 40  // 200Hz
 
 #ifdef HAS_QUATOS
-#define MAX21100_DRATE_SLOTS ((int)p[QUATOS_ENABLE] ? MAX21100_DRATE_SLOTS_QUATOS : MAX21100_DRATE_SLOTS_PID)
+    #define MAX21100_DRATE_SLOTS ((int)p[QUATOS_ENABLE] ? MAX21100_DRATE_SLOTS_QUATOS : MAX21100_DRATE_SLOTS_PID)
 #else
-#define MAX21100_DRATE_SLOTS MAX21100_DRATE_SLOTS_PID
+    #define MAX21100_DRATE_SLOTS MAX21100_DRATE_SLOTS_PID
 #endif
 
 typedef struct {
@@ -68,7 +68,7 @@ extern max21100Struct_t max21100Data;
 
 extern void max21100PreInit(void);
 extern void max21100Init(void);
-extern void mpu6600InitialBias(void);
+//extern void mpu6600InitialBias(void);
 extern void max21100Decode(void);
 extern void max21100DrateDecode(void);
 extern void max21100Enable(void);

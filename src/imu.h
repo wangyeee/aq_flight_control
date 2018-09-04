@@ -51,7 +51,8 @@
 #define IMU_RAW_ACCX    max21100Data.rawAcc[0]
 #define IMU_RAW_ACCY    max21100Data.rawAcc[1]
 #define IMU_RAW_ACCZ    max21100Data.rawAcc[2]
-#else
+#endif
+#ifdef DIMU_HAVE_MPU6000
 #define IMU_DRATEX  mpu6000Data.dRateGyo[0]
 #define IMU_DRATEY  mpu6000Data.dRateGyo[1]
 #define IMU_DRATEZ  mpu6000Data.dRateGyo[2]
@@ -68,18 +69,31 @@
 #define IMU_RAW_ACCY    mpu6000Data.rawAcc[1]
 #define IMU_RAW_ACCZ    mpu6000Data.rawAcc[2]
 #endif
-#define IMU_MAGX  hmc5983Data.mag[0]
-#define IMU_MAGY  hmc5983Data.mag[1]
-#define IMU_MAGZ  hmc5983Data.mag[2]
-#define IMU_RAW_MAGX    hmc5983Data.rawMag[0]
-#define IMU_RAW_MAGY    hmc5983Data.rawMag[1]
-#define IMU_RAW_MAGZ    hmc5983Data.rawMag[2]
-#define IMU_TEMP  dImuData.temp
-#define IMU_LASTUPD  dImuData.lastUpdate
+#ifdef DIMU_HAVE_HMC5983
+#define IMU_MAGX          hmc5983Data.mag[0]
+#define IMU_MAGY          hmc5983Data.mag[1]
+#define IMU_MAGZ          hmc5983Data.mag[2]
+#define IMU_RAW_MAGX      hmc5983Data.rawMag[0]
+#define IMU_RAW_MAGY      hmc5983Data.rawMag[1]
+#define IMU_RAW_MAGZ      hmc5983Data.rawMag[2]
+#define AQ_MAG_ENABLED    hmc5983Data.enabled
+#endif  /* DIMU_HAVE_HMC5983 */
+#ifdef DIMU_HAVE_MAG3110
+#define IMU_MAGX       mag3110Data.mag[0]
+#define IMU_MAGY       mag3110Data.mag[1]
+#define IMU_MAGZ       mag3110Data.mag[2]
+#define IMU_RAW_MAGX   mag3110Data.rawMag[0]
+#define IMU_RAW_MAGY   mag3110Data.rawMag[1]
+#define IMU_RAW_MAGZ   mag3110Data.rawMag[2]
+#define AQ_MAG_ENABLED mag3110Data.enabled
+#endif  /* DIMU_HAVE_MAG3110 */
+
+#define IMU_TEMP          dImuData.temp
+#define IMU_LASTUPD       dImuData.lastUpdate
 #define AQ_OUTER_TIMESTEP DIMU_OUTER_DT
 #define AQ_INNER_TIMESTEP DIMU_INNER_DT
-#define AQ_PRESSURE  ms5611Data.pres
-#define AQ_MAG_ENABLED          hmc5983Data.enabled
+#define AQ_PRESSURE       ms5611Data.pres
+
 #endif // USE_DIGITAL_IMU
 
 #ifndef USE_DIGITAL_IMU
@@ -119,7 +133,7 @@ typedef struct {
     float sinRot, cosRot;
     uint32_t fullUpdates;
     uint32_t halfUpdates;
-} CC_ALIGNED imuStruct_t;
+} imuStruct_t;
 
 extern imuStruct_t imuData;
 

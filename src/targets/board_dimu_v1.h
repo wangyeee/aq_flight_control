@@ -28,6 +28,8 @@
 
 #define MPU6000_ACC_SCALE           8     // g      (2, 4, 8, 16)
 #define MPU6000_GYO_SCALE           1000  // deg/s  (250, 500, 1000, 2000)
+
+
 #define DIMU_ORIENT_ACC_X     (+in[0])
 #define DIMU_ORIENT_ACC_Y     (-in[1])
 #define DIMU_ORIENT_ACC_Z     (-in[2])
@@ -39,6 +41,8 @@
 #define DIMU_ORIENT_MAG_X     (-in[0])
 #define DIMU_ORIENT_MAG_Y     (+in[1])
 #define DIMU_ORIENT_MAG_Z     (-in[2])
+
+
 #define DIMU_EEPROM_SPI      SPI2
 #define DIMU_EEPROM_CS_PORT     GPIOB
 #define DIMU_EEPROM_CS_PIN     GPIO_Pin_12

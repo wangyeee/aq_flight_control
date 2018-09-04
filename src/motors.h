@@ -32,15 +32,15 @@
 #define MOTORS_CAN_GROUP_SIZE     4
 #define MOTORS_CAN_TELEM_RATE     100      // Hz
 
-#define MOTORS_COMP_PRELOAD_TAU     0.3f//0.4f
-#define MOTORS_COMP_PRELOAD_PTERM   3.0f//3.5f
-#define MOTORS_COMP_PRELOAD_NFACT   2.0f//3.0f
+#define MOTORS_COMP_PRELOAD_TAU     0.3f  //0.4f
+#define MOTORS_COMP_PRELOAD_PTERM   3.0f  //3.5f
+#define MOTORS_COMP_PRELOAD_NFACT   2.0f  //3.0f
 
-#define MOTORS_ESC_TYPE      ((uint32_t)p[MOT_ESC_TYPE] & 0x0FFFFF)  // actual ESC type, ignore calibration bits
+#define MOTORS_ESC_TYPE      ((uint32_t)p[MOT_ESC_TYPE] & ~(MOT_ESC_TYPE_CALIB_ENABLE))  // actual ESC type, ignore calibration bits
 #ifdef HAS_QUATOS
-#define USE_QUATOS      (int)p[QUATOS_ENABLE]
+    #define USE_QUATOS      (int)p[QUATOS_ENABLE]
 #else
-#define USE_QUATOS      0
+    #define USE_QUATOS      0
 #endif
 
 //#define MOTORS_CAN_LOGGING          256             // number of records in log buffer, comment out to disable logging
@@ -49,6 +49,10 @@ enum escTypes {
     ESC_TYPE_STD_PWM = 0,
     ESC_TYPE_ONBOARD_PWM,
     ESC_TYPE_ESC32
+};
+
+enum motorConfigFlags {
+    MOT_ESC_TYPE_CALIB_ENABLE = 0x800000,   // perform standard pwm esc calibration on next boot
 };
 
 typedef struct {
@@ -73,8 +77,7 @@ typedef struct {
     esc32CanStatus_t canStatus[MOTORS_NUM];
     uint32_t canStatusTime[MOTORS_NUM];
     uint32_t canTelemReqTime[MOTORS_NUM];
-    pwmPortStruct_t
-    *pwm[14];           // max number on any board yet -- array size cannot be variable (PWM_NUM_PORTS) due to Quatos library compatibility constraints
+    pwmPortStruct_t *pwm[14];           // max number on any board yet -- array size cannot be variable (PWM_NUM_PORTS) due to Quatos library compatibility constraints
     uint16_t esc32Version[MOTORS_NUM];  // currently only storing this if using CAN
     uint16_t value[MOTORS_NUM];
     float thrust[MOTORS_NUM];
@@ -89,7 +92,7 @@ typedef struct {
     uint8_t logHandle;
     uint16_t head;
 #endif
-} CC_ALIGNED motorsStruct_t;
+} motorsStruct_t;
 
 extern motorsStruct_t motorsData;
 

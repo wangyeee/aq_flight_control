@@ -14,7 +14,7 @@
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
     Copyright (c) 2011-2014  Bill Nesbitt
-*/
+ */
 
 // mlinkrx module written by Igor van Airde
 
@@ -29,7 +29,7 @@
 #include <string.h>
 #include <CoOS.h>
 
-mlinkrxStruct_t mlinkrxData __attribute__((section(".ccm")));
+mlinkrxStruct_t mlinkrxData CCM_RAM;
 
 // MPX CRC algorithm
 uint16_t mpxCRC(uint16_t crc, uint8_t value) {
@@ -91,7 +91,8 @@ unsigned char mlinkrxCharIn(radioInstance_t *r, uint8_t c) {
                 else
                     r->channels[i] = val - 1024; // all other
             }
-        } else {
+        }
+        else {
             return 0; // CRC fail
         }
     }

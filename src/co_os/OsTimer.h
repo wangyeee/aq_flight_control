@@ -27,7 +27,8 @@
  * @details  This struct is use to manage user timer.
  *
  */
-typedef struct tmrCtrl {                /* Timer Control Block Define.        */
+typedef struct tmrCtrl                  /* Timer Control Block Define.        */
+{
     OS_TCID          tmrID;             /*!< Timer ID.                        */
     U8               tmrType;           /*!< Timer Type.                      */
     U8               tmrState;          /*!< Timer State.                     */
@@ -37,7 +38,7 @@ typedef struct tmrCtrl {                /* Timer Control Block Define.        */
     struct tmrCtrl*  tmrNext;       /*!< Point to Next Timer Control Block.   */
     struct tmrCtrl*  tmrPrev;       /*!< Point to Previous Timer Control Block*/
 
-} TmrCtrl,*P_TmrCtrl;
+}TmrCtrl,*P_TmrCtrl;
 
 /*---------------------------- Variable declare ------------------------------*/
 extern P_TmrCtrl  TmrList;              /*!< A pointer to the timer list.     */

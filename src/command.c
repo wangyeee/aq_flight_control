@@ -14,7 +14,7 @@
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
     Copyright (c) 2011-2014  Bill Nesbitt
-*/
+ */
 
 #include "aq.h"
 #include "command.h"
@@ -31,7 +31,7 @@
 #include <CoOS.h>
 #include <string.h>
 
-commandStruct_t commandData __attribute__((section(".ccm")));
+commandStruct_t commandData CCM_RAM;
 
 static void commandChecksum(uint8_t c) {
     commandData.checkA += c;
@@ -87,7 +87,8 @@ static void commandRespond(unsigned char c, char *reply, unsigned char len) {
     if (reply) {
         memcpy((char *)&resp.data, reply, len);
         commandResponseSend(&resp, len + sizeof(resp.commandId));
-    } else {
+    }
+    else {
         commandResponseSend(&resp, sizeof(resp.commandId));
     }
 }
@@ -133,18 +134,19 @@ static void commandExecute(commandBufStruct_t *b) {
         commandAck(NULL, 0);
         break;
 
-//    case COMMAND_ID_GPS_PASSTHROUGH:
-//     if (!(supervisorData.state & STATE_FLYING)) {
-//      telemetryDisable();
-//      commandAck(NULL, 0);
-//      gpsPassthrough(gpsData.gpsPort, downlinkData.serialPort);
-//     }
-//     else {
-//      commandNack(NULL, 0);
-//     }
-//     break;
+        //    case COMMAND_ID_GPS_PASSTHROUGH:
+        //     if (!(supervisorData.state & STATE_FLYING)) {
+        //      telemetryDisable();
+        //      commandAck(NULL, 0);
+        //      gpsPassthrough(gpsData.gpsPort, downlinkData.serialPort);
+        //     }
+        //     else {
+        //      commandNack(NULL, 0);
+        //     }
+        //     break;
 
-    case COMMAND_CONFIG_PARAM_READ: {
+    case COMMAND_CONFIG_PARAM_READ:
+    {
         unsigned int replyLength = configParameterRead(b->data);
 
         if (replyLength)
@@ -162,36 +164,35 @@ static void commandExecute(commandBufStruct_t *b) {
                 commandAck(b->data, replyLength);
             else
                 commandNack(NULL, 0);
-        } else {
+        }
+        else {
             commandNack(NULL, 0);
         }
         break;
 
     case COMMAND_CONFIG_FLASH_READ:
-        if (!(supervisorData.state & STATE_FLYING)) {
-            configFlashRead();
+        if (!(supervisorData.state & STATE_FLYING) && configLoadParamsFromFlash()) {
             commandAck(NULL, 0);
-        } else {
+        }
+        else {
             commandNack(NULL, 0);
         }
         break;
 
     case COMMAND_CONFIG_FLASH_WRITE:
-        if (!(supervisorData.state & STATE_FLYING)) {
-            if (configFlashWrite())
-                commandAck(NULL, 0);
-            else
-                commandNack(NULL, 0);
-        } else {
+        if (!(supervisorData.state & STATE_FLYING) && configSaveParamsToFlash()) {
+            commandAck(NULL, 0);
+        }
+        else {
             commandNack(NULL, 0);
         }
         break;
 
     case COMMAND_CONFIG_FACTORY_RESET:
-        if (!(supervisorData.state & STATE_FLYING)) {
-            configLoadDefault();
+        if (!(supervisorData.state & STATE_FLYING) && configLoadParamsFromDefault()) {
             commandAck(NULL, 0);
-        } else {
+        }
+        else {
             commandNack(NULL, 0);
         }
         break;
@@ -234,12 +235,14 @@ static void commandCharIn(unsigned char ch) {
         if (ch == COMMAND_COMMAND) {
             commandData.checkA = commandData.checkB = 0;
             commandData.state = COMMAND_WAIT_RQID1;
-        } else if (ch == COMMAND_FLOAT_DUMP) {
+        }
+        else if (ch == COMMAND_FLOAT_DUMP) {
             commandData.buf.commandId = COMMAND_ACC_IN;
             commandData.bufPoint = 1;
             commandData.checkA = commandData.checkB = 0;
             commandData.state = COMMAND_WAIT_ROWS;
-        } else
+        }
+        else
             commandData.state = COMMAND_WAIT_SYNC1;
         break;
 
@@ -298,7 +301,8 @@ static void commandCharIn(unsigned char ch) {
     case COMMAND_CHECK1:
         if (ch == commandData.checkA) {
             commandData.state = COMMAND_CHECK2;
-        } else {
+        }
+        else {
             commandData.state = COMMAND_WAIT_SYNC1;
             commandData.checksumErrors++;
         }

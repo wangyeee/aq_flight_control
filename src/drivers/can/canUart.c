@@ -14,7 +14,7 @@
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
     Copyright (c) 2011-2014  Bill Nesbitt
-*/
+ */
 
 #include "canUart.h"
 #include "comm.h"
@@ -90,10 +90,12 @@ void canUartStream(void) {
                     canUartData[i].txTail = canUartData[i].txHead;
 
                     txCallback(txCallbackParam);
-                } else {
+                }
+                else {
                     canUartData[i].txTail += sent;
                 }
-            } else {
+            }
+            else {
                 finished++;
             }
         }

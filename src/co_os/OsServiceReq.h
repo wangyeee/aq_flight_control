@@ -15,6 +15,8 @@
  * <h2><center>&copy; COPYRIGHT 2009 CooCox </center></h2>
  *******************************************************************************
  */
+
+
 #ifndef _SERVICEREQ_H
 #define _SERVICEREQ_H
 
@@ -23,17 +25,23 @@
 #define   MBOX_REQ      (U8)0x2
 #define   FLAG_REQ      (U8)0x3
 #define   QUEUE_REQ     (U8)0x4
-typedef struct ServiceReqCell {
+
+
+typedef struct ServiceReqCell
+{
     U8      type;
     U8      id;
     void*   arg;
-} SQC,*P_SQC;
+}SQC,*P_SQC;
 
-typedef struct ServiceReqQueue {
+typedef struct ServiceReqQueue
+{
     U8    cnt;
     U8    head;
     SQC   cell[CFG_MAX_SERVICE_REQUEST];
-} SRQ,*P_SRQ;
+}SRQ,*P_SRQ;
+
+
 extern SRQ  ServiceReq;
 extern BOOL InsertInSRQ(U8 type,U8 id,void* arg);
 #endif

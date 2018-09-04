@@ -26,17 +26,21 @@
 #define _USE_IOCTL 1 /* 1: Use disk_ioctl fucntion */
 
 #include "integer.h"
+
+
 /* Status of Disk Functions */
 typedef BYTE DSTATUS;
 
 /* Results of Disk Functions */
 typedef enum {
-    RES_OK = 0,  /* 0: Successful */
-    RES_ERROR,  /* 1: R/W Error */
-    RES_WRPRT,  /* 2: Write Protected */
-    RES_NOTRDY,  /* 3: Not Ready */
-    RES_PARERR  /* 4: Invalid Parameter */
+ RES_OK = 0,  /* 0: Successful */
+ RES_ERROR,  /* 1: R/W Error */
+ RES_WRPRT,  /* 2: Write Protected */
+ RES_NOTRDY,  /* 3: Not Ready */
+ RES_PARERR  /* 4: Invalid Parameter */
 } DRESULT;
+
+
 /*---------------------------------------*/
 /* Prototypes for disk control functions */
 
@@ -49,11 +53,15 @@ DRESULT disk_write (BYTE, const BYTE*, DWORD, BYTE);
 #endif
 DRESULT disk_ioctl (BYTE, BYTE, void*);
 
+
+
 /* Disk Status Bits (DSTATUS) */
 
 #define STA_NOINIT  0x01 /* Drive not initialized */
 #define STA_NODISK  0x02 /* No medium in the drive */
 #define STA_PROTECT  0x04 /* Write protected */
+
+
 /* Command code for disk_ioctrl fucntion */
 
 /* Generic command (defined for FatFs) */
@@ -82,5 +90,7 @@ DRESULT disk_ioctl (BYTE, BYTE, void*);
 
 /* NAND specific ioctl command */
 #define NAND_FORMAT   30 /* Create physical format */
+
+
 #define _DISKIO
 #endif

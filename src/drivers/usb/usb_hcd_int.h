@@ -31,6 +31,8 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "usb_hcd.h"
+
+
 /** @addtogroup USB_OTG_DRIVER
   * @{
   */
@@ -39,27 +41,34 @@
   * @brief This file is the
   * @{
   */
+
+
 /** @defgroup USB_HCD_INT_Exported_Defines
   * @{
   */
 /**
   * @}
   */
+
+
 /** @defgroup USB_HCD_INT_Exported_Types
   * @{
   */
 
-typedef struct _USBH_HCD_INT {
-    uint8_t (* SOF) (USB_OTG_CORE_HANDLE *pdev);
-    uint8_t (* DevConnected) (USB_OTG_CORE_HANDLE *pdev);
-    uint8_t (* DevDisconnected) (USB_OTG_CORE_HANDLE *pdev);
+typedef struct _USBH_HCD_INT
+{
+  uint8_t (* SOF) (USB_OTG_CORE_HANDLE *pdev);
+  uint8_t (* DevConnected) (USB_OTG_CORE_HANDLE *pdev);
+  uint8_t (* DevDisconnected) (USB_OTG_CORE_HANDLE *pdev);
 
-} USBH_HCD_INT_cb_TypeDef;
+}USBH_HCD_INT_cb_TypeDef;
 
 extern USBH_HCD_INT_cb_TypeDef *USBH_HCD_INT_fops;
 /**
   * @}
   */
+
+
 /** @defgroup USB_HCD_INT_Exported_Macros
   * @{
   */
@@ -116,7 +125,11 @@ uint32_t USBH_OTG_ISR_Handler (USB_OTG_CORE_HANDLE *pdev);
   * @}
   */
 
+
+
 #endif //__HCD_INT_H__
+
+
 /**
   * @}
   */

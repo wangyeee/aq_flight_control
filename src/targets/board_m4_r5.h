@@ -178,16 +178,24 @@ enum pwmPorts {
 #define PWM_IRQ_TIM8_CH1 6
 #define PWM_IRQ_TIM8_CH2 7
 #define PWM_IRQ_TIM9_CH2 8
+
+
 #define RC1_DELTANG_BAUD 134078
 #define RC1_UART  USART3
 #define RC2_UART  USART2
+
+
 #define SUPERVISOR_READY_PORT GPIOA
 #define SUPERVISOR_READY_PIN GPIO_Pin_15
 #define SUPERVISOR_DEBUG_PORT GPIOB
 #define SUPERVISOR_DEBUG_PIN GPIO_Pin_15
+
+
 #define GPS_USART  UART4
 #define GPS_LED_PORT  GPIOB
 #define GPS_LED_PIN  GPIO_Pin_10
+
+
 #define ADC_DMA_STREAM  DMA2_Stream4
 #define ADC_DMA_CHANNEL  DMA_Channel_0
 #define ADC_DMA_FLAGS  (DMA_IT_TEIF4 | DMA_IT_DMEIF4 | DMA_IT_FEIF4 | DMA_IT_TCIF4 | DMA_IT_HTIF4)
@@ -196,6 +204,8 @@ enum pwmPorts {
 #define ADC_DMA_CR  DMA2->HIFCR
 #define ADC_DMA_IRQ  DMA2_Stream4_IRQn
 #define ADC_DMA_HANDLER  DMA2_Stream4_IRQHandler
+
+
 #define CANx       CAN2
 #define CAN_CLK       (RCC_APB1Periph_CAN1 | RCC_APB1Periph_CAN2)
 #define CAN_GPIO_PORT      GPIOB
@@ -208,6 +218,8 @@ enum pwmPorts {
 #define CAN_RX0_HANDLER      CAN2_RX0_IRQHandler
 #define CAN_TX_IRQ      CAN2_TX_IRQn
 #define CAN_TX_HANDLER      CAN2_TX_IRQHandler
+
+
 #define SPI_SPI1_CLOCK      RCC_APB2Periph_SPI1
 #define SPI_SPI1_AF      GPIO_AF_SPI1
 #define SPI_SPI1_SCK_PORT     GPIOA
@@ -273,6 +285,8 @@ enum pwmPorts {
 #define SPI_SPI3_DMA_TX      DMA1_Stream5
 #define SPI_SPI3_DMA_TX_CHANNEL     DMA_Channel_0
 #define SPI_SPI3_DMA_TX_FLAGS     (DMA_IT_TEIF5 | DMA_IT_DMEIF5 | DMA_IT_FEIF5 | DMA_IT_TCIF5 | DMA_IT_HTIF5)
+
+
 #define HAS_DIGITAL_IMU
 #define USE_DIGITAL_IMU
 
@@ -295,6 +309,8 @@ enum pwmPorts {
 #define DIMU_ORIENT_MAG_X     (-in[0])
 #define DIMU_ORIENT_MAG_Y     (+in[1])
 #define DIMU_ORIENT_MAG_Z     (-in[2])
+
+
 #define DIMU_EEPROM_SPI      SPI3
 #define DIMU_EEPROM_CS_PORT     GPIOC
 #define DIMU_EEPROM_CS_PIN     GPIO_Pin_15
@@ -325,9 +341,13 @@ enum pwmPorts {
 #define DIMU_MPU6000_INT_EXTI_LINE  EXTI_Line3
 #define DIMU_MPU6000_INT_EXTI_IRQ   EXTI3_IRQn
 #define DIMU_MPU6000_INT_ISR     EXTI3_IRQHandler
+
+
 #define COMM_PORT1      USART1     // expansion header J2:8  (Rx), J2:9  (Tx)
 #define COMM_PORT2      USART6     // expansion header J1:10 (Rx), J2:10 (Tx) (shared with PWM_8 & PWM_7)
 //#define COMM_PORT3      USART5
+
+
 #define SERIAL_UART1_PORT GPIOA
 #define SERIAL_UART1_RX_PIN GPIO_Pin_10
 #define SERIAL_UART1_TX_PIN GPIO_Pin_9
@@ -475,6 +495,8 @@ enum pwmPorts {
 #define SERIAL_UART6_TX_TE_FLAG DMA_FLAG_TEIF6
 #define SERIAL_UART6_TX_DM_FLAG DMA_FLAG_DMEIF6
 #define SERIAL_UART6_TX_FE_FLAG DMA_FLAG_FEIF6
+
+
 #define ANALOG_REF_VOLTAGE 2.85f
 #define ANALOG_VIN_RTOP         10.0f
 #define ANALOG_VIN_RBOT         10.0f
@@ -498,6 +520,8 @@ enum pwmPorts {
 #define ANALOG_DMA_ISR  DMA2->HISR
 #define ANALOG_DMA_IRQ  DMA2_Stream4_IRQn
 #define ANALOG_DMA_HANDLER DMA2_Stream4_IRQHandler
+
+
 #define UKF_VEL_Q               +3.2545e-02     // +0.032544903471       0.000000350530 +0.000037342305
 #define UKF_VEL_ALT_Q           +1.4483e-01     // +0.144827254833       0.000000347510 -0.000055111229
 #define UKF_POS_Q               +7.1562e+03     // +7156.240473309331    0.000000352142 +2.727925965284749
@@ -525,6 +549,8 @@ enum pwmPorts {
 #define UKF_MAG_N               +5.2355e-01     // +0.523549973965       0.000000500000 +0.000000000000
 #define UKF_POS_DELAY           +2.1923e+03     // +2192.300048828125    0.000000500000 +0.000000000000125
 #define UKF_VEL_DELAY           -1.0182e+05     // -101820.000000000000  0.000000500000 +0.00000000000000000
+
+
 #define RCC_SYSOFF_PORT  GPIOB
 #define RCC_SYSOFF_PIN  GPIO_Pin_14
 #define RCC_EN1_PORT  GPIOC
@@ -634,6 +660,8 @@ enum pwmPorts {
 #define DEFAULT_IMU_GYO_ALGN_YZ     0.0
 #define DEFAULT_IMU_GYO_ALGN_ZX     0.0
 #define DEFAULT_IMU_GYO_ALGN_ZY     0.0
+
+
 #define CYRF_TIMER              TIM7
 #define CYRF_TIMER_CLOCK        (rccClocks.PCLK1_Frequency * 2)
 #define CYRF_TIMER_IRQ_CH       TIM7_IRQn

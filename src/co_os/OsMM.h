@@ -14,17 +14,27 @@
  * <h2><center>&copy; COPYRIGHT 2009 CooCox </center></h2>
  *******************************************************************************
  */
+
+
 #ifndef  _MM_H
 #define  _MM_H
-typedef struct Memory {
+
+
+typedef struct Memory
+{
     U8*   memAddr;
     U8*   freeBlock;
     U32   blockSize;
     U32   blockNum;
-} MM,*P_MM;
-typedef struct MemoryBlock {
+}MM,*P_MM;
+
+
+typedef struct MemoryBlock
+{
     struct MemoryBlock* nextBlock;
-} MemBlk,*P_MemBlk;
+}MemBlk,*P_MemBlk;
+
+
 extern U32  MemoryIDVessel;
 
 #endif   /* _MM_H */

@@ -50,17 +50,17 @@ enum signalingEventTypes {
 };
 
 typedef struct {
-    pwmPortStruct_t *beeperPort;
-    pwmPortStruct_t *ledPort1;
-    pwmPortStruct_t *ledPort2;
-    pwmPortStruct_t *pwmPort;
-    uint8_t enabled; // flag indicating if any signaling is used (any ports are enabled)
-    uint8_t patPos;     // loop counter used in Led patterns
-    uint8_t patLen;     // number of positions in pattern per output device; 10 = 1Hz. Changing it will! affect the led pattern event
-    uint8_t oneTimeEvtTyp;    // if set, a one-time event is signaled, overriding any other current events
-    uint8_t oneTimeEvtStat;   // current one-time event stage: 0=not active; 1=event is done; 2=event is in progress
-    uint8_t beeperType;     // 0 = buzzer, 1 = speaker
-} CC_ALIGNED sigStruct_t;
+  pwmPortStruct_t *beeperPort;
+  pwmPortStruct_t *ledPort1;
+  pwmPortStruct_t *ledPort2;
+  pwmPortStruct_t *pwmPort;
+  uint8_t enabled; // flag indicating if any signaling is used (any ports are enabled)
+  uint8_t patPos;     // loop counter used in Led patterns
+  uint8_t patLen;     // number of positions in pattern per output device; 10 = 1Hz. Changing it will! affect the led pattern event
+  uint8_t oneTimeEvtTyp;    // if set, a one-time event is signaled, overriding any other current events
+  uint8_t oneTimeEvtStat;   // current one-time event stage: 0=not active; 1=event is done; 2=event is in progress
+  uint8_t beeperType;     // 0 = buzzer, 1 = speaker
+} sigStruct_t;
 
 extern sigStruct_t sigData;
 

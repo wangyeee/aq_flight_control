@@ -14,7 +14,7 @@
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
     Copyright (c) 2011-2014  Bill Nesbitt
-*/
+ */
 
 #include "serial.h"
 #include "util.h"
@@ -55,7 +55,8 @@ int _serialStartTxDMA(serialPort_t *s, void *buf, int size, serialTxDMACallback_
         DMA_Cmd(s->txDMAStream, ENABLE);
 
         return 1;
-    } else {
+    }
+    else {
         return 0;
     }
 }
@@ -69,7 +70,8 @@ void serialStartTxDMA(void *param) {
         if (s->txHead > tail) {
             size = s->txHead - tail;
             s->txTail = s->txHead;
-        } else {
+        }
+        else {
             size = s->txBufSize - tail;
             s->txTail = 0;
         }
@@ -733,7 +735,8 @@ int serialRead(serialPort_t *s) {
         ch = s->rxBuf[s->rxBufSize - s->rxPos];
         if (--s->rxPos == 0)
             s->rxPos = s->rxBufSize;
-    } else {
+    }
+    else {
         ch = s->rxBuf[s->rxTail];
         s->rxTail = (s->rxTail + 1) % s->rxBufSize;
     }
@@ -848,7 +851,7 @@ void USART1_IRQHandler(void) {
             s->USARTx->DR = s->txBuf[s->txTail];
             s->txTail = (s->txTail + 1) % s->txBufSize;
         }
-// EOT
+        // EOT
         else {
             USART_ITConfig(s->USARTx, USART_IT_TXE, DISABLE);
         }
@@ -885,7 +888,7 @@ void USART2_IRQHandler(void) {
             s->USARTx->DR = s->txBuf[s->txTail];
             s->txTail = (s->txTail + 1) % s->txBufSize;
         }
-// EOT
+        // EOT
         else {
             USART_ITConfig(s->USARTx, USART_IT_TXE, DISABLE);
         }
@@ -922,7 +925,7 @@ void USART3_IRQHandler(void) {
             s->USARTx->DR = s->txBuf[s->txTail];
             s->txTail = (s->txTail + 1) % s->txBufSize;
         }
-// EOT
+        // EOT
         else {
             USART_ITConfig(s->USARTx, USART_IT_TXE, DISABLE);
         }
@@ -959,7 +962,7 @@ void UART4_IRQHandler(void) {
             s->USARTx->DR = s->txBuf[s->txTail];
             s->txTail = (s->txTail + 1) % s->txBufSize;
         }
-// EOT
+        // EOT
         else {
             USART_ITConfig(s->USARTx, USART_IT_TXE, DISABLE);
         }
@@ -996,7 +999,7 @@ void UART5_IRQHandler(void) {
             s->USARTx->DR = s->txBuf[s->txTail];
             s->txTail = (s->txTail + 1) % s->txBufSize;
         }
-// EOT
+        // EOT
         else {
             USART_ITConfig(s->USARTx, USART_IT_TXE, DISABLE);
         }
@@ -1033,7 +1036,7 @@ void USART6_IRQHandler(void) {
             s->USARTx->DR = s->txBuf[s->txTail];
             s->txTail = (s->txTail + 1) % s->txBufSize;
         }
-// EOT
+        // EOT
         else {
             USART_ITConfig(s->USARTx, USART_IT_TXE, DISABLE);
         }

@@ -14,9 +14,22 @@
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
     Copyright (c) 2011-2014  Bill Nesbitt
+    Copyright 2013-2016 Maxim Paperno
 */
 
-#define DEFAULT_CONFIG_VERSION     131
+// Misc config bitfield, 24b max.
+//    b0: 1=save adjusted params back to flash/SD; 0=save defined param value
+#define DEFAULT_CONFIG_FLAGS     0
+
+// Remote control adjustable parameters.  24 bits: SSSS_SSSS_CCCC_CCPP_PPPP_PPPP
+//  8 high bits = Scale of adjustment in 100ths of 1% (0-255, eg. 2 = 0.02%, 20 = 0.2% and 200 = 2%), next 6b = Channel number (0-63, zero = no channel/disabled), 10 low bits = Parameter ID to adjust (0-1024).
+// Example: #define DEFAULT_CONFIG_ADJUST_P1  ((20 <<16) | (9 <<10) | 43)  // (= 1319979) Adjust parameter CTRL_TLT_ANG_P (#43) using radio channel 9 by 0.2% per radio value step.
+#define DEFAULT_CONFIG_ADJUST_P1    (20<<16)  // default adjustment scale is 0.2%
+#define DEFAULT_CONFIG_ADJUST_P2    (20<<16)
+#define DEFAULT_CONFIG_ADJUST_P3    (20<<16)
+#define DEFAULT_CONFIG_ADJUST_P4    (20<<16)
+#define DEFAULT_CONFIG_ADJUST_P5    (20<<16)
+#define DEFAULT_CONFIG_ADJUST_P6    (20<<16)
 
 #define DEFAULT_RADIO_SETUP         0  // 0 = NONE, 1 == Spektrum 11bit, 2 == Spektrum 10bit, 3 == SBUS, 4 == PPM, 5 == SUMD, 6 == M-Link, 7 == Deltang, 8 == CYRF6936
 #define DEFAULT_RADIO_THRO_CH     0
@@ -163,6 +176,8 @@
 #define DEFAULT_MOT_PWRD_16_P     0.0
 #define DEFAULT_MOT_PWRD_16_R     0.0
 #define DEFAULT_MOT_PWRD_16_Y     0.0
+
+
 #define DEFAULT_COMM_BAUD1     115200
 #define DEFAULT_COMM_BAUD2     230400
 #define DEFAULT_COMM_BAUD3     3000000
@@ -179,6 +194,8 @@
 #define DEFAULT_COMM_STREAM_TYP7    0                           // CAN UART stream ID 3
 
 #define DEFAULT_TELEMETRY_RATE     20  // loops between reports
+
+
 #define DEFAULT_NAV_MAX_SPEED     5.0f // m/s
 #define DEFAULT_NAV_MAX_DECENT     1.5f // m/s
 #define DEFAULT_NAV_CEILING         0.0f // m relative to home alt. Maximum altitude in alt/pos/mission/dvh modes
@@ -225,11 +242,15 @@
 #define DEFAULT_NAV_CTRL_HF_SET     ((1<<19) | (501<<8) | 0)  // disabled, high
 #define DEFAULT_NAV_CTRL_HF_LOCK    ((0<<19) | (501<<8) | 0)  // disabled, low
 #define DEFAULT_NAV_CTRL_WP_REC     ((1<<19) | (501<<8) | 0)  // disabled, high
-#define DEFAULT_IMU_FLIP            0                   // flip DIMU: 0 == none, 1 == around x axis, 2 == around y axis
+
+
+#define DEFAULT_IMU_FLIP            0                   // flip DIMU: 0 == none, 1 == around roll axis (left becomes right), 2 == around pitch axis (front becomes back)
 #define DEFAULT_IMU_ROT      +0.0  // degrees to rotate the IMU to align with the frame (applied after FLIP)
 #define DEFAULT_IMU_MAG_INCL     -65.0
 #define DEFAULT_IMU_MAG_DECL     0.0
 #define DEFAULT_IMU_PRESS_SENSE     0.0f  // 0 == sensor #1, 1 == sensor #2, 2 == both
+
+
 #define DEFAULT_GMBL_PITCH_PORT  0  // Gimbal pitch stabilization output port. 0 == disabled
 #define DEFAULT_GMBL_CTRL_TILT  0  // Gimbal manual tilt control definition (channel number).
 #define DEFAULT_GMBL_TILT_PORT  0  // Gimbal manual/PoI tilt control output port (can be same as PITCH_PORT to combine the 2 functions). 0 == disabled
@@ -253,12 +274,16 @@
 #define DEFAULT_GMBL_TRIG_TIME  0  // Activate trigger every this many seconds. 0 == disabled
 #define DEFAULT_GMBL_PSTHR_CHAN  0  // Pure passthrough radio channel (eg. camera zoom, pan axis, lights, etc). 0 == disabled
 #define DEFAULT_GMBL_PSTHR_PORT  0  // Pure passthrough output port. 0 == disabled
+
+
 #define DEFAULT_SPVR_LOW_BAT1     3.5f     // cell volts
 #define DEFAULT_SPVR_LOW_BAT2     3.3f     // cell volts
 #define DEFAULT_SPVR_FS_RAD_ST1     0           // radio failsafe stage 1 action (0 = position hold)
 #define DEFAULT_SPVR_FS_RAD_ST2     0           // radio failsafe stage 2 action (0 = land, 1 = RTH, land, 2 = Ascend if needed, RTH, land)
 #define DEFAULT_SPVR_FS_ADD_ALT     0.0f        // meters to add to home alt. for falisafe stg.2 action == 2
 #define DEFAULT_SPVR_VIN_SOURCE     0           // source to use for measuring primary voltage (0 = mains voltage on all boards; 1 = onboard external voltage divider)
+
+
 #define DEFAULT_QUATOS_ENABLE  1      // 0 = do not use Quatos; 1 = use Quatos
 #define DEFAULT_QUATOS_J_ROLL  0.0127f      // J matrix
 #define DEFAULT_QUATOS_J_PITCH  0.0127f      // J matrix
@@ -272,10 +297,6 @@
 #define DEFAULT_QUATOS_QUAT_TAU  0.05f
 #define DEFAULT_QUATOS_L1_ASP  -10.0f
 #define DEFAULT_QUATOS_L1_K1  18.6f
-#define DEFAULT_QUATOS_AM1_KNOB  0.0f      // AM1
-#define DEFAULT_QUATOS_AM2_KNOB  0.0f      // AM2
-#define DEFAULT_QUATOS_K1_KNOB  0.0f      // L1_K1
-#define DEFAULT_QUATOS_PT_KNOB  0.0f      // prop torque
 
 #define DEFAULT_QUATOS_MM_R01  0.0f
 #define DEFAULT_QUATOS_MM_P01  0.0f
@@ -325,6 +346,8 @@
 #define DEFAULT_QUATOS_MM_R16  0.0f
 #define DEFAULT_QUATOS_MM_P16  0.0f
 #define DEFAULT_QUATOS_MM_Y16  0.0f
+
+
 #define DEFAULT_LIC_KEY1  0.0f
 #define DEFAULT_LIC_KEY2  0.0f
 #define DEFAULT_LIC_KEY3  0.0f

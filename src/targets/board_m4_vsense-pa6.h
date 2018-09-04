@@ -1,12 +1,12 @@
 // Using this board file with AQ M4 boards <= rev 5 (NOT r6, aka. v2) enables voltage sensing on expansion port pin J2-5 (PA6)
 
 #if BOARD_REVISION == 3
-#include "board_m4_r3.h"
+    #include "board_m4_r3.h"
 #elif BOARD_REVISION == 4 || BOARD_REVISION == 5
-#include "board_m4_r5.h"
+    #include "board_m4_r5.h"
 #elif BOARD_REVISION == 6
-//#include "board_m4_r6.h"
-#error "Can't be used with M4 r6"
+    //#include "board_m4_r6.h"
+    #error "Can't be used with M4 r6"
 #endif
 
 // disable SPI I/O because we need PA6

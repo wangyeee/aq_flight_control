@@ -14,7 +14,7 @@
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
     Copyright (c) 2011-2014  Bill Nesbitt
-*/
+ */
 
 #include "nav_ukf.h"
 #include "imu.h"
@@ -46,8 +46,7 @@ static void navUkfCalcEarthRadius(double lat) {
     sinLat2 = sin(lat * (double)DEG_TO_RAD);
     sinLat2 = sinLat2 * sinLat2;
 
-    navUkfData.r1 = (double)NAV_EQUATORIAL_RADIUS * (double)DEG_TO_RAD * ((double)1.0 - (double)NAV_E_2) / pow((double)1.0 - ((double)NAV_E_2 * sinLat2),
-                    ((double)3.0 / (double)2.0));
+    navUkfData.r1 = (double)NAV_EQUATORIAL_RADIUS * (double)DEG_TO_RAD * ((double)1.0 - (double)NAV_E_2) / pow((double)1.0 - ((double)NAV_E_2 * sinLat2), ((double)3.0 / (double)2.0));
     navUkfData.r2 = (double)NAV_EQUATORIAL_RADIUS * (double)DEG_TO_RAD / sqrt((double)1.0 - ((double)NAV_E_2 * sinLat2)) * cos(lat * (double)DEG_TO_RAD);
 }
 
@@ -222,11 +221,12 @@ void navUkfMatrixExtractEuler(float *m, float *yaw, float *pitch, float *roll) {
         *yaw = M_PI/2.0f;
         *roll = 0.0f;
     } else if (m[1*3+0] < -0.998f) { // singularity at south pole
-        *pitch = atan2f(m[0*3+2],m[2*3+2]);
+        *pitch = atan2f(m[0*3+2] ,m[2*3+2]);
         *yaw = -M_PI/2.0f;
         *roll = 0.0f;
-    } else {
-        *pitch = atan2f(-m[2*3+0],m[0*3+0]);
+    }
+    else {
+        *pitch = atan2f(-m[2*3+0] ,m[0*3+0]);
         *yaw = asinf(m[1*3+0]);
         *roll = atan2f(-m[1*3+2], m[1*3+1]);
     }
@@ -277,53 +277,53 @@ void navUkfTimeUpdate(float *in, float *noise, float *out, float *u, float dt, i
     out = in;
 
     for (i = 0; i < n; i++) {
-// pos
+        // pos
         out[UKF_STATE_POSN*n + i] = in[UKF_STATE_POSN*n + i] + in[UKF_STATE_VELN*n + i] * dt;
         out[UKF_STATE_POSE*n + i] = in[UKF_STATE_POSE*n + i] + in[UKF_STATE_VELE*n + i] * dt;
         out[UKF_STATE_POSD*n + i] = in[UKF_STATE_POSD*n + i] - in[UKF_STATE_VELD*n + i] * dt;
 
-// pres alt
+        // pres alt
         out[UKF_STATE_PRES_ALT*n + i] = in[UKF_STATE_PRES_ALT*n + i] - in[UKF_STATE_VELD*n + i] * dt;
 
-// create rot matrix from current quat
+        // create rot matrix from current quat
         q[0] = in[UKF_STATE_Q1*n + i];
         q[1] = in[UKF_STATE_Q2*n + i];
         q[2] = in[UKF_STATE_Q3*n + i];
         q[3] = in[UKF_STATE_Q4*n + i];
         navUkfQuatToMatrix(mat3x3, q, 1);
 
-// acc
+        // acc
         tmp[0] = u[0] + in[UKF_STATE_ACC_BIAS_X*n + i];
         tmp[1] = u[1] + in[UKF_STATE_ACC_BIAS_Y*n + i];
         tmp[2] = u[2] + in[UKF_STATE_ACC_BIAS_Z*n + i];
 
-// rotate acc to world frame
+        // rotate acc to world frame
         navUkfRotateVecByMatrix(acc, tmp, mat3x3);
         acc[2] += GRAVITY;
 
-// vel
+        // vel
         out[UKF_STATE_VELN*n + i] = in[UKF_STATE_VELN*n + i] + acc[0] * dt + noise[UKF_V_NOISE_VELN*n + i];
         out[UKF_STATE_VELE*n + i] = in[UKF_STATE_VELE*n + i] + acc[1] * dt + noise[UKF_V_NOISE_VELE*n + i];
         out[UKF_STATE_VELD*n + i] = in[UKF_STATE_VELD*n + i] + acc[2] * dt + noise[UKF_V_NOISE_VELD*n + i];
 
-// acc bias
+        // acc bias
         out[UKF_STATE_ACC_BIAS_X*n + i] = in[UKF_STATE_ACC_BIAS_X*n + i] + noise[UKF_V_NOISE_ACC_BIAS_X*n + i] * dt;
         out[UKF_STATE_ACC_BIAS_Y*n + i] = in[UKF_STATE_ACC_BIAS_Y*n + i] + noise[UKF_V_NOISE_ACC_BIAS_Y*n + i] * dt;
         out[UKF_STATE_ACC_BIAS_Z*n + i] = in[UKF_STATE_ACC_BIAS_Z*n + i] + noise[UKF_V_NOISE_ACC_BIAS_Z*n + i] * dt;
 
-// rate = rate + bias + noise
+        // rate = rate + bias + noise
         rate[0] = (u[3] + in[UKF_STATE_GYO_BIAS_X*n + i] + noise[UKF_V_NOISE_RATE_X*n + i]) * dt;
         rate[1] = (u[4] + in[UKF_STATE_GYO_BIAS_Y*n + i] + noise[UKF_V_NOISE_RATE_Y*n + i]) * dt;
         rate[2] = (u[5] + in[UKF_STATE_GYO_BIAS_Z*n + i] + noise[UKF_V_NOISE_RATE_Z*n + i]) * dt;
 
-// rotate quat
+        // rotate quat
         navUkfRotateQuat(q, q, rate);
         out[UKF_STATE_Q1*n + i] = q[0];
         out[UKF_STATE_Q2*n + i] = q[1];
         out[UKF_STATE_Q3*n + i] = q[2];
         out[UKF_STATE_Q4*n + i] = q[3];
 
-// gbias
+        // gbias
         out[UKF_STATE_GYO_BIAS_X*n + i] = in[UKF_STATE_GYO_BIAS_X*n + i] + noise[UKF_V_NOISE_GYO_BIAS_X*n + i] * dt;
         out[UKF_STATE_GYO_BIAS_Y*n + i] = in[UKF_STATE_GYO_BIAS_Y*n + i] + noise[UKF_V_NOISE_GYO_BIAS_Y*n + i] * dt;
         out[UKF_STATE_GYO_BIAS_Z*n + i] = in[UKF_STATE_GYO_BIAS_Z*n + i] + noise[UKF_V_NOISE_GYO_BIAS_Z*n + i] * dt;
@@ -419,9 +419,9 @@ void navUkfInertialUpdate(void) {
 }
 
 void navUkfZeroRate(float rate, int axis) {
-    float noise[1];        // measurement variance
-    float y[1];            // measurment(s)
-    float u[1];     // user data
+    float noise[1];  // measurement variance
+    float y[1];      // measurment(s)
+    float u[1];      // user data
 
     noise[0] = 0.00001f;
     y[0] = rate;
@@ -435,7 +435,6 @@ void simDoPresUpdate(float pres) {
     float y[2];            // measurment(s)
 
     noise[0] = UKF_ALT_N;
-
     noise[1] = noise[0];
 
     y[0] = navUkfPresToAlt(pres);
@@ -511,7 +510,8 @@ void navUkfZeroPos(void) {
         noise[0] = 1e1f;
         noise[1] = 1e1f;
         noise[2] = 1e1f;
-    } else {
+    }
+    else {
         noise[0] = 1e-7f;
         noise[1] = 1e-7f;
         noise[2] = 1.0f;
@@ -532,11 +532,12 @@ void navUkfGpsPosUpdate(uint32_t gpsMicros, double lat, double lon, float alt, f
         navUkfCalcEarthRadius(lat);
         navUkfSetGlobalPositionTarget(lat, lon);
         navUkfResetPosition(-UKF_POSN, -UKF_POSE, alt - UKF_POSD);
-    } else {
+    }
+    else {
         navUkfCalcGlobalDistance(lat, lon, &y[0], &y[1]);
         y[2] = alt;
 
-// determine how far back this GPS position update came from
+        // determine how far back this GPS position update came from
         histIndex = (timerMicros() - (gpsMicros + UKF_POS_DELAY)) / (int)(1e6f * AQ_OUTER_TIMESTEP);
         histIndex = navUkfData.navHistIndex - histIndex;
         if (histIndex < 0)
@@ -544,12 +545,12 @@ void navUkfGpsPosUpdate(uint32_t gpsMicros, double lat, double lon, float alt, f
         if (histIndex < 0 || histIndex >= UKF_HIST)
             histIndex = 0;
 
-// calculate delta from current position
+        // calculate delta from current position
         posDelta[0] = UKF_POSN - navUkfData.posN[histIndex];
         posDelta[1] = UKF_POSE - navUkfData.posE[histIndex];
         posDelta[2] = UKF_POSD - navUkfData.posD[histIndex];
 
-// set current position state to historic data
+        // set current position state to historic data
         UKF_POSN = navUkfData.posN[histIndex];
         UKF_POSE = navUkfData.posE[histIndex];
         UKF_POSD = navUkfData.posD[histIndex];
@@ -560,7 +561,7 @@ void navUkfGpsPosUpdate(uint32_t gpsMicros, double lat, double lon, float alt, f
 
         srcdkfMeasurementUpdate(navUkfData.kf, 0, y, 3, 3, noise, navUkfPosUpdate);
 
-// add the historic position delta back to the current state
+        // add the historic position delta back to the current state
         UKF_POSN += posDelta[0];
         UKF_POSE += posDelta[1];
         UKF_POSD += posDelta[2];
@@ -675,7 +676,7 @@ void navUkfGpsVelUpdate(uint32_t gpsMicros, float velN, float velE, float velD, 
     it with our own estimates of ground height and rotational rates
     to calculate the x/y velocity estimates.  Along with reported sonar
     altitudes, they are fed to the UKF as observations.
-*/
+ */
 void navUkfFlowUpdate(void) {
     static float oldPitch, oldRoll;
     float flowX, flowY;
@@ -701,44 +702,45 @@ void navUkfFlowUpdate(void) {
 
     // first valid flow update ?
     if (navUkfData.flowInit == 0) {
-// only allow init if we have a valid altitude
+        // only allow init if we have a valid altitude
         if (navUkfData.flowAltCount > 0) {
             navPressureAdjust(navUkfData.flowAlt);
             UKF_POSD = navUkfData.flowAlt;
             navUkfData.flowInit = 1;
         }
-    } else {
-// scaled, average quality
+    }
+    else {
+        // scaled, average quality
         navUkfData.flowQuality = (float)navUkfData.flowSumQuality / navUkfData.flowCount * (1.0f / 255.0f);
 
-// first rotate sensor data to craft frame around Z axis
+        // first rotate sensor data to craft frame around Z axis
         flowX = navUkfData.flowSumX * navUkfData.flowRotCos + navUkfData.flowSumY * navUkfData.flowRotSin;
         flowY = navUkfData.flowSumY * navUkfData.flowRotCos - navUkfData.flowSumX * navUkfData.flowRotSin;
 
-// adjust for pitch/roll rotations during measurement
+        // adjust for pitch/roll rotations during measurement
         flowX -= (AQ_PITCH - oldPitch) * DEG_TO_RAD * UKF_FOCAL_PX;
         flowY += (AQ_ROLL  - oldRoll)  * DEG_TO_RAD * UKF_FOCAL_PX;
 
-// next, rotate flow to world frame
+        // next, rotate flow to world frame
         xT = flowX * navUkfData.yawCos - flowY * navUkfData.yawSin;
         yT = flowY * navUkfData.yawCos + flowX * navUkfData.yawSin;
 
-// convert to distance covered based on focal length and height above ground
+        // convert to distance covered based on focal length and height above ground
         flowX = xT * (1.0f / UKF_FOCAL_PX) * UKF_POSD;
         flowY = yT * (1.0f / UKF_FOCAL_PX) * UKF_POSD;
 
-// integrate for absolute position
+        // integrate for absolute position
         navUkfData.flowPosN += flowX;
         navUkfData.flowPosE += flowY;
 
-// time delta - assume each count is from two readings @ 5ms each
+        // time delta - assume each count is from two readings @ 5ms each
         dt = (float)navUkfData.flowCount * (5.0f * 2.0f) / 1000.0f;
 
-// differentiate for velocity
+        // differentiate for velocity
         navUkfData.flowVelX = flowX / dt;
         navUkfData.flowVelY = flowY / dt;
 
-// TODO: properly estimate noise
+        // TODO: properly estimate noise
         noise[0] = (UKF_GPS_POS_N + UKF_GPS_POS_M_N) * 0.5f;
         noise[1] = noise[0];
 
@@ -886,18 +888,18 @@ void navUkfInitState(void) {
 
         navUkfQuatToMatrix(m, &UKF_Q1, 1);
 
-// rotate gravity to body frame of reference
+        // rotate gravity to body frame of reference
         navUkfRotateVecByRevMatrix(estAcc, navUkfData.v0a, m);
 
-// rotate mags to body frame of reference
+        // rotate mags to body frame of reference
         navUkfRotateVecByRevMatrix(estMag, navUkfData.v0m, m);
 
-// measured error, starting with ACC vector
+        // measured error, starting with ACC vector
         rotError[0] = -(acc[2] * estAcc[1] - estAcc[2] * acc[1]) * 1.0f;
         rotError[1] = -(acc[0] * estAcc[2] - estAcc[0] * acc[2]) * 1.0f;
         rotError[2] = -(acc[1] * estAcc[0] - estAcc[1] * acc[0]) * 1.0f;
 
-// add in MAG vector
+        // add in MAG vector
         if (AQ_MAG_ENABLED) {
             rotError[0] += -(mag[2] * estMag[1] - estMag[2] * mag[1]) * 1.0f;
             rotError[1] += -(mag[0] * estMag[2] - estMag[0] * mag[2]) * 1.0f;
@@ -979,3 +981,22 @@ void navUkfInit(void) {
     filerStream(navUkfData.logHandle, ukfLog, UKF_LOG_BUF_SIZE);
 #endif
 }
+
+#ifdef WMM_STACK_SIZE
+
+OS_STK *wmmStack;
+
+void wmmTask(void* unused) {
+    for (;;) {
+    }
+    CoExitTask();
+}
+
+void startWMMDeamon(void) {
+    wmmStack = aqStackInit(WMM_STACK_SIZE, "WMM");
+
+    CoCreateTask(wmmTask, (void *)0, WMM_TASK_PRIORITY, &wmmStack[WMM_STACK_SIZE-1], WMM_STACK_SIZE);
+}
+
+#endif /* WMM_STACK_SIZE */
+

@@ -93,6 +93,8 @@
 #define ABORTED_COMMAND                            11
 #define VOLUME_OVERFLOW                            13
 #define MISCOMPARE                                 14
+
+
 #define INVALID_CDB                                 0x20
 #define INVALID_FIELED_IN_COMMAND                   0x24
 #define PARAMETER_LIST_LENGTH_ERROR                 0x1A
@@ -123,20 +125,22 @@ extern  uint8_t ReadFormatCapacity_Data [];
 /**
   * @}
   */
+
+
 /** @defgroup USBD_SCSI_Exported_TypesDefinitions
   * @{
   */
 
 typedef struct _SENSE_ITEM {
-    char Skey;
-    union {
-        struct _ASCs {
-            char ASC;
-            char ASCQ;
-        } b;
-        unsigned int ASC;
-        char *pData;
-    } w;
+  char Skey;
+  union {
+    struct _ASCs {
+      char ASC;
+      char ASCQ;
+    }b;
+    unsigned int ASC;
+    char *pData;
+  } w;
 } SCSI_Sense_TypeDef;
 /**
   * @}
@@ -164,12 +168,12 @@ extern uint8_t   SCSI_Sense_Tail;
   * @{
   */
 int8_t SCSI_ProcessCmd(USB_OTG_CORE_HANDLE  *pdev,
-                       uint8_t lun,
-                       uint8_t *cmd);
+                           uint8_t lun,
+                           uint8_t *cmd);
 
 void   SCSI_SenseCode(uint8_t lun,
-                      uint8_t sKey,
-                      uint8_t ASC);
+                    uint8_t sKey,
+                    uint8_t ASC);
 
 // NEZ
 extern void SCSI_ProcessReadComplete(uint32_t len);

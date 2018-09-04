@@ -14,7 +14,7 @@
     along with AutoQuad.  If not, see <http://www.gnu.org/licenses/>.
 
     Copyright (c) 2011-2014  Bill Nesbitt
-*/
+ */
 
 #include "aq.h"
 #include "run.h"
@@ -40,7 +40,7 @@
 
 OS_STK *runTaskStack;
 
-runStruct_t runData __attribute__((section(".ccm")));
+runStruct_t runData CCM_RAM;
 
 void runTaskCode(void *unused) {
     uint32_t axis = 0;
@@ -49,16 +49,16 @@ void runTaskCode(void *unused) {
     AQ_NOTICE("Run task started\n");
 
     while (1) {
-// wait for data
+        // wait for data
         CoWaitForSingleFlag(imuData.sensorFlag, 0);
 
-// soft start GPS accuracy
+        // soft start GPS accuracy
         runData.accMask *= 0.999f;
 
         navUkfInertialUpdate();
 
-// record history for acc & mag & pressure readings for smoothing purposes
-// acc
+        // record history for acc & mag & pressure readings for smoothing purposes
+        // acc
         runData.sumAcc[0] -= runData.accHist[0][runData.sensorHistIndex];
         runData.sumAcc[1] -= runData.accHist[1][runData.sensorHistIndex];
         runData.sumAcc[2] -= runData.accHist[2][runData.sensorHistIndex];
@@ -71,7 +71,7 @@ void runTaskCode(void *unused) {
         runData.sumAcc[1] += runData.accHist[1][runData.sensorHistIndex];
         runData.sumAcc[2] += runData.accHist[2][runData.sensorHistIndex];
 
-// mag
+        // mag
         runData.sumMag[0] -= runData.magHist[0][runData.sensorHistIndex];
         runData.sumMag[1] -= runData.magHist[1][runData.sensorHistIndex];
         runData.sumMag[2] -= runData.magHist[2][runData.sensorHistIndex];
@@ -84,7 +84,7 @@ void runTaskCode(void *unused) {
         runData.sumMag[1] += runData.magHist[1][runData.sensorHistIndex];
         runData.sumMag[2] += runData.magHist[2][runData.sensorHistIndex];
 
-// pressure
+        // pressure
         runData.sumPres -= runData.presHist[runData.sensorHistIndex];
         runData.presHist[runData.sensorHistIndex] = AQ_PRESSURE;
         runData.sumPres += runData.presHist[runData.sensorHistIndex];
@@ -92,22 +92,21 @@ void runTaskCode(void *unused) {
         runData.sensorHistIndex = (runData.sensorHistIndex + 1) % RUN_SENSOR_HIST;
 
         if (!((loops+1) % 20)) {
-            simDoAccUpdate(runData.sumAcc[0]*(1.0f / (float)RUN_SENSOR_HIST), runData.sumAcc[1]*(1.0f / (float)RUN_SENSOR_HIST),
-                           runData.sumAcc[2]*(1.0f / (float)RUN_SENSOR_HIST));
-        } else if (!((loops+7) % 20)) {
+            simDoAccUpdate(runData.sumAcc[0]*(1.0f / (float)RUN_SENSOR_HIST), runData.sumAcc[1]*(1.0f / (float)RUN_SENSOR_HIST), runData.sumAcc[2]*(1.0f / (float)RUN_SENSOR_HIST));
+        }
+        else if (!((loops+7) % 20)) {
             simDoPresUpdate(runData.sumPres*(1.0f / (float)RUN_SENSOR_HIST));
         }
 #ifndef USE_DIGITAL_IMU
         else if (!((loops+13) % 20) && AQ_MAG_ENABLED) {
-            simDoMagUpdate(runData.sumMag[0]*(1.0f / (float)RUN_SENSOR_HIST), runData.sumMag[1]*(1.0f / (float)RUN_SENSOR_HIST),
-                           runData.sumMag[2]*(1.0f / (float)RUN_SENSOR_HIST));
+            simDoMagUpdate(runData.sumMag[0]*(1.0f / (float)RUN_SENSOR_HIST), runData.sumMag[1]*(1.0f / (float)RUN_SENSOR_HIST), runData.sumMag[2]*(1.0f / (float)RUN_SENSOR_HIST));
         }
 #endif
-// optical flow update
+        // optical flow update
         else if (navUkfData.flowCount >= 10 && !navUkfData.flowLock) {
             navUkfFlowUpdate();
         }
-// only accept GPS updates if there is no optical flow
+        // only accept GPS updates if there is no optical flow
         else if (CoAcceptSingleFlag(gpsData.gpsPosFlag) == E_OK && navUkfData.flowQuality == 0.0f && gpsData.hAcc < NAV_MIN_GPS_ACC && gpsData.tDOP != 0.0f) {
             navUkfGpsPosUpdate(gpsData.lastPosUpdate, gpsData.lat, gpsData.lon, gpsData.height, gpsData.hAcc + runData.accMask, gpsData.vAcc + runData.accMask);
             CoClearFlag(gpsData.gpsPosFlag);
@@ -116,20 +115,20 @@ void runTaskCode(void *unused) {
                 navPressureAdjust(gpsData.height);
                 runData.bestHacc = gpsData.hAcc;
             }
-        } else if (CoAcceptSingleFlag(gpsData.gpsVelFlag) == E_OK && navUkfData.flowQuality == 0.0f && gpsData.sAcc < NAV_MIN_GPS_ACC/2
-                   && gpsData.tDOP != 0.0f) {
+        }
+        else if (CoAcceptSingleFlag(gpsData.gpsVelFlag) == E_OK && navUkfData.flowQuality == 0.0f && gpsData.sAcc < NAV_MIN_GPS_ACC/2 && gpsData.tDOP != 0.0f) {
             navUkfGpsVelUpdate(gpsData.lastVelUpdate, gpsData.velN, gpsData.velE, gpsData.velD, gpsData.sAcc + runData.accMask);
             CoClearFlag(gpsData.gpsVelFlag);
         }
-// observe zero position
+        // observe zero position
         else if (!((loops+4) % 20) && (gpsData.hAcc >= NAV_MIN_GPS_ACC || gpsData.tDOP == 0.0f) && navUkfData.flowQuality == 0.0f) {
             navUkfZeroPos();
         }
-// observer zero velocity
+        // observer zero velocity
         else if (!((loops+10) % 20) && (gpsData.sAcc >= NAV_MIN_GPS_ACC/2 || gpsData.tDOP == 0.0f) && navUkfData.flowQuality == 0.0f) {
             navUkfZeroVel();
         }
-// observe that the rates are exactly 0 if not flying or moving
+        // observe that the rates are exactly 0 if not flying or moving
         else if (!(supervisorData.state & STATE_FLYING)) {
             float stdX, stdY, stdZ;
 
@@ -155,7 +154,8 @@ void runTaskCode(void *unused) {
         if (gpsData.hAcc > p[NAV_ALT_GPS_ACC]) {
             runData.altPos = &ALT_POS;
             runData.altVel = &ALT_VEL;
-        } else {
+        }
+        else {
             runData.altPos = &UKF_ALTITUDE;
             runData.altVel = &UKF_VELD;
         }
@@ -232,8 +232,8 @@ void runInit(void) {
 
 #ifdef USE_MAVLINK
     // configure px4flow sensor
-//    mavlinkSendParameter(81, 50, "BFLOW_V_THLD", 2500.0f);
-//    mavlinkSendParameter(81, 50, "BFLOW_F_THLD", 100.0f);
+    //    mavlinkSendParameter(81, 50, "BFLOW_V_THLD", 2500.0f);
+    //    mavlinkSendParameter(81, 50, "BFLOW_F_THLD", 100.0f);
     mavlinkSendParameter(81, 50, "BFLOW_GYRO_COM", 0.0f);
     mavlinkSendParameter(81, 50, "USB_SEND_VIDEO", 0.0f);
 #endif
