@@ -314,7 +314,7 @@ uint8_t i2cWaitStandbyState(i2cSlave_t* dev) {
 }
 
 i2cSlave_t* i2cRegisterSlaveDevice(I2C_TypeDef* interface, uint8_t address, i2cCallback_t *callback) {
-    uint8_t i, t;
+    uint8_t i, t = 255;
 #ifdef I2C_I2C1
     if (interface == I2C1) {
         i2c1Init();
@@ -333,7 +333,7 @@ i2cSlave_t* i2cRegisterSlaveDevice(I2C_TypeDef* interface, uint8_t address, i2cC
         t = 2;
     }
 #endif
-    else {
+    if (t == 255) {
         return NULL;
     }
 
