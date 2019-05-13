@@ -69,6 +69,7 @@ typedef struct {
     float nDOP;
     float eDOP;
     float gDOP;
+    uint8_t noSV; // number of satellites
 
     unsigned long TPtowMS;    // timepulse time of week (ms)
     unsigned long lastReceivedTPtowMS;

@@ -32,6 +32,7 @@
 
 #define UBLOX_NAV_POSLLH    0x02
 #define UBLOX_NAV_DOP     0x04
+#define UBLOX_NAV_PVT     0x07
 #define UBLOX_NAV_VALNED    0x12
 #define UBLOX_NAV_TIMEUTC   0x21
 #define UBLOX_NAV_SBAS     0x32
@@ -181,14 +182,14 @@ typedef struct {
 
     signed long lastLat, lastLon;
     union {
- ubloxStructPOSLLH_t posllh;
- ubloxStructVALNED_t valned;
- ubloxStructDOP_t dop;
- ubloxStructTP_t tp;
- ubloxStructTIMEUTC_t timeutc;
- ubloxStructVER_t ver;
- ubloxStructPVT_t pvt;
- char other[UBLOX_MAX_PAYLOAD];
+        ubloxStructPOSLLH_t posllh;
+        ubloxStructVALNED_t valned;
+        ubloxStructDOP_t dop;
+        ubloxStructTP_t tp;
+        ubloxStructTIMEUTC_t timeutc;
+        ubloxStructVER_t ver;
+        ubloxStructPVT_t pvt;
+        char other[UBLOX_MAX_PAYLOAD];
     } payload;
 
     unsigned char state;

@@ -269,6 +269,7 @@ void ubloxSendSetup(void) {
     ubloxEnableMessage(UBLOX_NAV_CLASS, UBLOX_NAV_DOP, 5);      // NAV DOP
     ubloxEnableMessage(UBLOX_AID_CLASS, UBLOX_AID_REQ, 1);      // AID REQ
     ubloxEnableMessage(UBLOX_NAV_CLASS, UBLOX_NAV_TIMEUTC, 5);  // NAV TIMEUTC
+    ubloxEnableMessage(UBLOX_NAV_CLASS, UBLOX_NAV_PVT, 5);      // NAV PVT
 #ifdef GPS_DO_RTK
     ubloxEnableMessage(UBLOX_RXM_CLASS, UBLOX_RXM_RAW, 1);      // RXM RAW
     ubloxEnableMessage(UBLOX_RXM_CLASS, UBLOX_RXM_SFRB, 1);     // RXM SFRB
@@ -391,6 +392,9 @@ unsigned char ubloxPublish(void) {
     else if (ubloxData.class == UBLOX_MON_CLASS && ubloxData.id == UBLOX_MON_VER) {
         ubloxData.hwVer = atoi(ubloxData.payload.ver.hwVersion) / 10000;
         ubloxVersionSpecific(ubloxData.hwVer);
+    }
+    else if (ubloxData.class == UBLOX_NAV_CLASS && ubloxData.id == UBLOX_NAV_PVT) {
+        gpsData.noSV = ubloxData.payload.pvt.numSV;
     }
 
     gpsData.lastMessage = IMU_LASTUPD;
