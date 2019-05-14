@@ -126,7 +126,7 @@ typedef struct {
     uint8_t mode:3;   // navigation mode, one of navStatusTypes
     uint8_t spvrModeOverride:3;  // forced navigation mode desired, regardless of user controls (eg. failsafe mode). 0 = no override
     uint8_t headFreeMode:3;  // headfree/carefree mode status
-    uint8_t fixType:2;                   // GPS fix type, 0 = no fix, 2 = 2D, 3 = 3D (navCapable)
+    uint8_t fixType:2;                   // GPS fix type, 1 = no fix, 2 = 2D, 3 = 3D (navCapable)
 
     uint8_t navCapable:1;
     uint8_t tempMissionLoaded:1; // flag indicating that a temporary/default mission has been loaded (not a user-specified one)

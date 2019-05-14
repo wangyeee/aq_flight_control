@@ -250,7 +250,7 @@ void navSetFixType(void) {
     else if (posTimeDlta < NAV_MAX_FIX_AGE && hAccMsk < NAV_MIN_FIX_ACC)
         navData.fixType = 2;
     else
-        navData.fixType = 0;
+        navData.fixType = 1;
 
     if (navData.fixType == 3) {
         if (!(supervisorData.state & STATE_CALIBRATION))
