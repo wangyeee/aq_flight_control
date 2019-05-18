@@ -41,6 +41,7 @@ extern rtcStruct_t rtcData;
 
 extern void rtcInit(void);
 extern unsigned long rtcGetDateTime(void);
+extern unsigned long rtcGetUNIXEpoch(void);
 extern int rtcSetDateTime(int year, int month, int day, int hour, int minute, int second);
 extern void rtcSetDateTimeLong(unsigned long dateTime);
 

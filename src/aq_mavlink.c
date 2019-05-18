@@ -38,6 +38,7 @@
 #include "radio.h"
 #include "rc.h"
 #include "rcc.h"
+#include "rtc.h"
 #include "run.h"
 #include "supervisor.h"
 #include "util.h"
@@ -77,7 +78,7 @@ void mavlinkWpAnnounceCurrent(uint16_t seqId) {
 
 void mavlinkWpSendCount(void) {
 #ifdef MAVLINK_V2
-    // TODO mavlink v2
+    mavlink_msg_mission_count_send(MAVLINK_COMM_0, mavlinkData.wpTargetSysId, mavlinkData.wpTargetCompId, navGetWaypointCount(), MAV_MISSION_TYPE_MISSION);
 #else
     mavlink_msg_mission_count_send(MAVLINK_COMM_0, mavlinkData.wpTargetSysId, mavlinkData.wpTargetCompId, navGetWaypointCount());
 #endif
@@ -86,7 +87,7 @@ void mavlinkWpSendCount(void) {
 // send new home position coordinates
 void mavlinkAnnounceHome(void) {
 #ifdef MAVLINK_V2
-    // TODO mavlink v2
+    mavlink_msg_gps_global_origin_send(MAVLINK_COMM_0, navData.homeLeg.targetLat*(double)1e7f, navData.homeLeg.targetLon*(double)1e7, (navData.homeLeg.targetAlt + navData.presAltOffset)*1e3, rtcGetUNIXEpoch());
 #else
     mavlink_msg_gps_global_origin_send(MAVLINK_COMM_0, navData.homeLeg.targetLat*(double)1e7f, navData.homeLeg.targetLon*(double)1e7, (navData.homeLeg.targetAlt + navData.presAltOffset)*1e3);
 #endif

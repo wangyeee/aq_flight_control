@@ -23,6 +23,7 @@
 #include "comm.h"
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 
 rtcStruct_t rtcData CCM_RAM;
 
@@ -113,6 +114,24 @@ void rtcSetDateTimeLong(unsigned long dateTime) {
     time.RTC_Minutes = (dateTime & RTC_MASK_MINUTE)>>5;
     time.RTC_Seconds = (dateTime & RTC_MASK_SECOND)<<1;
     RTC_SetTime(RTC_Format_BIN, &time);
+}
+
+unsigned long rtcGetUNIXEpoch(void) {
+    RTC_TimeTypeDef time;
+    RTC_DateTypeDef date;
+    struct tm now;
+
+    RTC_GetDate(RTC_Format_BIN, &date);
+    RTC_GetTime(RTC_Format_BIN, &time);
+
+    now.tm_year = date.RTC_Year + 100;
+    now.tm_mday = date.RTC_Date;
+    now.tm_mon  = date.RTC_Month - 1;
+    now.tm_hour = time.RTC_Hours;
+    now.tm_min  = time.RTC_Minutes;
+    now.tm_sec  = time.RTC_Seconds;
+
+    return mktime(&now);
 }
 
 unsigned long rtcGetDateTime(void) {
