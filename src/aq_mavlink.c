@@ -87,7 +87,7 @@ void mavlinkWpSendCount(void) {
 // send new home position coordinates
 void mavlinkAnnounceHome(void) {
 #ifdef MAVLINK_V2
-    mavlink_msg_gps_global_origin_send(MAVLINK_COMM_0, navData.homeLeg.targetLat*(double)1e7f, navData.homeLeg.targetLon*(double)1e7, (navData.homeLeg.targetAlt + navData.presAltOffset)*1e3, rtcGetUNIXEpoch());
+    mavlink_msg_gps_global_origin_send(MAVLINK_COMM_0, navData.homeLeg.targetLat*(double)1e7f, navData.homeLeg.targetLon*(double)1e7, (navData.homeLeg.targetAlt + navData.presAltOffset)*1e3, timerMicros());
 #else
     mavlink_msg_gps_global_origin_send(MAVLINK_COMM_0, navData.homeLeg.targetLat*(double)1e7f, navData.homeLeg.targetLon*(double)1e7, (navData.homeLeg.targetAlt + navData.presAltOffset)*1e3);
 #endif
@@ -221,7 +221,10 @@ void mavlinkDo(void) {
     // position -- gps and ukf
     if (streamAll || (mavlinkData.streams[MAV_DATA_STREAM_POSITION].enable && mavlinkData.streams[MAV_DATA_STREAM_POSITION].next < micros)) {
 #ifdef MAVLINK_V2
-    // TODO mavlink v2
+        mavlink_msg_gps_raw_int_send(MAVLINK_COMM_0, micros, navData.fixType,
+                gpsData.lat*(double)1e7, gpsData.lon*(double)1e7, gpsData.height*1e3,
+                gpsData.hDOP, gpsData.vDOP, gpsData.speed*100, gpsData.heading /* TODO GPS cog, calc from velN/E/D */, gpsData.noSV,
+                gpsData.height*1e3 /* TODO GPS alt_ellipsoid */, gpsData.hAcc*1000, gpsData.vAcc*1000, gpsData.sAcc*1000, gpsData.cAcc*1e5);
 #else
         mavlink_msg_gps_raw_int_send(MAVLINK_COMM_0, micros, navData.fixType, gpsData.lat*(double)1e7, gpsData.lon*(double)1e7, gpsData.height*1e3,
                 gpsData.hAcc*100, gpsData.vAcc*100, gpsData.speed*100, gpsData.heading, gpsData.noSV);
@@ -390,7 +393,7 @@ void mavlinkDo(void) {
     if (mavlinkData.wpCurrent < mavlinkData.wpCount && mavlinkData.wpAttempt <= AQMAVLINK_WP_MAX_ATTEMPTS && mavlinkData.nextWP < micros) {
         mavlinkData.wpAttempt++;
 #ifdef MAVLINK_V2
-    // TODO mavlink v2
+        mavlink_msg_mission_request_send(MAVLINK_COMM_0, mavlinkData.wpTargetSysId, mavlinkData.wpTargetCompId, mavlinkData.wpCurrent, MAV_MISSION_TYPE_MISSION);
 #else
         mavlink_msg_mission_request_send(MAVLINK_COMM_0, mavlinkData.wpTargetSysId, mavlinkData.wpTargetCompId, mavlinkData.wpCurrent);
 #endif
@@ -399,7 +402,7 @@ void mavlinkDo(void) {
     // or ack that last waypoint received
     else if (mavlinkData.wpCurrent == mavlinkData.wpCount) {
 #ifdef MAVLINK_V2
-    // TODO mavlink v2
+        mavlink_msg_mission_ack_send(MAVLINK_COMM_0, mavlinkData.wpTargetSysId, mavlinkData.wpTargetCompId, 0, MAV_MISSION_TYPE_MISSION);
 #else
         mavlink_msg_mission_ack_send(MAVLINK_COMM_0, mavlinkData.wpTargetSysId, mavlinkData.wpTargetCompId, 0);
 #endif
@@ -576,7 +579,7 @@ void mavlinkDoCommand(mavlink_message_t *msg) {
 
     } // switch(command)
 #ifdef MAVLINK_V2
-    // TODO mavlink v2
+    mavlink_msg_command_ack_send(MAVLINK_COMM_0, command, ack, 255, 0, mavlink_system.sysid, mavlink_system.compid);
 #else
     mavlink_msg_command_ack_send(MAVLINK_COMM_0, command, ack);
 #endif
@@ -621,7 +624,10 @@ void mavlinkRecvTaskCode(commRcvrStruct_t *r) {
             case MAVLINK_MSG_ID_MISSION_CLEAR_ALL:
                 if (mavlink_msg_mission_clear_all_get_target_system(&msg) == mavlink_system.sysid) {
 #ifdef MAVLINK_V2
-    // TODO mavlink v2
+                    mavlink_msg_mission_ack_send(MAVLINK_COMM_0, mavlink_system.sysid,
+                                                 MAV_COMP_ID_MISSIONPLANNER,
+                                                 (navClearWaypoints() ? MAV_MISSION_ACCEPTED : MAV_MISSION_ERROR),
+                                                 MAV_MISSION_TYPE_MISSION);
 #else
                     mavlink_msg_mission_ack_send(MAVLINK_COMM_0, mavlink_system.sysid, MAV_COMP_ID_MISSIONPLANNER, (navClearWaypoints() ? MAV_MISSION_ACCEPTED : MAV_MISSION_ERROR));
 #endif
@@ -644,7 +650,9 @@ void mavlinkRecvTaskCode(commRcvrStruct_t *r) {
                     if (wp->type == NAV_LEG_HOME) {
                         wp = navGetHomeWaypoint();
 #ifdef MAVLINK_V2
-    // TODO mavlink v2
+                        mavlink_msg_mission_item_send(MAVLINK_COMM_0, msg.sysid, MAV_COMP_ID_MISSIONPLANNER,
+                                seqId, MAV_FRAME_GLOBAL, MAV_CMD_NAV_RETURN_TO_LAUNCH, (navData.missionLeg == seqId) ? 1 : 0, 1,
+                                        wp->targetRadius, wp->loiterTime/1000, 0.0f, wp->poiHeading, wp->targetLat, wp->targetLon, wp->targetAlt, MAV_MISSION_TYPE_MISSION);
 #else
                         mavlink_msg_mission_item_send(MAVLINK_COMM_0, msg.sysid, MAV_COMP_ID_MISSIONPLANNER,
                                 seqId, MAV_FRAME_GLOBAL, MAV_CMD_NAV_RETURN_TO_LAUNCH, (navData.missionLeg == seqId) ? 1 : 0, 1,
@@ -653,7 +661,9 @@ void mavlinkRecvTaskCode(commRcvrStruct_t *r) {
                     }
                     else if (wp->type == NAV_LEG_GOTO) {
 #ifdef MAVLINK_V2
-    // TODO mavlink v2
+                        mavlink_msg_mission_item_send(MAVLINK_COMM_0, msg.sysid, MAV_COMP_ID_MISSIONPLANNER,
+                                seqId, mavFrame, MAV_CMD_NAV_WAYPOINT, (navData.missionLeg == seqId) ? 1 : 0, 1,
+                                        wp->targetRadius, wp->loiterTime/1000, wp->maxHorizSpeed, wp->poiHeading, wp->targetLat, wp->targetLon, wp->targetAlt, MAV_MISSION_TYPE_MISSION);
 #else
                         mavlink_msg_mission_item_send(MAVLINK_COMM_0, msg.sysid, MAV_COMP_ID_MISSIONPLANNER,
                                 seqId, mavFrame, MAV_CMD_NAV_WAYPOINT, (navData.missionLeg == seqId) ? 1 : 0, 1,
@@ -662,7 +672,9 @@ void mavlinkRecvTaskCode(commRcvrStruct_t *r) {
                     }
                     else if (wp->type == NAV_LEG_TAKEOFF) {
 #ifdef MAVLINK_V2
-    // TODO mavlink v2
+                        mavlink_msg_mission_item_send(MAVLINK_COMM_0, msg.sysid, MAV_COMP_ID_MISSIONPLANNER,
+                                seqId, mavFrame, MAV_CMD_NAV_TAKEOFF, (navData.missionLeg == seqId) ? 1 : 0, 1,
+                                        wp->targetRadius, wp->loiterTime/1000, wp->poiHeading, wp->maxVertSpeed, wp->targetLat, wp->targetLon, wp->targetAlt, MAV_MISSION_TYPE_MISSION);
 #else
                         mavlink_msg_mission_item_send(MAVLINK_COMM_0, msg.sysid, MAV_COMP_ID_MISSIONPLANNER,
                                 seqId, mavFrame, MAV_CMD_NAV_TAKEOFF, (navData.missionLeg == seqId) ? 1 : 0, 1,
@@ -671,7 +683,9 @@ void mavlinkRecvTaskCode(commRcvrStruct_t *r) {
                     }
                     else if (wp->type == NAV_LEG_ORBIT) {
 #ifdef MAVLINK_V2
-    // TODO mavlink v2
+                        mavlink_msg_mission_item_send(MAVLINK_COMM_0, msg.sysid, MAV_COMP_ID_MISSIONPLANNER,
+                                seqId, mavFrame, 1, (navData.missionLeg == seqId) ? 1 : 0, 1,
+                                        wp->targetRadius, wp->loiterTime/1000, wp->maxHorizSpeed, wp->poiHeading, wp->targetLat, wp->targetLon, wp->targetAlt, MAV_MISSION_TYPE_MISSION);
 #else
                         mavlink_msg_mission_item_send(MAVLINK_COMM_0, msg.sysid, MAV_COMP_ID_MISSIONPLANNER,
                                 seqId, mavFrame, 1, (navData.missionLeg == seqId) ? 1 : 0, 1,
@@ -680,7 +694,9 @@ void mavlinkRecvTaskCode(commRcvrStruct_t *r) {
                     }
                     else if (wp->type == NAV_LEG_LAND) {
 #ifdef MAVLINK_V2
-    // TODO mavlink v2
+                        mavlink_msg_mission_item_send(MAVLINK_COMM_0, msg.sysid, MAV_COMP_ID_MISSIONPLANNER,
+                                seqId, mavFrame, MAV_CMD_NAV_LAND, (navData.missionLeg == seqId) ? 1 : 0, 1,
+                                        0.0f, wp->maxVertSpeed, wp->maxHorizSpeed, wp->poiAltitude, wp->targetLat, wp->targetLon, wp->targetAlt, MAV_MISSION_TYPE_MISSION);
 #else
                         mavlink_msg_mission_item_send(MAVLINK_COMM_0, msg.sysid, MAV_COMP_ID_MISSIONPLANNER,
                                 seqId, mavFrame, MAV_CMD_NAV_LAND, (navData.missionLeg == seqId) ? 1 : 0, 1,
@@ -689,7 +705,9 @@ void mavlinkRecvTaskCode(commRcvrStruct_t *r) {
                     }
                     else {
 #ifdef MAVLINK_V2
-    // TODO mavlink v2
+                        mavlink_msg_mission_item_send(MAVLINK_COMM_0, msg.sysid, MAV_COMP_ID_MISSIONPLANNER,
+                                seqId, mavFrame, MAV_CMD_NAV_WAYPOINT, (navData.missionLeg == seqId) ? 1 : 0, 1,
+                                        wp->targetRadius, wp->loiterTime/1000, 0.0f, wp->poiHeading, wp->targetLat, wp->targetLon, wp->targetAlt, MAV_MISSION_TYPE_MISSION);
 #else
                         mavlink_msg_mission_item_send(MAVLINK_COMM_0, msg.sysid, MAV_COMP_ID_MISSIONPLANNER,
                                 seqId, mavFrame, MAV_CMD_NAV_WAYPOINT, (navData.missionLeg == seqId) ? 1 : 0, 1,
@@ -710,7 +728,7 @@ void mavlinkRecvTaskCode(commRcvrStruct_t *r) {
                     else
                         ack = MAV_MISSION_INVALID_SEQUENCE;
 #ifdef MAVLINK_V2
-    // TODO mavlink v2
+                    mavlink_msg_mission_ack_send(MAVLINK_COMM_0, mavlink_system.sysid, mavlink_system.compid, ack, MAV_MISSION_TYPE_MISSION);
 #else
                     mavlink_msg_mission_ack_send(MAVLINK_COMM_0, mavlink_system.sysid, mavlink_system.compid, ack);
 #endif
@@ -736,7 +754,7 @@ void mavlinkRecvTaskCode(commRcvrStruct_t *r) {
                         ack = MAV_MISSION_ACCEPTED;
                     }
 #ifdef MAVLINK_V2
-    // TODO mavlink v2
+                    mavlink_msg_mission_ack_send(MAVLINK_COMM_0, mavlink_system.sysid, mavlink_system.compid, ack, MAV_MISSION_TYPE_MISSION);
 #else
                     mavlink_msg_mission_ack_send(MAVLINK_COMM_0, mavlink_system.sysid, mavlink_system.compid, ack);
 #endif
@@ -871,7 +889,7 @@ void mavlinkRecvTaskCode(commRcvrStruct_t *r) {
                     mavlinkData.wpAttempt = 0;
                     mavlinkData.nextWP = timerMicros();
 #ifdef MAVLINK_V2
-    // TODO mavlink v2
+                    mavlink_msg_mission_ack_send(MAVLINK_COMM_0, mavlink_system.sysid, mavlink_system.compid, ack, MAV_MISSION_TYPE_MISSION);
 #else
                     mavlink_msg_mission_ack_send(MAVLINK_COMM_0, mavlink_system.sysid, mavlink_system.compid, ack);
 #endif
