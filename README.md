@@ -69,33 +69,25 @@ Unfortunately GitHub makes this a bit more complicated than it should be. To dow
 
 #### Compiling The Firmware
 
-##### Building with CrossWorks for ARM:
+Download [GNU ARM Embedded Toolchain](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads) and follow its `readme.txt` to install the toolchain on your system.
 
-Note: If you already own a full (not eval) license for CrossWorks for ARM, simply install version 2.3.5 from their archives page, open the autoquad.hzp file, and build one of the Release types.  Otherwise, proceed as below.
+##### Building with Eclipse:
 
-1. Install, start, and license (eval is OK) latest version of [CrossWorks for ARM](http://www.rowley.co.uk/arm/index.htm). 
-  1. You may also need to install the `STM32 CPU Support Package` "legacy" version 2.28 (use the `Package Manager` found in `Tools` menu). You can always install it later if the build doesn't work w/out it (we're not actually using anything from this package but CW may complain w/out it).
-2. Download and unpack/install CrossWorks for ARM 2.3.5 from http://www.rowley.co.uk/arm/releases.htm .  (You do not need to run or activate this version, we only need the libraries from here.)
-3. Copy the `lib` folder from CW 2.3.5 install/unpack folder to the installation folder of the latest CW version you installed in step 1.  To avoid conflict with the existing `lib` folder, rename the copied one to `lib-2.3`.  If you are not going to use CW for anything else, you can just replace the existing `lib` folder and skip step 5, below.  You can now completely remove the CW 2.3.5 installation/files.
-4. Open autoquad.hzp file in CrossWorks (the one from step 1).
-5. (Skip this step if you replaced the `lib` folder in step 3.) 
-  1. In the Project Explorer window, expand the `Project 'autoquad'` and then the `Project Properties` trees.
-  2. Double-click the `Additional Input Files` line.
-  3. Replace each occurrence of `$(StudioDir)/lib` with the folder where you copied the CW 2.3.5 libraries to.  For example: `$(StudioDir)/lib-2.3`
-  4. Click OK and you're done.
-6. In Project Explorer window, select the build type from the dropdown menu at the top left.  The build type should match your AQ hardware (version, IMU type, etc). Be sure to select a "Release" type build (not "Debug").
-7. Select `Build Solution` from the main `Build` menu, or press `SHIFT-F7`.  If all goes well, there should be a compiled firmware binary in a subfolder of the `build` directory.
+Note: You will need [Java](https://jdk.java.net/) to run Eclipse.
+
+1. Download and install [Eclipse CDT](https://www.eclipse.org/cdt/).
+2. Install the [GNU MCU Eclipse plug-ins](https://gnu-mcu-eclipse.github.io/).
+3. Open Eclipse and click `File` -> `New` -> `Makefile Project with Existing Code`. In the popup window, select the project folder in `Existing Code Location`. And select `ARM Cross GCC` in the `Toolchain for Indexer Settings` list. The click `Finish`.
+
+4. Right click the project and click `Properties`. Select `C/C++ Build` on the left, then de-select `Use default build command` and set `Build command` to `make BUILD_TYPE=Debug MAV_VER=2 PROJ_ROOT=${CWD}`.
+5. (Optional) Click `C/C++ General` -> `Preprocessor Include Paths` in the Properties window. Switch to `Providers` tab. In the list of providers, click `CDT Cross GCC Built-in Compiler Settings`. Under `Command to get compiler specs`, replace the text in `Command to get compiler specs` with `arm-none-eabi-gcc ${FLAGS} -E -P -v -dD "${INPUTS}"`. Then click `CDT GCC Build Output Parser` and replace the text in `Compiler command pattern` with `arm-none-eabi-(g?cc)|([gc]\+\+)|(clang)`.
+
+6. Right click the project and click `Build Project` to build.
 
 ##### Building with Makefile:
 
-1. Download and unpack/install CrossWorks for ARM 2.3.5 from http://www.rowley.co.uk/arm/releases.htm . It is best to install it to a directory path with no spaces in the names at all. You do not need to run this version, we just need the build toolchain (compiler and libraries).
-2. In a plain-text editor, create a new file in the root of this project named `Makefile.user` (it goes next to the existing `Makefile`).
-3. Enter the following on a line of the new file: `CC_PATH ?= [path to CW]` where "[path to CW]" is the root of your CrossWorks 2.3 installation folder (at minimum, the following folders are expected to be inside the CW install folder: `/gcc/arm-unknown-eabi/bin, lib, include`). Eg. `CC_PATH ?= /usr/share/crossworks_for_arm` or `CC_PATH ?= c:/devel/crossworks_for_arm`.  **On Windows** always use forward slashes in directory paths (see Notes for Windows users, below).
-4. **Windows only:** in `Makefile.user`, also specify a path to the `mkdir` utility, like this:<br>
-    `EXE_MKDIR = c:/GnuWin/bin/mkdir` where the "c:/GnuWin/bin/" part would be wherever you have installed GNU tools (see Notes for Windows users, below). _You can avoid this step if your GNU tools are on the `PATH` before the Windows system folders (see example batch file, below)._
-5. Open a terminal/command prompt and navigate (`cd`) to the root of the project (where the Makefile lives). 
-6. Type the command `make all` and see what happens.  With no other arguments, this should build a default firmware version for AQ6 revision 1 with DIMU. The binary should appear in a new `build/Release` folder.
-7. To change the AQ hardware version, pass `BOARD_VER` and `BOARD_REV` arguments to `make`.  Eg. `make BOARD_VER=8 BOARD_REV=6` to build for M4 rev 6 (M4 v2). Read the `Makefile` for full list of versions and revisions available.
+1. By default a release binary is built. Run `make BUILD_TYPE=Debug` to build debug firmware.
+2. To change the AQ hardware version, pass `BOARD_VER` and `BOARD_REV` arguments to `make`.  Eg. `make BOARD_VER=8 BOARD_REV=6` to build for M4 rev 6 (M4 v2). Read the `Makefile` for full list of versions and revisions available.
 
 ###### Tips for using Makefile
 
@@ -107,8 +99,7 @@ Note: If you already own a full (not eval) license for CrossWorks for ARM, simpl
 
 ```batchfile
 @echo off
-set PATH=c:\devel\GnuWin\bin;C:\Windows\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem
-set CC_PATH=c:/devel/crossworks_for_arm_2.3
+set PATH=c:\devel\gcc-arm-none-eabi\bin;c:\devel\GnuWin\bin;C:\Windows\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem
 set BUILD_TYPE=Release-M4.r6
 set BOARD_VER=8
 set BOARD_REV=6
@@ -125,3 +116,11 @@ Most distributions include an older version of 'make' (3.x). Version 4.x offers 
 
 Note that all directory paths used by `make` should have forward slashes (`/`) instead of typical Windows backslashes (`\`).
 
+#### Debug in Eclipse:
+
+1. Download and install [OpenOCD](http://openocd.org/documentation/) from this [repo](https://github.com/gnu-mcu-eclipse/openocd/releases).
+2. Build the firmware in Eclipse.
+3. Click `Run` -> `Debug Configurations` and double click `GDB OpenOCD Debugging`. The a new target will be created under `GDB OpenOCD Debugging`, click the new target.
+4. Check the elf binary is correct in the `Main` tab.
+5. Switch to `Debugger` tab, check the `Start OpenOCD locally` option and select the executable path for OpenOCD. Type `-f openocd.cfg` in the `Config options` text field. Note that the `openocd.cfg` in this repo is for ST-Link v2 only. If you are using other debug probes, the `openocd.cfg` should be revised.
+6. Click `Apply` button to save the configuration. The click `Debug` button to start a debug session.
