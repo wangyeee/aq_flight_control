@@ -263,6 +263,9 @@ CDEFS+=-DBOARD_VERSION=$(BRD_VER)
 CDEFS+=-DBOARD_REVISION=$(BRD_REV)
 CDEFS+=-DDIMU_VERSION=$(DIMU_VER)
 CDEFS+=$(DEBUG_DEFS)
+ifeq ($(findstring 2, $(MAV_VER)), 2)
+CDEFS+=-DMAVLINK_V2
+endif
 
 MCUFLAGS=-mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -fsingle-precision-constant -finline-functions -Wdouble-promotion -std=gnu99
 COMMONFLAGS=-O$(OPTLVL) $(DBG) -Wall -ffunction-sections -fdata-sections
