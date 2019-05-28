@@ -72,6 +72,17 @@
 
 #ifdef DEBUG_ENABLED
 #define DBG_NO_OPT __attribute__((optimize("O0")))
+enum {
+    r0,
+    r1,
+    r2,
+    r3,
+    r12,
+    lr,
+    pc,
+    psr
+};
+
 #else
 #define DBG_NO_OPT
 #endif

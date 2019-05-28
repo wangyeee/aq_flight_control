@@ -78,14 +78,51 @@ void CoStkOverflowHook(OS_TID taskID) {
         ;
 }
 
+#ifdef DEBUG_ENABLED
+#include <stdio.h>
+void HardFault_RegDump(unsigned int* stack) {
+    __ASM volatile("BKPT #01");
+    printf("SCB->HFSR = 0x%08x\n", (unsigned int) SCB->HFSR);
+    if ((SCB->HFSR & (1 << 30)) != 0) {
+        unsigned int cfsr = SCB->CFSR;
+        if((cfsr & 0xFFFF0000) != 0) {
+            printf("Usage error: CFSR = 0x%08X\n", cfsr);
+        }
+        if((cfsr & 0xFF00) != 0) {
+            printf("Bus fault error: CFSR = 0x%08X\n", cfsr);
+        }
+        if((cfsr & 0xFF) != 0) {
+            printf("Memory management error: CFSR = 0x%08X\n", cfsr);
+        }
+        printf("SCB->CFSR = 0x%08X\n", cfsr);
+    }
+    printf("R0  = 0x%08X\n", stack[r0]);
+    printf("R1  = 0x%08X\n", stack[r1]);
+    printf("R2  = 0x%08X\n", stack[r2]);
+    printf("R3  = 0x%08X\n", stack[r3]);
+    printf("R12 = 0x%08X\n", stack[r12]);
+    printf("LR  = 0x%08X\n", stack[lr]);
+    printf("PC  = 0x%08X\n", stack[pc]);
+    printf("PSR = 0x%08X\n", stack[psr]);
+    __ASM volatile("BKPT #02");
+    for (;;);
+}
+
+void HardFault_Handler(void) {
+    __asm("TST lr, #4");
+    __asm("ITE EQ \n"
+          "MRSEQ r0, MSP \n"
+          "MRSNE r0, PSP");
+    __asm("B HardFault_RegDump");
+}
+#else
 void HardFault_Handler(void) {
     // to avoid the unpredictable flight in case of problems
     motorsOff();
-
     // Go to infinite loop when Hard Fault exception occurs
-    while (1)
-        ;
+    while (1);
 }
+#endif
 
 #ifdef USE_FULL_ASSERT
 void assert_failed(uint8_t* file, uint32_t line) {

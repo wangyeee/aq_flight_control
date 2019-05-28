@@ -2,7 +2,7 @@
 
 # Makefile for AutoQuad Flight Controller firmware
 # All paths are relative to Makefile location. Possible make targets:
-#  all    build firmware .elf, .hex, and .bin binaries
+#  all    build firmware .elf and .bin binaries
 #  swd    attempt to flash firmware via ST-Link (linux only)
 #  dfu    attempt to flash firmware via DFU-Util
 #  sfl    attempt to flash firmware via serial bootloader
@@ -299,8 +299,6 @@ elf: $(OBJ)
 	@$(AS) -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -o $(ASRC:%.s=$(BUILD_DIR)/%.o) $(STARTUP)/$(ASRC)
 	@echo [LD] $(notdir $(BIN_DIR)/$(TARGET).elf)
 	@$(LD) $(LDFLAGS) -o $(BIN_DIR)/$(TARGET).elf $(OBJ) $(ASRC:%.s=$(BUILD_DIR)/%.o) $(LDLIBS)
-	@echo [HEX] $(notdir $(BIN_DIR)/$(TARGET).hex)
-	@$(OBJCOPY) -O ihex $(BIN_DIR)/$(TARGET).elf $(BIN_DIR)/$(TARGET).hex
 	@echo [BIN] $(notdir $(BIN_DIR)/$(TARGET).bin)
 	@$(OBJCOPY) -O binary $(BIN_DIR)/$(TARGET).elf $(BIN_DIR)/$(TARGET).bin
 
@@ -317,7 +315,6 @@ clean:
 	@rm -f $(ASRC:%.s=$(BUILD_DIR)/%.o)
 	@echo [RM] Binaries
 	@rm -f $(BIN_DIR)/$(TARGET).elf
-	@rm -f $(BIN_DIR)/$(TARGET).hex
 	@rm -f $(BIN_DIR)/$(TARGET).bin
 
 # Flash firmware via ST-Link
